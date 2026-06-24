@@ -100,28 +100,33 @@
                 <svg class="h-5 w-5 shrink-0 opacity-80" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
                 Ekspor Excel
             </a>
-        @endif
 
-        @if ($role === UserRole::Asesor)
-            <p class="px-3 pt-5 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Asesor</p>
-            <a href="{{ route('asesor.queue.index') }}" @click="sidebarOpen = false"
-               class="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition {{ $navLink($asesorNeedReview) }}">
-                <svg class="h-5 w-5 shrink-0 opacity-80" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Perlu dinilai
-            </a>
-            <a href="{{ route('asesor.completed.index') }}" @click="sidebarOpen = false"
-               class="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition {{ $navLink($asesorCompletedNav) }}">
-                <svg class="h-5 w-5 shrink-0 opacity-80" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Sudah dinilai
-            </a>
-            <a href="{{ route('asesor.documents.index') }}" @click="sidebarOpen = false"
-               class="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition {{ $navLink($asesorAllDocs) }}">
-                <svg class="h-5 w-5 shrink-0 opacity-80" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"/></svg>
-                Semua dokumen prodi
-            </a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         @endif
 
         @if ($role === UserRole::UnitKerja)
+
+
+
             <p class="px-3 pt-5 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Unit kerja</p>
             <a href="{{ route('unit.submissions.index') }}" @click="sidebarOpen = false"
                class="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition {{ $navLink(request()->routeIs('unit.submissions.*')) }}">

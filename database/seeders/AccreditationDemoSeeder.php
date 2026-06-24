@@ -57,60 +57,168 @@ class AccreditationDemoSeeder extends Seeder
             ]
         );
 
+        $this->seedKriteria9();
+    }
+
+    private function seedKriteria9(): void
+    {
+        // Model: 1 kriteria = 1 Module, lalu butir penilaian/yang diunggah asesor = Requirement.
         $m1 = Module::query()->updateOrCreate(
-            ['name' => 'Kriteria 1: Visi Misi'],
+            ['sort_order' => 1],
             [
-                'description' => 'Kecocokan visi, misi, tujuan, dan strategi dengan SPMI.',
+                'name' => 'Kriteria 1: Visi, Misi, Tujuan, dan Strategi',
+                'description' => 'Arah, komitmen, dan target program studi.',
                 'weight' => 25,
-                'sort_order' => 1,
             ]
         );
 
         $m2 = Module::query()->updateOrCreate(
-            ['name' => 'Kriteria 2: Tata Pamong'],
+            ['sort_order' => 2],
             [
-                'description' => 'Sistem tata pamong, kepemimpinan, sistem pengelolaan, dan penjaminan mutu.',
+                'name' => 'Kriteria 2: Tata Pamong, Tata Kelola, dan Kerjasama',
+                'description' => 'Sistem kepemimpinan, penjaminan mutu, dan kolaborasi.',
                 'weight' => 25,
-                'sort_order' => 2,
             ]
         );
 
         $m3 = Module::query()->updateOrCreate(
-            ['name' => 'Kriteria 3: Mahasiswa'],
+            ['sort_order' => 3],
             [
-                'description' => 'Kemahasiswaan dan layanan akademik.',
+                'name' => 'Kriteria 3: Mahasiswa',
+                'description' => 'Kualitas input, rasio mahasiswa, layanan, dan prestasi.',
                 'weight' => 25,
-                'sort_order' => 3,
             ]
         );
 
         $m4 = Module::query()->updateOrCreate(
-            ['name' => 'Kriteria 4: Sumber Daya Manusia'],
+            ['sort_order' => 4],
             [
-                'description' => 'SDM pendidik dan tenaga kependidikan.',
+                'name' => 'Kriteria 4: Sumber Daya Manusia (SDM)',
+                'description' => 'Kualifikasi, kompetensi, dan beban kerja dosen & tenaga kependidikan.',
                 'weight' => 25,
-                'sort_order' => 4,
             ]
         );
 
+        $m5 = Module::query()->updateOrCreate(
+            ['sort_order' => 5],
+            [
+                'name' => 'Kriteria 5: Keuangan, Sarana, dan Prasarana',
+                'description' => 'Kecukupan dana, fasilitas pembelajaran, dan laboratorium.',
+                'weight' => 25,
+            ]
+        );
+
+        $m6 = Module::query()->updateOrCreate(
+            ['sort_order' => 6],
+            [
+                'name' => 'Kriteria 6: Pendidikan',
+                'description' => 'Kurikulum, proses pembelajaran, dan capaian pembelajaran.',
+                'weight' => 25,
+            ]
+        );
+
+        $m7 = Module::query()->updateOrCreate(
+            ['sort_order' => 7],
+            [
+                'name' => 'Kriteria 7: Penelitian',
+                'description' => 'Kuantitas, kualitas, dan relevansi penelitian dosen & mahasiswa.',
+                'weight' => 25,
+            ]
+        );
+
+        $m8 = Module::query()->updateOrCreate(
+            ['sort_order' => 8],
+            [
+                'name' => 'Kriteria 8: Pengabdian kepada Masyarakat',
+                'description' => 'Penerapan ilmu dan teknologi yang bermanfaat langsung bagi publik.',
+                'weight' => 25,
+            ]
+        );
+
+        $m9 = Module::query()->updateOrCreate(
+            ['sort_order' => 9],
+            [
+                'name' => 'Kriteria 9: Luaran dan Capaian',
+                'description' => 'Capaian Tridharma, prestasi, dan keberhasilan lulusan.',
+                'weight' => 25,
+            ]
+        );
+
+        // Requirement berdasarkan siklus mutu: Penetapan, Pelaksanaan, Evaluasi, Pengendalian, Peningkatan.
         $this->seedRequirements($m1->id, [
-            ['title' => 'Dokumen visi institusi', 'description' => 'PDF visi yang disahkan.', 'sort_order' => 1],
-            ['title' => 'Dokumen misi dan tujuan', 'description' => 'Excel/ PDF rencana strategis.', 'sort_order' => 2],
+            ['title' => 'Penetapan: Standar visi, misi, tujuan, dan strategi prodi', 'description' => 'Dokumen penetapan standar/arah prodi (visi, misi, tujuan, strategi) yang disahkan.', 'sort_order' => 1],
+            ['title' => 'Pelaksanaan: Implementasi visi, misi, tujuan, dan strategi', 'description' => 'Bukti penerapan program/proses kerja harian yang selaras dengan visi, misi, tujuan, dan strategi.', 'sort_order' => 2],
+            ['title' => 'Evaluasi: Penilaian ketercapaian visi, misi, tujuan, dan strategi', 'description' => 'Laporan evaluasi/evidence capaian dan analisis terhadap target yang direncanakan.', 'sort_order' => 3],
+            ['title' => 'Pengendalian: Tindakan korektif atas penyimpangan', 'description' => 'Rekap temuan, analisis akar masalah, dan tindakan korektif/preventif bila terjadi deviasi.', 'sort_order' => 4],
+            ['title' => 'Peningkatan: Perbaikan berkelanjutan standar', 'description' => 'Dokumen pembaruan standar dan peningkatan kinerja berdasarkan hasil evaluasi.', 'sort_order' => 5],
         ]);
 
         $this->seedRequirements($m2->id, [
-            ['title' => 'SK struktur organisasi', 'description' => null, 'sort_order' => 1],
-            ['title' => 'Dokumen SPMI', 'description' => 'Manual mutu terbaru.', 'sort_order' => 2],
+            ['title' => 'Penetapan: Standar tata pamong, tata kelola, dan kerjasama', 'description' => 'Dokumen penetapan struktur, mekanisme kepemimpinan, tata kelola, dan kebijakan kerjasama.', 'sort_order' => 1],
+            ['title' => 'Pelaksanaan: Penerapan tata pamong, tata kelola, dan kerjasama', 'description' => 'Bukti pelaksanaan rapat/keputusan, koordinasi, serta implementasi program kolaborasi/kerjasama.', 'sort_order' => 2],
+            ['title' => 'Evaluasi: Evaluasi efektivitas tata pamong, tata kelola, dan kerjasama', 'description' => 'Laporan evaluasi, audit internal/eksternal (jika ada), dan perbandingan capaian vs standar.', 'sort_order' => 3],
+            ['title' => 'Pengendalian: Tindakan korektif dan perbaikan sistem', 'description' => 'Notulen tindak lanjut, CAPA (corrective action), dan penyesuaian prosedur bila ada penyimpangan.', 'sort_order' => 4],
+            ['title' => 'Peningkatan: Inovasi/peningkatan mutu tata kelola', 'description' => 'Bukti perbaikan berkelanjutan pada sistem tata pamong/tata kelola dan kualitas kolaborasi.', 'sort_order' => 5],
         ]);
 
         $this->seedRequirements($m3->id, [
-            ['title' => 'Panduan akademik mahasiswa', 'description' => null, 'sort_order' => 1],
+            ['title' => 'Penetapan: Standar kualitas input, layanan, dan prestasi mahasiswa', 'description' => 'Dokumen penetapan standar rekrutmen, layanan akademik/nonakademik, serta pengembangan prestasi.', 'sort_order' => 1],
+            ['title' => 'Pelaksanaan: Penerapan standar terhadap mahasiswa', 'description' => 'Bukti pelaksanaan layanan, pembinaan, dan program peningkatan kualitas mahasiswa sesuai standar.', 'sort_order' => 2],
+            ['title' => 'Evaluasi: Evaluasi kualitas input, layanan, dan prestasi', 'description' => 'Laporan evaluasi (mis. tracer awal/monitoring prestasi), perbandingan capaian vs target.', 'sort_order' => 3],
+            ['title' => 'Pengendalian: Koreksi atas temuan layanan/kualitas', 'description' => 'Tindak lanjut temuan (mis. kendala layanan, deviasi rasio/kapasitas) dan perbaikan proses.', 'sort_order' => 4],
+            ['title' => 'Peningkatan: Perbaikan berkelanjutan layanan dan prestasi', 'description' => 'Bukti peningkatan (program baru, revisi kebijakan, hasil perbaikan) berdasarkan evaluasi.', 'sort_order' => 5],
         ]);
 
         $this->seedRequirements($m4->id, [
-            ['title' => 'Profil dosen tetap', 'description' => 'Rekapitulasi SDM.', 'sort_order' => 1],
+            ['title' => 'Penetapan: Standar SDM (dosen & tenaga kependidikan)', 'description' => 'Dokumen penetapan standar kualifikasi, kompetensi, beban kerja, dan pengembangan SDM.', 'sort_order' => 1],
+            ['title' => 'Pelaksanaan: Penerapan standar SDM', 'description' => 'Bukti pelaksanaan (penugasan, peningkatan kompetensi, pemenuhan beban kerja sesuai standar).', 'sort_order' => 2],
+            ['title' => 'Evaluasi: Evaluasi capaian kompetensi dan beban kerja', 'description' => 'Laporan evaluasi terhadap capaian kompetensi, hasil kinerja, dan kesesuaian beban kerja.', 'sort_order' => 3],
+            ['title' => 'Pengendalian: Tindakan korektif penguatan SDM', 'description' => 'Rekap temuan/ketidaksesuaian dan rencana korektif (mis. gap kompetensi, ketidakteraturan beban).', 'sort_order' => 4],
+            ['title' => 'Peningkatan: Pengembangan berkelanjutan SDM', 'description' => 'Bukti program peningkatan berkelanjutan (pelatihan, sertifikasi, coaching) dan dampaknya.', 'sort_order' => 5],
+        ]);
+
+        $this->seedRequirements($m5->id, [
+            ['title' => 'Penetapan: Standar keuangan serta sarana dan prasarana', 'description' => 'Dokumen penetapan standar anggaran, prioritas pengadaan, dan standar pemanfaatan sarpras.', 'sort_order' => 1],
+            ['title' => 'Pelaksanaan: Penerapan standar keuangan dan sarpras', 'description' => 'Bukti realisasi anggaran dan pemanfaatan sarpras (lab, ruang, perangkat) untuk kegiatan prodi.', 'sort_order' => 2],
+            ['title' => 'Evaluasi: Evaluasi kecukupan dan efektivitas sarpras', 'description' => 'Laporan evaluasi pemenuhan standar, rekonsiliasi anggaran/realisasi, dan dampak pemanfaatan.', 'sort_order' => 3],
+            ['title' => 'Pengendalian: Tindakan korektif sarpras & keuangan', 'description' => 'Tindak lanjut temuan (kekurangan, keterlambatan, ketidaksesuaian pemakaian) dan koreksi anggaran/proses.', 'sort_order' => 4],
+            ['title' => 'Peningkatan: Perbaikan berkelanjutan sarpras & pengelolaan keuangan', 'description' => 'Bukti peningkatan layanan/fasilitas dan penguatan tata kelola keuangan berdasarkan evaluasi.', 'sort_order' => 5],
+        ]);
+
+        $this->seedRequirements($m6->id, [
+            ['title' => 'Penetapan: Standar kurikulum dan proses pembelajaran', 'description' => 'Dokumen penetapan kurikulum, CPL, struktur kurikulum, serta standar mutu proses pembelajaran.', 'sort_order' => 1],
+            ['title' => 'Pelaksanaan: Penerapan kurikulum dan proses pembelajaran', 'description' => 'Bukti implementasi (RPS, kontrak perkuliahan, metode pembelajaran, evaluasi pembelajaran).', 'sort_order' => 2],
+            ['title' => 'Evaluasi: Evaluasi capaian pembelajaran', 'description' => 'Laporan evaluasi capaian CPL dan analisis hasil pembelajaran dibanding standar/target.', 'sort_order' => 3],
+            ['title' => 'Pengendalian: Tindakan korektif perbaikan pembelajaran', 'description' => 'Rekap temuan pembelajaran dan tindakan korektif (perbaikan metode, RPS, penilaian).', 'sort_order' => 4],
+            ['title' => 'Peningkatan: Peningkatan berkelanjutan kurikulum & pembelajaran', 'description' => 'Bukti pembaruan kurikulum/proses dan peningkatan kualitas pembelajaran dari hasil evaluasi.', 'sort_order' => 5],
+        ]);
+
+        $this->seedRequirements($m7->id, [
+            ['title' => 'Penetapan: Standar penelitian (kuantitas & kualitas)', 'description' => 'Dokumen penetapan standar roadmap penelitian, kriteria/skim, indikator kuantitas dan kualitas penelitian.', 'sort_order' => 1],
+            ['title' => 'Pelaksanaan: Pelaksanaan penelitian', 'description' => 'Bukti pelaksanaan kegiatan penelitian sesuai standar (skema, kegiatan, luaran sementara).', 'sort_order' => 2],
+            ['title' => 'Evaluasi: Evaluasi hasil penelitian', 'description' => 'Laporan evaluasi hasil penelitian (publikasi/HKI/kinerja) dibandingkan standar.', 'sort_order' => 3],
+            ['title' => 'Pengendalian: Koreksi terhadap deviasi penelitian', 'description' => 'Tindak lanjut atas temuan (mis. keterlambatan, capaian belum memenuhi target) dan perbaikan.', 'sort_order' => 4],
+            ['title' => 'Peningkatan: Perbaikan berkelanjutan mutu penelitian', 'description' => 'Bukti peningkatan kualitas penelitian (strategi, kolaborasi, perbaikan proses) berdasarkan evaluasi.', 'sort_order' => 5],
+        ]);
+
+        $this->seedRequirements($m8->id, [
+            ['title' => 'Penetapan: Standar pengabdian kepada masyarakat', 'description' => 'Dokumen penetapan standar roadmap/peta kebutuhan pengabdian, skema, dan indikator luaran.', 'sort_order' => 1],
+            ['title' => 'Pelaksanaan: Penerapan standar pengabdian', 'description' => 'Bukti pelaksanaan program pengabdian sesuai rencana (kegiatan, mitra, proses).', 'sort_order' => 2],
+            ['title' => 'Evaluasi: Evaluasi dampak pengabdian', 'description' => 'Laporan evaluasi luaran dan dampak pengabdian, dibanding standar dan target.', 'sort_order' => 3],
+            ['title' => 'Pengendalian: Tindakan korektif pengabdian', 'description' => 'Rekap temuan dan tindakan korektif (perbaikan metode, penguatan mitra, penyesuaian program).', 'sort_order' => 4],
+            ['title' => 'Peningkatan: Peningkatan berkelanjutan pengabdian', 'description' => 'Bukti perbaikan/peningkatan program pengabdian dan kualitas luaran berdasarkan evaluasi.', 'sort_order' => 5],
+        ]);
+
+        $this->seedRequirements($m9->id, [
+            ['title' => 'Penetapan: Standar luaran tridharma dan keberhasilan lulusan', 'description' => 'Dokumen penetapan standar capaian luaran (penelitian/pengabdian) dan indikator keberhasilan lulusan.', 'sort_order' => 1],
+            ['title' => 'Pelaksanaan: Penerapan standar luaran dan tracer study', 'description' => 'Bukti pelaksanaan pengukuran luaran dan pelaksanaan tracer study/monitoring lulusan.', 'sort_order' => 2],
+            ['title' => 'Evaluasi: Evaluasi capaian luaran dan keberhasilan lulusan', 'description' => 'Laporan evaluasi capaian luaran dan hasil tracer study dibanding standar/target.', 'sort_order' => 3],
+            ['title' => 'Pengendalian: Koreksi jika capaian tidak memenuhi standar', 'description' => 'Tindak lanjut temuan (mis. capaian luaran, serapan lulusan) dan corrective action.', 'sort_order' => 4],
+            ['title' => 'Peningkatan: Perbaikan berkelanjutan capaian', 'description' => 'Bukti peningkatan berkelanjutan berbasis evaluasi (program perbaikan, strategi peningkatan).', 'sort_order' => 5],
         ]);
     }
+
+
 
     private function seedRequirements(int $moduleId, array $rows): void
     {

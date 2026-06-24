@@ -47,57 +47,63 @@
             </ul>
         </div>
     @elseif ($stats['role'] === UserRole::Asesor)
-        <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <x-stat-card label="Perlu dinilai" :value="$stats['pendingCount']" accent="amber" />
-            <x-stat-card label="Sudah selesai dinilai" :value="$stats['completedCount']" accent="emerald" />
-            <x-stat-card label="Total dokumen (versi terbaru)" :value="$stats['totalTracked']" accent="sky" />
-            <x-stat-card label="Penilaian oleh Anda" :value="$stats['assessedCount']" accent="violet" />
-        </div>
-
-        <div class="mb-6 flex flex-wrap gap-3">
-            <a href="{{ route('asesor.queue.index') }}" class="ui-btn-primary">Antrian perlu dinilai</a>
-            <a href="{{ route('asesor.completed.index') }}" class="ui-btn-secondary">Sudah dinilai</a>
-            <a href="{{ route('asesor.documents.index') }}" class="ui-btn-secondary">Semua dokumen prodi</a>
-        </div>
-
-        <div class="ui-card overflow-hidden">
-            <div class="ui-section-header">
-                <h2 class="text-lg font-bold text-slate-900">Prioritas penilaian</h2>
+        <div class="mb-8 rounded-2xl border border-slate-200/80 bg-white/70 px-4 py-4 shadow-sm">
+            <div class="flex flex-col gap-1">
+                <span class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Asesor</span>
+                <h2 class="text-lg font-bold text-slate-900">9 Kriteria</h2>
+                <p class="text-sm text-slate-600">Tampilan kriteria sebagai referensi (tanpa panel penilaian).</p>
             </div>
-            <ul class="divide-y divide-slate-100">
-                @forelse ($stats['queue'] as $sub)
-                    <li class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 transition hover:bg-violet-50/30">
-                        <div class="min-w-0">
-                            <p class="font-semibold text-slate-900">{{ $sub->requirement->title }}</p>
-                            <p class="text-xs text-slate-500">{{ $sub->requirement->module->name }} — {{ $sub->user->name }}</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="ui-badge {{ $sub->status->badgeClass() }}">{{ $sub->status->label() }}</span>
-                            <a href="{{ route('asesor.submissions.show', $sub) }}" class="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-violet-500">Buka</a>
-                        </div>
-                    </li>
-                @empty
-                    <li class="ui-empty px-6 text-sm">Tidak ada dokumen yang menunggu penilaian.</li>
-                @endforelse
+
+            <ul class="mt-4 space-y-3">
+                <li class="flex gap-3">
+                    <span class="shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">1</span>
+                    <span class="text-sm font-semibold text-slate-900">Visi, Misi, Tujuan, dan Strategi</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">2</span>
+                    <span class="text-sm font-semibold text-slate-900">Tata Pamong, Tata Kelola, dan Kerjasama</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">3</span>
+                    <span class="text-sm font-semibold text-slate-900">Mahasiswa</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">4</span>
+                    <span class="text-sm font-semibold text-slate-900">Sumber Daya Manusia (SDM)</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">5</span>
+                    <span class="text-sm font-semibold text-slate-900">Keuangan, Sarana, dan Prasarana</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">6</span>
+                    <span class="text-sm font-semibold text-slate-900">Pendidikan</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">7</span>
+                    <span class="text-sm font-semibold text-slate-900">Penelitian</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">8</span>
+                    <span class="text-sm font-semibold text-slate-900">Pengabdian kepada Masyarakat</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">9</span>
+                    <span class="text-sm font-semibold text-slate-900">Luaran dan Capaian</span>
+                </li>
             </ul>
         </div>
     @else
+
         <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <x-stat-card label="Sudah dinilai (syarat)" :value="$stats['completedCount'].' / '.$stats['totalRequirements']" accent="emerald" />
-            <x-stat-card label="Menunggu penilaian asesor" :value="$stats['awaitingAssessment']" accent="amber" />
             <x-stat-card label="Belum diunggah" :value="$stats['notUploadedCount']" accent="sky" />
-            <x-stat-card label="Progress dinilai" :value="$stats['progressPercent'].'%'" accent="violet" />
+            <x-stat-card label="Progress upload" :value="$stats['progressPercent'].'%'" accent="violet" />
         </div>
 
-        <div class="mb-6 flex flex-wrap gap-3">
+        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
             <a href="{{ route('unit.submissions.index') }}" class="ui-btn-primary">Kelola unggahan</a>
             <a href="{{ route('unit.reports.pdf') }}" class="ui-btn-secondary">Laporan PDF</a>
         </div>
-
-        <p class="mb-6 text-sm text-slate-600">
-            <strong>Sudah dinilai</strong> = asesor sudah memberi skor pada versi dokumen terbaru untuk persyaratan tersebut.
-            <strong>Menunggu penilaian</strong> = dokumen sudah terunggah tetapi belum selesai dinilai.
-        </p>
 
         @foreach ($stats['modules'] as $module)
             <div class="ui-card mb-8 overflow-hidden">

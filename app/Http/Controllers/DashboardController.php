@@ -109,10 +109,12 @@ class DashboardController extends Controller
             ->get()
             ->keyBy('requirement_id');
 
-        $completedCount = $latestSubmissions->filter(fn (Submission $s) => $s->status === SubmissionStatus::Completed)->count();
-
-        $awaitingAssessment = $latestSubmissions->filter(
-            fn (Submission $s) => in_array($s->status, [SubmissionStatus::Uploaded, SubmissionStatus::UnderReview], true)
+        $uploadedCount = $latestSubmissions->filter(
+            fn (Submission $s) => in_array(
+                $s->status,
+                [SubmissionStatus::Uploaded, SubmissionStatus::UnderReview, SubmissionStatus::Completed],
+                true
+            )
         )->count();
 
         $notUploadedCount = max(0, $totalReq - $latestSubmissions->count());
@@ -121,10 +123,8 @@ class DashboardController extends Controller
             'role' => UserRole::UnitKerja,
             'modules' => $modules,
             'totalRequirements' => $totalReq,
-            'completedCount' => $completedCount,
-            'awaitingAssessment' => $awaitingAssessment,
             'notUploadedCount' => $notUploadedCount,
-            'progressPercent' => $totalReq > 0 ? round(($completedCount / $totalReq) * 100) : 0,
+            'progressPercent' => $totalReq > 0 ? round(($uploadedCount / $totalReq) * 100) : 0,
         ];
     }
 }

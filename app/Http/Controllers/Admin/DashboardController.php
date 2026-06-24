@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Assessment;
 use App\Models\Module;
+
 use App\Models\Requirement;
 use App\Models\Submission;
 use App\Models\User;
@@ -16,6 +17,7 @@ class DashboardController extends Controller
     public function __invoke(): View
     {
         $modules = Module::query()->withCount('requirements')->orderBy('sort_order')->get();
+
 
         $recentUsers = User::query()->orderByDesc('created_at')->limit(8)->get();
         $recentSubmissions = Submission::query()
