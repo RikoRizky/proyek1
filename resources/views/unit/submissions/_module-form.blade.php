@@ -18,7 +18,21 @@
     </div>
 @endif
 
+<div id="upload-progress-panel" class="hidden border-b border-violet-100 bg-violet-50/80 px-6 py-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <p class="text-sm font-semibold text-violet-900">Mengunggah berkas…</p>
+            <p id="upload-progress-label" class="mt-0.5 text-xs text-violet-700">0 / 0</p>
+        </div>
+        <p id="upload-progress-percent" class="text-lg font-bold tabular-nums text-violet-800">0%</p>
+    </div>
+    <div class="mt-3 h-2 overflow-hidden rounded-full bg-violet-100">
+        <div id="upload-progress-bar" class="h-full rounded-full bg-violet-600 transition-all duration-300" style="width: 0%"></div>
+    </div>
+</div>
+
 <form
+    id="module-upload-form"
     action="{{ route('unit.modules.submissions.batch', $module) }}"
     method="post"
     enctype="multipart/form-data"
@@ -26,9 +40,9 @@
     data-upload-form
     data-max-bytes="{{ $maxUploadBytes }}"
     data-max-mb="{{ $maxUploadMb }}"
+    data-csrf="{{ csrf_token() }}"
 >
     @csrf
-    <input type="hidden" name="expected_file_count" value="0" data-expected-file-count>
 
     @foreach ($module->requirements as $req)
         @php
@@ -36,7 +50,7 @@
             $fieldError = $errors->first('files.'.$req->id);
             $hasError = $fieldError !== null;
         @endphp
-        <div class="grid gap-6 px-6 py-6 lg:grid-cols-3 lg:items-end {{ $hasError ? 'bg-red-50/40' : '' }}">
+        <div class="grid gap-6 px-6 py-6 lg:grid-cols-3 lg:items-end {{ $hasError ? 'bg-red-50/40' : '' }}" data-requirement-row="{{ $req->id }}">
             <div class="min-w-0 lg:col-span-2">
                 <p class="text-lg font-semibold text-slate-900">{{ $req->title }}</p>
                 @if ($req->description)
@@ -60,9 +74,15 @@
                 'border-slate-100 bg-gradient-to-b from-slate-50/80 to-white ring-slate-100' => ! $hasError,
             ])>
                 <label class="block text-xs font-bold uppercase tracking-wider {{ $hasError ? 'text-red-700' : 'text-slate-500' }}">Berkas (opsional)</label>
-                <input type="file" name="files[{{ $req->id }}]" accept=".pdf,.xlsx,.xls"
-                       data-requirement-title="{{ $req->title }}"
-                       class="mt-2 block w-full cursor-pointer text-sm text-slate-600 file:mr-3 file:cursor-pointer file:rounded-xl file:border-0 file:bg-violet-100 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-violet-800 hover:file:bg-violet-200">
+                <input
+                    type="file"
+                    name="files[{{ $req->id }}]"
+                    accept=".pdf,.xlsx,.xls"
+                    data-requirement-id="{{ $req->id }}"
+                    data-requirement-title="{{ $req->title }}"
+                    data-upload-url="{{ route('unit.submissions.store', $req) }}"
+                    class="mt-2 block w-full cursor-pointer text-sm text-slate-600 file:mr-3 file:cursor-pointer file:rounded-xl file:border-0 file:bg-violet-100 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-violet-800 hover:file:bg-violet-200"
+                >
                 @error('files.'.$req->id)
                     <p class="mt-2 text-sm font-medium text-red-600">{{ $message }}</p>
                 @enderror
@@ -73,67 +93,133 @@
 
     <div class="flex flex-col gap-3 bg-slate-50/60 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
         <p class="text-xs leading-relaxed text-slate-500">
-            Pilih satu atau semua berkas di atas, lalu simpan sekaligus.
-            {{ \App\Support\AccreditationUpload::uploadLimitHint() }}
+            Pilih satu atau semua berkas, lalu simpan sekaligus. Unggahan berjalan satu per satu agar tidak kena batas server PHP.
+            Maks. {{ $maxUploadMb }} MB per berkas (PDF/Excel).
         </p>
-        <button type="submit" class="ui-btn-primary shrink-0 sm:min-w-[11rem]">Simpan semua berkas</button>
+        <button type="submit" id="module-upload-submit" class="ui-btn-primary shrink-0 sm:min-w-[11rem]">Simpan semua berkas</button>
     </div>
 </form>
 
 <script>
-    document.querySelectorAll('[data-upload-form]').forEach((form) => {
-        form.addEventListener('submit', (event) => {
-            const maxBytes = Number(form.dataset.maxBytes);
-            const maxMb = form.dataset.maxMb;
-            const moduleName = form.closest('.ui-card')?.querySelector('[data-module-title]')?.textContent?.trim() ?? 'modul ini';
-            const oversized = [];
-            let selectedCount = 0;
+    (() => {
+        const form = document.getElementById('module-upload-form');
+        if (!form) return;
 
-            form.querySelectorAll('input[type="file"]').forEach((input) => {
-                const file = input.files?.[0];
-                const clientError = input.parentElement?.querySelector('.js-client-upload-error');
+        const maxBytes = Number(form.dataset.maxBytes);
+        const maxMb = form.dataset.maxMb;
+        const csrf = form.dataset.csrf;
+        const progressPanel = document.getElementById('upload-progress-panel');
+        const progressBar = document.getElementById('upload-progress-bar');
+        const progressLabel = document.getElementById('upload-progress-label');
+        const progressPercent = document.getElementById('upload-progress-percent');
+        const submitBtn = document.getElementById('module-upload-submit');
 
-                if (clientError) {
-                    clientError.classList.add('hidden');
-                    clientError.textContent = '';
-                }
+        const showClientError = (input, message) => {
+            const box = input.closest('.rounded-2xl');
+            const clientError = input.parentElement?.querySelector('.js-client-upload-error');
+            box?.classList.add('border-red-300', 'bg-red-50/80', 'ring-red-200');
+            if (clientError) {
+                clientError.textContent = message;
+                clientError.classList.remove('hidden');
+            }
+        };
 
-                if (!file) {
-                    return;
-                }
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-                selectedCount++;
-
-                if (file.size <= maxBytes) {
-                    return;
-                }
-
-                const title = input.dataset.requirementTitle ?? 'Berkas';
-                const sizeMb = (file.size / 1024 / 1024).toFixed(1).replace('.', ',');
-                const message = `«${title}» pada modul «${moduleName}» terlalu besar (${sizeMb} MB, maks. ${maxMb} MB). Pilih berkas lebih kecil.`;
-
-                oversized.push({ input, message, clientError });
-            });
-
-            form.querySelector('[data-expected-file-count]').value = String(selectedCount);
-
-            if (oversized.length === 0) {
+            const inputs = [...form.querySelectorAll('input[type="file"]')].filter((input) => input.files?.[0]);
+            if (inputs.length === 0) {
+                alert('Pilih minimal satu berkas untuk diunggah.');
                 return;
             }
 
-            event.preventDefault();
-
-            oversized.forEach(({ input, message, clientError }) => {
-                const box = input.closest('.rounded-2xl');
-                box?.classList.add('border-red-300', 'bg-red-50/80', 'ring-red-200');
-
-                if (clientError) {
-                    clientError.textContent = message;
-                    clientError.classList.remove('hidden');
-                }
+            form.querySelectorAll('.js-client-upload-error').forEach((el) => {
+                el.classList.add('hidden');
+                el.textContent = '';
             });
 
-            oversized[0].input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const oversized = [];
+            inputs.forEach((input) => {
+                const file = input.files[0];
+                if (file.size <= maxBytes) return;
+                const title = input.dataset.requirementTitle ?? 'Berkas';
+                const sizeMb = (file.size / 1024 / 1024).toFixed(1).replace('.', ',');
+                oversized.push({ input, message: `«${title}» terlalu besar (${sizeMb} MB, maks. ${maxMb} MB).` });
+            });
+
+            if (oversized.length > 0) {
+                oversized.forEach(({ input, message }) => showClientError(input, message));
+                oversized[0].input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            progressPanel.classList.remove('hidden');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Mengunggah…';
+
+            let completed = 0;
+            let saved = 0;
+            const errors = [];
+
+            const updateProgress = () => {
+                const percent = Math.round((completed / inputs.length) * 100);
+                progressBar.style.width = percent + '%';
+                progressLabel.textContent = completed + ' / ' + inputs.length + ' berkas diproses';
+                progressPercent.textContent = percent + '%';
+            };
+
+            for (const input of inputs) {
+                const file = input.files[0];
+                const url = input.dataset.uploadUrl;
+                const title = input.dataset.requirementTitle ?? 'Berkas';
+
+                progressLabel.textContent = `Mengunggah «${title}» (${completed + 1}/${inputs.length})…`;
+
+                const body = new FormData();
+                body.append('document', file);
+                body.append('_token', csrf);
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body,
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+
+                    const data = await response.json().catch(() => ({}));
+
+                    if (!response.ok) {
+                        errors.push({ input, message: data.message ?? `Gagal mengunggah «${title}».` });
+                        showClientError(input, data.message ?? `Gagal mengunggah «${title}».`);
+                    } else {
+                        saved++;
+                    }
+                } catch {
+                    const message = `Gagal mengunggah «${title}» (koneksi terputus).`;
+                    errors.push({ input, message });
+                    showClientError(input, message);
+                }
+
+                completed++;
+                updateProgress();
+            }
+
+            if (saved > 0) {
+                sessionStorage.setItem('upload_status', saved + ' berkas berhasil disimpan.');
+            }
+
+            if (errors.length > 0 && saved === 0) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Simpan semua berkas';
+                progressPanel.classList.add('hidden');
+                errors[0].input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            window.location.reload();
         });
-    });
+    })();
 </script>

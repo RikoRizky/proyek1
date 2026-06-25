@@ -8,6 +8,7 @@ use App\Models\Module;
 use App\Models\Requirement;
 use App\Models\Submission;
 use App\Models\User;
+use App\Support\UploadProgress;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -24,6 +25,11 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'stats' => $stats,
+            'progress' => match ($user->role) {
+                UserRole::Admin => UploadProgress::forAllUnits(),
+                UserRole::UnitKerja => UploadProgress::forUnit($user),
+                default => null,
+            },
         ]);
     }
 

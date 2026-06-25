@@ -38,4 +38,16 @@
     <div class="ui-card overflow-hidden">
         @include('unit.submissions._module-form', ['module' => $module])
     </div>
+
+    <script>
+        const uploadStatus = sessionStorage.getItem('upload_status');
+        if (uploadStatus) {
+            sessionStorage.removeItem('upload_status');
+            const alert = document.createElement('div');
+            alert.className = 'ui-alert-success mb-6';
+            alert.setAttribute('role', 'status');
+            alert.innerHTML = '<span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white text-xs font-bold">✓</span><span>' + uploadStatus + '</span>';
+            document.querySelector('main')?.prepend(alert);
+        }
+    </script>
 </x-app-layout>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\ReportController;
@@ -7,15 +8,13 @@ use App\Http\Controllers\Admin\RequirementController;
 use App\Http\Controllers\Admin\SubmissionOverviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UnitKerja\ProgressController as UnitProgressController;
 use App\Http\Controllers\UnitKerja\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return auth()->guard()->check()
-        ? redirect()->route('dashboard')
-        : redirect()->route('login');
-});
+Route::get('/', HomeController::class)->name('home');
 
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
@@ -23,6 +22,7 @@ Route::get('/dashboard', DashboardController::class)
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', AdminDashboardController::class)->name('home');
+    Route::get('analytics', AnalyticsController::class)->name('analytics');
 
     Route::resource('users', UserController::class)->except(['show']);
     Route::get('submissions', [SubmissionOverviewController::class, 'index'])->name('submissions.index');
@@ -37,6 +37,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 Route::middleware(['auth', 'role:unit_kerja'])->prefix('unit')->name('unit.')->group(function () {
+    Route::get('progress', UnitProgressController::class)->name('progress');
     Route::get('submissions', [SubmissionController::class, 'index'])->name('submissions.index');
     Route::get('submissions/modul/{module}', [SubmissionController::class, 'module'])->name('submissions.module');
     Route::post('modules/{module}/submissions/batch', [SubmissionController::class, 'batchStore'])->name('modules.submissions.batch');

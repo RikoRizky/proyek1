@@ -92,4 +92,27 @@ class UnitSubmissionBatchUploadTest extends TestCase
 
         $this->assertSame(5, Submission::query()->count());
     }
+
+    public function test_single_file_json_upload_works_for_ajax_client(): void
+    {
+        Storage::fake('local');
+
+        $user = User::factory()->create(['role' => UserRole::UnitKerja]);
+        $module = Module::query()->create(['name' => 'Kriteria Demo', 'sort_order' => 1]);
+        $requirement = Requirement::query()->create([
+            'module_id' => $module->id,
+            'title' => 'Dokumen Valid',
+            'sort_order' => 1,
+        ]);
+
+        $response = $this->actingAs($user)->postJson(route('unit.submissions.store', $requirement), [
+            'document' => UploadedFile::fake()->create('valid.pdf', 512, 'application/pdf'),
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('submission.requirement_id', $requirement->id);
+
+        $this->assertSame(1, Submission::query()->count());
+    }
 }

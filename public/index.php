@@ -2,6 +2,12 @@
 
 use Illuminate\Http\Request;
 
+// Sesuaikan batas unggahan jika SAPI mengizinkan (tidak berlaku untuk semua server).
+@ini_set('upload_max_filesize', '25M');
+@ini_set('post_max_size', '512M');
+@ini_set('max_file_uploads', '100');
+@ini_set('max_input_vars', '5000');
+
 define('LARAVEL_START', microtime(true));
 
 // Determine if the application is in maintenance mode...

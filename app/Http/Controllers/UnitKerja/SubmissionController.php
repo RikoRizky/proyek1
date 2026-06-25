@@ -11,6 +11,7 @@ use App\Models\Requirement;
 use App\Models\Submission;
 use App\Models\User;
 use App\Support\AccreditationUpload;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -139,34 +140,71 @@ class SubmissionController extends Controller
         return $redirect;
     }
 
-    public function store(Request $request, Requirement $requirement): RedirectResponse
+    public function store(Request $request, Requirement $requirement): RedirectResponse|JsonResponse
     {
         $this->authorizeUnitKerja();
 
         $file = $request->file('document');
+        $requirement->load('module');
 
         if (! $file instanceof UploadedFile) {
+            $message = 'Pilih berkas untuk diunggah.';
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $message], 422);
+            }
+
             return redirect()->route('unit.submissions.module', $requirement->module)
-                ->withErrors(['document' => 'Pilih berkas untuk diunggah.']);
+                ->withErrors(['document' => $message]);
         }
 
-        $requirement->load('module');
+        if (! $file->isValid()) {
+            $message = AccreditationUpload::fieldErrorMessage(
+                $requirement->module,
+                $requirement,
+                $file,
+                AccreditationUpload::uploadErrorMessage($file)
+            );
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $message], 422);
+            }
+
+            return redirect()->route('unit.submissions.module', $requirement->module)
+                ->withErrors(['document' => $message]);
+        }
+
         $validationMessage = AccreditationUpload::validateFile($file);
 
         if ($validationMessage !== null) {
+            $message = AccreditationUpload::fieldErrorMessage(
+                $requirement->module,
+                $requirement,
+                $file,
+                $validationMessage
+            );
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $message], 422);
+            }
+
             return redirect()->route('unit.submissions.module', $requirement->module)
-                ->withErrors([
-                    'document' => AccreditationUpload::fieldErrorMessage(
-                        $requirement->module,
-                        $requirement,
-                        $file,
-                        $validationMessage
-                    ),
-                ]);
+                ->withErrors(['document' => $message]);
         }
 
         $user = $request->user();
         $submission = $this->persistSubmission($user, $requirement, $file);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Dokumen berhasil diunggah (versi '.$submission->version.').',
+                'submission' => [
+                    'id' => $submission->id,
+                    'version' => $submission->version,
+                    'requirement_id' => $requirement->id,
+                ],
+            ]);
+        }
 
         return redirect()->route('unit.submissions.module', $requirement->module)
             ->with('status', 'Dokumen berhasil diunggah (versi '.$submission->version.').');

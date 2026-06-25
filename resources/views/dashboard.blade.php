@@ -13,11 +13,30 @@
     </x-slot>
 
     @if ($stats['role'] === UserRole::Admin)
+        @php
+            $summary = $progress['summary'];
+            $unitLabels = collect($progress['units'])->pluck('name')->values()->all();
+            $unitPercents = collect($progress['units'])->pluck('percent')->values()->all();
+        @endphp
+
         <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <x-stat-card label="Total pengguna" :value="$stats['usersCount']" accent="violet" />
             <x-stat-card label="Program studi" :value="$stats['unitCount']" accent="emerald" />
-            <x-stat-card label="Total persyaratan" :value="$stats['totalRequirements']" accent="sky" />
-            <x-stat-card label="Dokumen terunggah (versi terbaru)" :value="$stats['uploadedLatest']" accent="amber" />
+            <x-stat-card label="Rata-rata progress" :value="$summary['average_percent'].'%'" accent="sky" />
+            <x-stat-card label="Prodi lengkap" :value="$summary['complete_count']" accent="amber" />
+        </div>
+
+        <div class="mb-8 grid gap-6 lg:grid-cols-2">
+            <x-chart-card title="Progress per program studi" subtitle="Snapshot kelengkapan unggahan" canvas-id="dashAdminBar" height="280px" />
+            <div class="ui-card flex flex-col justify-center p-6 sm:p-8">
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Analitik</p>
+                <h2 class="mt-2 text-xl font-bold text-slate-900">Perbandingan antar prodi</h2>
+                <p class="mt-2 text-sm text-slate-600">Lihat grafik lengkap, breakdown per kriteria, dan status kelengkapan setiap program studi.</p>
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a href="{{ route('admin.analytics') }}" class="ui-btn-primary text-sm">Buka grafik lengkap</a>
+                    <a href="{{ route('home') }}" class="ui-btn-secondary text-sm">Dashboard publik</a>
+                </div>
+            </div>
         </div>
 
         <div class="ui-card overflow-hidden">
@@ -38,9 +57,37 @@
                 @endforelse
             </ul>
         </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                new Chart(document.getElementById('dashAdminBar'), {
+                    type: 'bar',
+                    data: {
+                        labels: @json($unitLabels),
+                        datasets: [{
+                            label: 'Progress (%)',
+                            data: @json($unitPercents),
+                            backgroundColor: 'rgba(139,92,246,0.85)',
+                            borderRadius: 8,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
+                        },
+                    },
+                });
+            });
+        </script>
     @else
         @php
             $uploadedTotal = $stats['totalRequirements'] - $stats['notUploadedCount'];
+            $moduleLabels = collect($progress['modules'])->pluck('short_label')->values()->all();
+            $modulePercents = collect($progress['modules'])->pluck('percent')->values()->all();
         @endphp
 
         <div class="mb-8 grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
@@ -51,15 +98,18 @@
                         <p class="mt-2 text-4xl font-bold tabular-nums text-slate-900">{{ $stats['progressPercent'] }}%</p>
                         <p class="mt-1 text-sm text-slate-600">{{ $uploadedTotal }} dari {{ $stats['totalRequirements'] }} persyaratan sudah terunggah</p>
                     </div>
-                    <div class="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-center text-white shadow-lg shadow-violet-500/25">
-                        <div>
-                            <p class="text-2xl font-bold">{{ $uploadedTotal }}</p>
-                            <p class="text-[11px] font-semibold uppercase tracking-wider opacity-90">Terunggah</p>
-                        </div>
+                    <div class="flex h-28 w-28 shrink-0 items-center justify-center bg-gradient-to-br from-violet-500 to-indigo-600 text-center text-white shadow-lg shadow-violet-500/25">
+                    <div>
+                        <p class="text-2xl font-bold">{{ $uploadedTotal }}</p>
+                        <p class="text-[11px] font-semibold uppercase tracking-wider opacity-90">Terunggah</p>
                     </div>
+                </div>
                 </div>
                 <div class="mt-6 h-3 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/80">
                     <div class="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all" style="width: {{ $stats['progressPercent'] }}%"></div>
+                </div>
+                <div class="mt-6">
+                    <a href="{{ route('unit.progress') }}" class="text-sm font-semibold text-violet-600 hover:text-violet-500">Lihat grafik lengkap →</a>
                 </div>
             </div>
 
@@ -67,6 +117,10 @@
                 <x-stat-card label="Belum diunggah" :value="$stats['notUploadedCount']" accent="sky" />
                 <x-stat-card label="Total persyaratan" :value="$stats['totalRequirements']" accent="violet" />
             </div>
+        </div>
+
+        <div class="mb-8">
+            <x-chart-card title="Progress per kriteria" subtitle="Kelengkapan dokumen tiap modul" canvas-id="dashUnitBar" height="260px" />
         </div>
 
         <div class="mb-4 flex items-end justify-between gap-4">
@@ -102,5 +156,31 @@
                 </a>
             @endforeach
         </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                new Chart(document.getElementById('dashUnitBar'), {
+                    type: 'bar',
+                    data: {
+                        labels: @json($moduleLabels),
+                        datasets: [{
+                            label: 'Progress (%)',
+                            data: @json($modulePercents),
+                            backgroundColor: 'rgba(99,102,241,0.85)',
+                            borderRadius: 8,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
+                        },
+                    },
+                });
+            });
+        </script>
     @endif
 </x-app-layout>

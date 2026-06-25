@@ -51,11 +51,11 @@
             "@php artisan migrate --graceful --ansi"
         ],
         "serve": [
-            "@php -d upload_max_filesize=25M -d post_max_size=256M -d max_file_uploads=50 -d max_input_vars=3000 artisan serve"
+            "@php -d upload_max_filesize=25M -d post_max_size=512M -d max_file_uploads=100 -d max_input_vars=5000 artisan serve"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php -d upload_max_filesize=25M -d post_max_size=256M -d max_file_uploads=50 -d max_input_vars=3000 artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php -d upload_max_filesize=25M -d post_max_size=512M -d max_file_uploads=100 -d max_input_vars=5000 artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
         ]
     },
     "extra": {
