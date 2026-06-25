@@ -1,5 +1,6 @@
 @php
     use App\Enums\UserRole;
+    use App\Models\Module;
     $role = auth()->user()->role;
 
     $navLink = function (bool $active) {
@@ -7,6 +8,18 @@
             ? 'bg-white/10 text-white shadow-inner ring-1 ring-white/10'
             : 'text-slate-300 hover:bg-white/5 hover:text-white';
     };
+
+    $subNavLink = function (bool $active) {
+        return $active
+            ? 'bg-white/10 text-white ring-1 ring-white/10'
+            : 'text-slate-400 hover:bg-white/5 hover:text-slate-100';
+    };
+
+    $uploadModules = $role === UserRole::UnitKerja
+        ? Module::query()->orderBy('sort_order')->get()
+        : collect();
+
+    $uploadMenuActive = request()->routeIs('unit.submissions.module');
 @endphp
 
 {{-- Mobile top bar (in document flow) --}}
@@ -91,11 +104,31 @@
 
         @if ($role === UserRole::UnitKerja)
             <p class="px-3 pt-5 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Unit kerja</p>
-            <a href="{{ route('unit.submissions.index') }}" @click="sidebarOpen = false"
-               class="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition {{ $navLink(request()->routeIs('unit.submissions.*')) }}">
-                <svg class="h-5 w-5 shrink-0 opacity-80" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75v-2.25M7.5 7.5h9M7.5 10.5h5.25M7.5 4.5v9"/></svg>
-                Unggah dokumen
-            </a>
+
+            <div x-data="{ uploadOpen: {{ $uploadMenuActive ? 'true' : 'false' }} }">
+                <button type="button"
+                        @click="uploadOpen = !uploadOpen"
+                        class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition {{ $uploadMenuActive ? 'bg-white/10 text-white shadow-inner ring-1 ring-white/10' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                    <svg class="h-5 w-5 shrink-0 opacity-80" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75v-2.25M7.5 7.5h9M7.5 10.5h5.25M7.5 4.5v9"/></svg>
+                    <span class="flex-1 text-left">Unggah dokumen</span>
+                    <svg class="h-4 w-4 shrink-0 transition-transform" :class="uploadOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+                </button>
+
+                <div x-show="uploadOpen" x-cloak class="mt-1 space-y-0.5 pl-3">
+                    @foreach ($uploadModules as $uploadModule)
+                        @php
+                            $moduleActive = request()->routeIs('unit.submissions.module') && request()->route('module')?->is($uploadModule);
+                        @endphp
+                        <a href="{{ route('unit.submissions.module', $uploadModule) }}" @click="sidebarOpen = false"
+                           class="block rounded-lg px-3 py-2 text-[13px] font-medium transition {{ $subNavLink($moduleActive) }}"
+                           title="{{ $uploadModule->name }}">
+                            <span class="block truncate">{{ $uploadModule->shortLabel() }}</span>
+                            <span class="mt-0.5 block truncate text-[11px] opacity-70">{{ \Illuminate\Support\Str::after($uploadModule->name, ': ') ?: $uploadModule->name }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
             <a href="{{ route('unit.reports.pdf') }}" @click="sidebarOpen = false"
                class="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">
                 <svg class="h-5 w-5 shrink-0 opacity-80" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>

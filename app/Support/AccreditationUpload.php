@@ -24,6 +24,64 @@ class AccreditationUpload
         return self::maxUploadKb() * 1024;
     }
 
+    public static function maxFileUploads(): int
+    {
+        $value = ini_get('max_file_uploads');
+
+        if ($value === false || $value === '' || $value === '-1') {
+            return 20;
+        }
+
+        return max(1, (int) $value);
+    }
+
+    public static function uploadLimitHint(): string
+    {
+        return 'Maks. '.self::maxUploadMb().' MB per berkas, '
+            .self::maxFileUploads().' berkas sekaligus, '
+            .'total request '.self::iniSizeLabel(ini_get('post_max_size')).'.';
+    }
+
+    /**
+     * @param  array<int|string, UploadedFile|null>  $files
+     */
+    public static function truncatedBatchMessage(int $expectedCount, array $files): ?string
+    {
+        if ($expectedCount < 1) {
+            return null;
+        }
+
+        $receivedCount = collect($files)
+            ->filter(fn ($file) => $file instanceof UploadedFile && $file->getError() !== UPLOAD_ERR_NO_FILE)
+            ->count();
+
+        if ($receivedCount >= $expectedCount) {
+            return null;
+        }
+
+        if ($receivedCount === 0 && ! request()->hasFile('files')) {
+            return 'Server tidak menerima berkas unggahan. Total request mungkin melebihi batas PHP ('
+                .self::iniSizeLabel(ini_get('post_max_size')).'). '
+                .'Coba unggah lebih sedikit berkas sekaligus, atau jalankan ulang dengan `composer serve`.';
+        }
+
+        return 'Hanya '.$receivedCount.' dari '.$expectedCount.' berkas diterima server. '
+            .'Kemungkinan batas PHP (max_file_uploads='.self::maxFileUploads()
+            .', post_max_size='.self::iniSizeLabel(ini_get('post_max_size')).'). '
+            .'Jalankan server dengan `composer serve` atau sesuaikan php.ini / public/.user.ini.';
+    }
+
+    public static function uploadErrorMessage(UploadedFile $file): string
+    {
+        return match ($file->getError()) {
+            UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'Berkas melebihi batas ukuran server ('
+                .self::iniSizeLabel(ini_get('upload_max_filesize')).' per berkas).',
+            UPLOAD_ERR_PARTIAL => 'Berkas hanya terunggah sebagian. Coba lagi.',
+            UPLOAD_ERR_NO_TMP_DIR, UPLOAD_ERR_CANT_WRITE, UPLOAD_ERR_EXTENSION => 'Server gagal menyimpan berkas sementara. Hubungi administrator.',
+            default => 'Berkas tidak valid atau gagal diunggah.',
+        };
+    }
+
     /** @return list<string> */
     public static function allowedMimes(): array
     {

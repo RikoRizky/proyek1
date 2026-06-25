@@ -23,21 +23,25 @@ class SubmissionController extends Controller
 {
     use SendsSubmissionFile;
 
-    public function index(): View
+    public function index(): RedirectResponse
     {
-        $modules = Module::query()
-            ->with(['requirements' => function ($q) {
-                $q->orderBy('sort_order')
-                    ->with(['submissions' => function ($s) {
-                        $s->where('user_id', auth()->id())
-                            ->latestForUnit();
-                    }]);
-            }])
-            ->orderBy('sort_order')
-            ->get();
+        return redirect()->route('dashboard');
+    }
 
-        return view('unit.submissions.index', [
-            'modules' => $modules,
+    public function module(Module $module): View
+    {
+        $this->authorizeUnitKerja();
+
+        $module->load(['requirements' => function ($q) {
+            $q->orderBy('sort_order')
+                ->with(['submissions' => function ($s) {
+                    $s->where('user_id', auth()->id())
+                        ->latestForUnit();
+                }]);
+        }]);
+
+        return view('unit.submissions.module', [
+            'module' => $module,
         ]);
     }
 
@@ -49,10 +53,19 @@ class SubmissionController extends Controller
         $requirements = $module->requirements->keyBy('id');
 
         if ($requirements->isEmpty()) {
-            return redirect()->route('unit.submissions.index')->with('status', 'Modul ini belum memiliki persyaratan.');
+            return redirect()->route('unit.submissions.module', $module)
+                ->with('status', 'Modul ini belum memiliki persyaratan.');
         }
 
         $files = $request->file('files') ?? [];
+        $expectedCount = (int) $request->input('expected_file_count', 0);
+
+        if ($truncatedMessage = AccreditationUpload::truncatedBatchMessage($expectedCount, $files)) {
+            return redirect()->route('unit.submissions.module', $module)
+                ->withErrors(['files' => $truncatedMessage])
+                ->with('upload_partial_failure', true);
+        }
+
         $errors = [];
         $saved = 0;
 
@@ -61,6 +74,10 @@ class SubmissionController extends Controller
 
             foreach ($files as $requirementId => $file) {
                 if (! $file instanceof UploadedFile) {
+                    continue;
+                }
+
+                if ($file->getError() === UPLOAD_ERR_NO_FILE) {
                     continue;
                 }
 
@@ -78,7 +95,7 @@ class SubmissionController extends Controller
                         $module,
                         $requirement,
                         $file,
-                        'Berkas tidak valid atau gagal diunggah.'
+                        AccreditationUpload::uploadErrorMessage($file)
                     );
 
                     continue;
@@ -103,11 +120,11 @@ class SubmissionController extends Controller
         });
 
         if ($saved === 0 && $errors === []) {
-            return redirect()->route('unit.submissions.index')
+            return redirect()->route('unit.submissions.module', $module)
                 ->withErrors(['files' => 'Pilih minimal satu berkas untuk diunggah pada modul ini.']);
         }
 
-        $redirect = redirect()->route('unit.submissions.index');
+        $redirect = redirect()->route('unit.submissions.module', $module);
 
         if ($saved > 0) {
             $redirect->with('status', $saved.' berkas modul «'.$module->name.'» berhasil disimpan.');
@@ -129,7 +146,7 @@ class SubmissionController extends Controller
         $file = $request->file('document');
 
         if (! $file instanceof UploadedFile) {
-            return redirect()->route('unit.submissions.index')
+            return redirect()->route('unit.submissions.module', $requirement->module)
                 ->withErrors(['document' => 'Pilih berkas untuk diunggah.']);
         }
 
@@ -137,7 +154,7 @@ class SubmissionController extends Controller
         $validationMessage = AccreditationUpload::validateFile($file);
 
         if ($validationMessage !== null) {
-            return redirect()->route('unit.submissions.index')
+            return redirect()->route('unit.submissions.module', $requirement->module)
                 ->withErrors([
                     'document' => AccreditationUpload::fieldErrorMessage(
                         $requirement->module,
@@ -151,7 +168,7 @@ class SubmissionController extends Controller
         $user = $request->user();
         $submission = $this->persistSubmission($user, $requirement, $file);
 
-        return redirect()->route('unit.submissions.index')
+        return redirect()->route('unit.submissions.module', $requirement->module)
             ->with('status', 'Dokumen berhasil diunggah (versi '.$submission->version.').');
     }
 

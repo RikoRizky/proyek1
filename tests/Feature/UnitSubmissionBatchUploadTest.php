@@ -37,6 +37,7 @@ class UnitSubmissionBatchUploadTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->post(route('unit.modules.submissions.batch', $module), [
+            'expected_file_count' => 2,
             'files' => [
                 $validRequirement->id => UploadedFile::fake()->create('valid.pdf', 512, 'application/pdf'),
                 $oversizedRequirement->id => UploadedFile::fake()->create('besar.pdf', 25000, 'application/pdf'),
@@ -44,7 +45,7 @@ class UnitSubmissionBatchUploadTest extends TestCase
         ]);
 
         $response
-            ->assertRedirect(route('unit.submissions.index'))
+            ->assertRedirect(route('unit.submissions.module', $module))
             ->assertSessionHas('status')
             ->assertSessionHas('upload_partial_failure')
             ->assertSessionHasErrors('files.'.$oversizedRequirement->id);
@@ -55,5 +56,40 @@ class UnitSubmissionBatchUploadTest extends TestCase
             'user_id' => $user->id,
             'original_filename' => 'valid.pdf',
         ]);
+    }
+
+    public function test_batch_upload_saves_all_files_in_one_request(): void
+    {
+        Storage::fake('local');
+
+        $user = User::factory()->create(['role' => UserRole::UnitKerja]);
+        $module = Module::query()->create([
+            'name' => 'Kriteria Demo',
+            'sort_order' => 1,
+        ]);
+
+        $requirements = collect(range(1, 5))->map(function (int $sortOrder) use ($module) {
+            return Requirement::query()->create([
+                'module_id' => $module->id,
+                'title' => 'Dokumen '.$sortOrder,
+                'sort_order' => $sortOrder,
+            ]);
+        });
+
+        $files = $requirements->mapWithKeys(fn (Requirement $requirement) => [
+            $requirement->id => UploadedFile::fake()->create('file-'.$requirement->sort_order.'.pdf', 256, 'application/pdf'),
+        ])->all();
+
+        $response = $this->actingAs($user)->post(route('unit.modules.submissions.batch', $module), [
+            'expected_file_count' => 5,
+            'files' => $files,
+        ]);
+
+        $response
+            ->assertRedirect(route('unit.submissions.module', $module))
+            ->assertSessionHas('status')
+            ->assertSessionDoesntHaveErrors();
+
+        $this->assertSame(5, Submission::query()->count());
     }
 }

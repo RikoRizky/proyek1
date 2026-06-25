@@ -38,6 +38,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 Route::middleware(['auth', 'role:unit_kerja'])->prefix('unit')->name('unit.')->group(function () {
     Route::get('submissions', [SubmissionController::class, 'index'])->name('submissions.index');
+    Route::get('submissions/modul/{module}', [SubmissionController::class, 'module'])->name('submissions.module');
     Route::post('modules/{module}/submissions/batch', [SubmissionController::class, 'batchStore'])->name('modules.submissions.batch');
     Route::post('requirements/{requirement}/submissions', [SubmissionController::class, 'store'])->name('submissions.store');
     Route::get('submissions/{submission}/view', [SubmissionController::class, 'viewer'])->name('submissions.view');

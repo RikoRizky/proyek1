@@ -10,7 +10,7 @@
     <div class="mb-6 flex flex-wrap gap-3">
         <a href="{{ route('unit.submissions.view', $submission) }}" class="ui-btn-primary">Lihat di aplikasi</a>
         <a href="{{ route('unit.submissions.download', $submission) }}" class="ui-btn-secondary">Unduh versi ini</a>
-        <a href="{{ route('unit.submissions.index') }}" class="ui-btn-secondary">Kembali</a>
+        <a href="{{ route('unit.submissions.module', $submission->requirement->module) }}" class="ui-btn-secondary">Kembali</a>
     </div>
 
     <div class="ui-table-wrap">
