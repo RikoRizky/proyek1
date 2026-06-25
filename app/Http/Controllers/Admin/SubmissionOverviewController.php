@@ -24,7 +24,7 @@ class SubmissionOverviewController extends Controller
             ->where('role', UserRole::UnitKerja)
             ->with(['submissions' => function ($query) {
                 $query->latestForUnit()
-                    ->with(['requirement.module', 'assessment.asesor'])
+                    ->with(['requirement.module'])
                     ->orderBy('requirement_id');
             }])
             ->when($q !== '', function ($query) use ($q) {

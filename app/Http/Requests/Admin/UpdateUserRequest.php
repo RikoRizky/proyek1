@@ -23,7 +23,7 @@ class UpdateUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($target->id)],
             'password' => ['nullable', 'confirmed', Password::defaults()],
-            'role' => ['required', Rule::in([UserRole::Admin->value, UserRole::Asesor->value, UserRole::UnitKerja->value])],
+            'role' => ['required', Rule::in([UserRole::Admin->value, UserRole::UnitKerja->value])],
         ];
     }
 }

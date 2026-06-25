@@ -31,7 +31,6 @@
                             <tr>
                                 <th>Modul / syarat</th>
                                 <th>Status</th>
-                                <th>Skor</th>
                                 <th class="text-right">Aksi</th>
                             </tr>
                         </thead>
@@ -43,7 +42,6 @@
                                         <div class="max-w-md font-medium text-slate-900">{{ $sub->requirement->title }}</div>
                                     </td>
                                     <td><span class="ui-badge {{ $sub->status->badgeClass() }}">{{ $sub->status->label() }}</span></td>
-                                    <td class="font-semibold tabular-nums">{{ $sub->assessment?->score ?? '—' }}</td>
                                     <td class="text-right space-x-2 text-sm font-semibold">
                                         <a href="{{ route('admin.submissions.view', $sub) }}" class="text-violet-600 hover:text-violet-500">Lihat</a>
                                         <a href="{{ route('admin.submissions.download', $sub) }}" class="text-slate-600 hover:text-slate-900">Unduh</a>

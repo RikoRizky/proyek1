@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\SubmissionStatus;
 use App\Enums\UserRole;
-use App\Models\Assessment;
 use App\Models\Module;
 use App\Models\Requirement;
 use App\Models\Submission;
@@ -20,7 +19,6 @@ class DashboardController extends Controller
 
         $stats = match ($user->role) {
             UserRole::Admin => $this->adminStats(),
-            UserRole::Asesor => $this->asesorStats(),
             UserRole::UnitKerja => $this->unitStats($user),
         };
 
@@ -36,56 +34,18 @@ class DashboardController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        $uploadedLatest = Submission::query()
+            ->latestForUnit()
+            ->where('status', SubmissionStatus::Uploaded)
+            ->count();
+
         return [
             'role' => UserRole::Admin,
             'modules' => $modules,
             'usersCount' => User::query()->count(),
             'unitCount' => User::query()->where('role', UserRole::UnitKerja)->count(),
-            'asesorCount' => User::query()->where('role', UserRole::Asesor)->count(),
             'totalRequirements' => Requirement::query()->count(),
-            'completedLatest' => Submission::query()
-                ->latestForUnit()
-                ->where('status', SubmissionStatus::Completed)
-                ->count(),
-            'assessmentsCount' => Assessment::query()->count(),
-        ];
-    }
-
-    private function asesorStats(): array
-    {
-        $queue = Submission::query()
-            ->latestForUnit()
-            ->with(['requirement.module', 'user'])
-            ->whereHas('user', fn ($q) => $q->where('role', UserRole::UnitKerja))
-            ->whereIn('status', [SubmissionStatus::Uploaded, SubmissionStatus::UnderReview])
-            ->orderByDesc('updated_at')
-            ->limit(8)
-            ->get();
-
-        $pendingCount = Submission::query()
-            ->latestForUnit()
-            ->whereHas('user', fn ($q) => $q->where('role', UserRole::UnitKerja))
-            ->whereIn('status', [SubmissionStatus::Uploaded, SubmissionStatus::UnderReview])
-            ->count();
-
-        $completedCount = Submission::query()
-            ->latestForUnit()
-            ->whereHas('user', fn ($q) => $q->where('role', UserRole::UnitKerja))
-            ->where('status', SubmissionStatus::Completed)
-            ->count();
-
-        $totalTracked = Submission::query()
-            ->latestForUnit()
-            ->whereHas('user', fn ($q) => $q->where('role', UserRole::UnitKerja))
-            ->count();
-
-        return [
-            'role' => UserRole::Asesor,
-            'queue' => $queue,
-            'pendingCount' => $pendingCount,
-            'completedCount' => $completedCount,
-            'totalTracked' => $totalTracked,
-            'assessedCount' => Assessment::query()->where('asesor_id', auth()->id())->count(),
+            'uploadedLatest' => $uploadedLatest,
         ];
     }
 
@@ -95,7 +55,7 @@ class DashboardController extends Controller
             ->with(['requirements' => function ($q) use ($user) {
                 $q->orderBy('sort_order')
                     ->with(['submissions' => function ($s) use ($user) {
-                        $s->where('user_id', $user->id)->latestForUnit()->with('assessment');
+                        $s->where('user_id', $user->id)->latestForUnit();
                     }]);
             }])
             ->orderBy('sort_order')
@@ -110,11 +70,7 @@ class DashboardController extends Controller
             ->keyBy('requirement_id');
 
         $uploadedCount = $latestSubmissions->filter(
-            fn (Submission $s) => in_array(
-                $s->status,
-                [SubmissionStatus::Uploaded, SubmissionStatus::UnderReview, SubmissionStatus::Completed],
-                true
-            )
+            fn (Submission $s) => $s->status === SubmissionStatus::Uploaded
         )->count();
 
         $notUploadedCount = max(0, $totalReq - $latestSubmissions->count());

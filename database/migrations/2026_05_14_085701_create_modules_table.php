@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->decimal('weight', 8, 2)->default(0);
             $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();
         });

@@ -30,8 +30,7 @@ class SubmissionController extends Controller
                 $q->orderBy('sort_order')
                     ->with(['submissions' => function ($s) {
                         $s->where('user_id', auth()->id())
-                            ->latestForUnit()
-                            ->with('assessment');
+                            ->latestForUnit();
                     }]);
             }])
             ->orderBy('sort_order')
@@ -164,10 +163,9 @@ class SubmissionController extends Controller
             ->where('requirement_id', $submission->requirement_id)
             ->where('user_id', $submission->user_id)
             ->orderByDesc('version')
-            ->with('assessment.asesor')
             ->get();
 
-        $submission->load(['requirement.module', 'assessment.asesor']);
+        $submission->load(['requirement.module']);
 
         return view('unit.submissions.show', compact('submission', 'history'));
     }

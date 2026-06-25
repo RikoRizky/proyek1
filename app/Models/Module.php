@@ -13,16 +13,8 @@ class Module extends Model
     protected $fillable = [
         'name',
         'description',
-        'weight',
         'sort_order',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'weight' => 'decimal:2',
-        ];
-    }
 
     public function requirements(): HasMany
     {

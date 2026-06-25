@@ -27,7 +27,6 @@ class ModuleController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'weight' => ['required', 'numeric', 'min:0', 'max:100'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
@@ -53,7 +52,6 @@ class ModuleController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'weight' => ['required', 'numeric', 'min:0', 'max:100'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 

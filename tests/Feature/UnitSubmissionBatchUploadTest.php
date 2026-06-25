@@ -23,7 +23,6 @@ class UnitSubmissionBatchUploadTest extends TestCase
         $user = User::factory()->create(['role' => UserRole::UnitKerja]);
         $module = Module::query()->create([
             'name' => 'Kriteria Demo',
-            'weight' => 25,
             'sort_order' => 1,
         ]);
         $validRequirement = Requirement::query()->create([

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\SubmissionStatus;
 use App\Enums\UserRole;
-use App\Exports\AccreditationReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\Submission;
@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use App\Exports\AccreditationReportExport;
 
 class ReportController extends Controller
 {
@@ -59,7 +60,7 @@ class ReportController extends Controller
     }
 
     /**
-     * @return list<array{user: User, modules: Collection, weightedTotal: float}>
+     * @return list<array{user: User, modules: Collection, uploadedCount: int, totalRequirements: int, progressPercent: int}>
      */
     private function summariesForExport(?User $onlyUnit): array
     {
@@ -70,43 +71,41 @@ class ReportController extends Controller
             ->get();
 
         $modules = Module::query()->with('requirements')->orderBy('sort_order')->get();
+        $totalRequirements = $modules->sum(fn (Module $m) => $m->requirements->count());
 
-        return $units->map(function (User $unit) use ($modules) {
+        return $units->map(function (User $unit) use ($modules, $totalRequirements) {
             $moduleRows = $modules->map(function (Module $module) use ($unit) {
-                $scores = [];
+                $uploaded = 0;
+                $total = $module->requirements->count();
+
                 foreach ($module->requirements as $requirement) {
                     $submission = Submission::query()
                         ->where('requirement_id', $requirement->id)
                         ->where('user_id', $unit->id)
                         ->latestForUnit()
-                        ->with('assessment')
                         ->first();
 
-                    if ($submission?->assessment) {
-                        $scores[] = (int) $submission->assessment->score;
+                    if ($submission?->status === SubmissionStatus::Uploaded) {
+                        $uploaded++;
                     }
                 }
 
-                $avg = count($scores) ? round(array_sum($scores) / count($scores), 2) : null;
-                $contribution = $avg !== null ? round($avg * ((float) $module->weight / 100), 2) : null;
-
                 return [
                     'module' => $module,
-                    'average' => $avg,
-                    'weight' => (float) $module->weight,
-                    'contribution' => $contribution,
+                    'uploaded' => $uploaded,
+                    'total' => $total,
+                    'progressPercent' => $total > 0 ? round(($uploaded / $total) * 100) : 0,
                 ];
             });
 
-            $weightedTotal = round(
-                (float) $moduleRows->sum(fn (array $r) => $r['contribution'] ?? 0),
-                2
-            );
+            $uploadedCount = (int) $moduleRows->sum('uploaded');
 
             return [
                 'user' => $unit,
                 'modules' => $moduleRows,
-                'weightedTotal' => $weightedTotal,
+                'uploadedCount' => $uploadedCount,
+                'totalRequirements' => $totalRequirements,
+                'progressPercent' => $totalRequirements > 0 ? round(($uploadedCount / $totalRequirements) * 100) : 0,
             ];
         })->all();
     }
@@ -130,7 +129,6 @@ class ReportController extends Controller
                         ->where('requirement_id', $requirement->id)
                         ->where('user_id', $unit->id)
                         ->latestForUnit()
-                        ->with('assessment.asesor')
                         ->first();
 
                     $rows->push([
@@ -138,10 +136,10 @@ class ReportController extends Controller
                         $unit->email,
                         $module->name,
                         $requirement->title,
-                        $submission?->status?->label() ?? 'Pending',
+                        $submission?->status?->label() ?? 'Menunggu unggah',
                         $submission?->version,
-                        $submission?->assessment?->score,
-                        $submission?->assessment?->asesor?->name,
+                        $submission?->original_filename,
+                        $submission?->updated_at?->translatedFormat('d M Y H:i'),
                     ]);
                 }
             }

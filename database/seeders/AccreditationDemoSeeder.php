@@ -10,8 +10,8 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Data demo: admin, asesor, satu program studi, modul, dan persyaratan.
- * Akun program studi tambahan sebaiknya dibuat lewat panel Admin → Akun prodi & asesor.
+ * Data demo: admin, program studi, modul, dan persyaratan.
+ * Akun program studi tambahan sebaiknya dibuat lewat panel Admin → Akun program studi.
  */
 class AccreditationDemoSeeder extends Seeder
 {
@@ -23,16 +23,6 @@ class AccreditationDemoSeeder extends Seeder
                 'name' => 'Administrator',
                 'password' => Hash::make('Admin123'),
                 'role' => UserRole::Admin,
-                'email_verified_at' => now(),
-            ]
-        );
-
-        User::query()->updateOrCreate(
-            ['email' => 'asesor@gmail.com'],
-            [
-                'name' => 'Asesor Demo',
-                'password' => Hash::make('Asesor123'),
-                'role' => UserRole::Asesor,
                 'email_verified_at' => now(),
             ]
         );
@@ -62,13 +52,12 @@ class AccreditationDemoSeeder extends Seeder
 
     private function seedKriteria9(): void
     {
-        // Model: 1 kriteria = 1 Module, lalu butir penilaian/yang diunggah asesor = Requirement.
+        // Model: 1 kriteria = 1 Module, lalu butir yang diunggah prodi = Requirement.
         $m1 = Module::query()->updateOrCreate(
             ['sort_order' => 1],
             [
                 'name' => 'Kriteria 1: Visi, Misi, Tujuan, dan Strategi',
                 'description' => 'Arah, komitmen, dan target program studi.',
-                'weight' => 25,
             ]
         );
 
@@ -77,7 +66,6 @@ class AccreditationDemoSeeder extends Seeder
             [
                 'name' => 'Kriteria 2: Tata Pamong, Tata Kelola, dan Kerjasama',
                 'description' => 'Sistem kepemimpinan, penjaminan mutu, dan kolaborasi.',
-                'weight' => 25,
             ]
         );
 
@@ -86,7 +74,6 @@ class AccreditationDemoSeeder extends Seeder
             [
                 'name' => 'Kriteria 3: Mahasiswa',
                 'description' => 'Kualitas input, rasio mahasiswa, layanan, dan prestasi.',
-                'weight' => 25,
             ]
         );
 
@@ -95,7 +82,6 @@ class AccreditationDemoSeeder extends Seeder
             [
                 'name' => 'Kriteria 4: Sumber Daya Manusia (SDM)',
                 'description' => 'Kualifikasi, kompetensi, dan beban kerja dosen & tenaga kependidikan.',
-                'weight' => 25,
             ]
         );
 
@@ -104,7 +90,6 @@ class AccreditationDemoSeeder extends Seeder
             [
                 'name' => 'Kriteria 5: Keuangan, Sarana, dan Prasarana',
                 'description' => 'Kecukupan dana, fasilitas pembelajaran, dan laboratorium.',
-                'weight' => 25,
             ]
         );
 
@@ -113,7 +98,6 @@ class AccreditationDemoSeeder extends Seeder
             [
                 'name' => 'Kriteria 6: Pendidikan',
                 'description' => 'Kurikulum, proses pembelajaran, dan capaian pembelajaran.',
-                'weight' => 25,
             ]
         );
 
@@ -122,7 +106,6 @@ class AccreditationDemoSeeder extends Seeder
             [
                 'name' => 'Kriteria 7: Penelitian',
                 'description' => 'Kuantitas, kualitas, dan relevansi penelitian dosen & mahasiswa.',
-                'weight' => 25,
             ]
         );
 
@@ -131,7 +114,6 @@ class AccreditationDemoSeeder extends Seeder
             [
                 'name' => 'Kriteria 8: Pengabdian kepada Masyarakat',
                 'description' => 'Penerapan ilmu dan teknologi yang bermanfaat langsung bagi publik.',
-                'weight' => 25,
             ]
         );
 
@@ -140,7 +122,6 @@ class AccreditationDemoSeeder extends Seeder
             [
                 'name' => 'Kriteria 9: Luaran dan Capaian',
                 'description' => 'Capaian Tridharma, prestasi, dan keberhasilan lulusan.',
-                'weight' => 25,
             ]
         );
 

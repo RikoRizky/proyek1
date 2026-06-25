@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-    <h1>Laporan ringkasan akreditasi</h1>
+    <h1>Laporan ringkasan unggahan akreditasi</h1>
     <p class="muted">Dihasilkan: {{ $generatedAt->translatedFormat('d F Y H:i') }}</p>
 
     @foreach ($summaries as $block)
@@ -25,23 +25,23 @@
                 <thead>
                     <tr>
                         <th>Modul</th>
-                        <th>Bobot (%)</th>
-                        <th>Rata skor</th>
-                        <th>Kontribusi</th>
+                        <th>Terunggah</th>
+                        <th>Total persyaratan</th>
+                        <th>Progress</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($block['modules'] as $row)
                         <tr>
                             <td>{{ $row['module']->name }}</td>
-                            <td>{{ number_format($row['weight'], 2) }}</td>
-                            <td>{{ $row['average'] !== null ? number_format($row['average'], 2) : '—' }}</td>
-                            <td>{{ $row['contribution'] !== null ? number_format($row['contribution'], 2) : '—' }}</td>
+                            <td>{{ $row['uploaded'] }}</td>
+                            <td>{{ $row['total'] }}</td>
+                            <td>{{ $row['progressPercent'] }}%</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-            <p class="total">Total tertimbang (skala 1–4): {{ number_format($block['weightedTotal'], 2) }}</p>
+            <p class="total">Total progress: {{ $block['uploadedCount'] }} / {{ $block['totalRequirements'] }} ({{ $block['progressPercent'] }}%)</p>
         </div>
     @endforeach
 </body>

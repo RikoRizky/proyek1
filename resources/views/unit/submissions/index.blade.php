@@ -37,7 +37,6 @@
             <div class="ui-section-header">
                 <div>
                     <h2 class="text-lg font-bold text-slate-900">{{ $module->name }}</h2>
-                    <p class="mt-0.5 text-xs font-medium text-slate-500">Bobot modul {{ number_format($module->weight, 2) }}%</p>
                 </div>
             </div>
 
@@ -70,9 +69,6 @@
                                 @if ($latest)
                                     <span class="ui-badge {{ $latest->status->badgeClass() }}">{{ $latest->status->label() }}</span>
                                     <span class="text-xs font-medium text-slate-500">Versi {{ $latest->version }}</span>
-                                    @if ($latest->assessment)
-                                        <span class="rounded-lg bg-slate-900 px-2 py-0.5 text-xs font-bold text-white">Skor {{ $latest->assessment->score }}</span>
-                                    @endif
                                     <a href="{{ route('unit.submissions.view', $latest) }}" class="text-sm font-semibold text-violet-600 hover:text-violet-500">Lihat dokumen</a>
                                     <span class="text-slate-300">·</span>
                                     <a href="{{ route('unit.submissions.show', $latest) }}" class="text-sm font-semibold text-slate-600 hover:text-slate-500">Riwayat</a>

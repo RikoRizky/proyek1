@@ -26,8 +26,8 @@ class AccreditationReportExport implements FromCollection, WithHeadings
             'Persyaratan',
             'Status',
             'Versi Dokumen',
-            'Skor (1-4)',
-            'Asesor',
+            'Nama Berkas',
+            'Terakhir Diperbarui',
         ];
     }
 }

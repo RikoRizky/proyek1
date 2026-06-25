@@ -39,11 +39,6 @@ class User extends Authenticatable
         return $this->role === UserRole::Admin;
     }
 
-    public function isAsesor(): bool
-    {
-        return $this->role === UserRole::Asesor;
-    }
-
     public function isUnitKerja(): bool
     {
         return $this->role === UserRole::UnitKerja;
@@ -52,10 +47,5 @@ class User extends Authenticatable
     public function submissions(): HasMany
     {
         return $this->hasMany(Submission::class);
-    }
-
-    public function assessments(): HasMany
-    {
-        return $this->hasMany(Assessment::class, 'asesor_id');
     }
 }

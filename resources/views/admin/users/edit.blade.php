@@ -24,7 +24,7 @@
             <div>
                 <label class="block text-sm font-semibold text-slate-700">Peran</label>
                 <select name="role" class="ui-input mt-2" required @if($user->id === auth()->id()) disabled @endif>
-                    @foreach ([\App\Enums\UserRole::Admin, \App\Enums\UserRole::Asesor, \App\Enums\UserRole::UnitKerja] as $r)
+                    @foreach ([\App\Enums\UserRole::Admin, \App\Enums\UserRole::UnitKerja] as $r)
                         <option value="{{ $r->value }}" @selected(old('role', $user->role->value) === $r->value)>{{ $r->label() }}</option>
                     @endforeach
                 </select>

@@ -4,7 +4,6 @@
             <div>
                 <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Modul</p>
                 <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $module->name }}</h1>
-                <p class="mt-1 text-sm text-slate-600">Bobot {{ number_format($module->weight, 2) }}%</p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <a href="{{ route('admin.modules.requirements.index', $module) }}" class="ui-btn-primary text-sm">Persyaratan</a>

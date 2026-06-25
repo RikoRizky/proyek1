@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Jika false, hanya admin yang dapat membuat akun program studi (unit kerja)
-    | dan asesor melalui panel admin. Prodi tidak dapat mendaftar sendiri.
+    | melalui panel admin. Prodi tidak dapat mendaftar sendiri.
     |
     */
 

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Submission extends Model
 {
@@ -41,11 +40,6 @@ class Submission extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function assessment(): HasOne
-    {
-        return $this->hasOne(Assessment::class);
     }
 
     public function scopeLatestForUnit(Builder $query): Builder

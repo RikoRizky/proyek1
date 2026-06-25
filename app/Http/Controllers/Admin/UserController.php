@@ -15,7 +15,7 @@ class UserController extends Controller
     public function index(): View
     {
         $users = User::query()
-            ->orderByRaw("CASE role WHEN 'admin' THEN 1 WHEN 'asesor' THEN 2 WHEN 'unit_kerja' THEN 3 END")
+            ->orderByRaw("CASE role WHEN 'admin' THEN 1 WHEN 'unit_kerja' THEN 2 END")
             ->orderBy('name')
             ->paginate(20);
 
