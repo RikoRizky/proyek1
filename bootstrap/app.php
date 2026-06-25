@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Middleware\EnsureUserRole;
+use App\Support\AccreditationUpload;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\PostTooLargeException;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,9 +16,26 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'role' => \App\Http\Middleware\EnsureUserRole::class,
+            'role' => EnsureUserRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (PostTooLargeException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Total ukuran unggahan melebihi batas server.',
+                ], 413);
+            }
+
+            $postLimit = AccreditationUpload::iniSizeLabel(ini_get('post_max_size'));
+            $maxMb = AccreditationUpload::maxUploadMb();
+
+            return redirect()
+                ->back()
+                ->withErrors([
+                    'files' => 'Total ukuran unggahan melebihi batas server ('.$postLimit.'). '
+                        .'Unggah lebih sedikit berkas sekaligus atau perkecil ukuran berkas (maks. '.$maxMb.' MB per berkas). '
+                        .'Jika batas server terlalu kecil, jalankan ulang dengan `composer serve` atau sesuaikan post_max_size di php.ini.',
+                ]);
+        });
     })->create();

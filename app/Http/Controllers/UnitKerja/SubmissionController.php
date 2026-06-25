@@ -9,8 +9,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\Requirement;
 use App\Models\Submission;
+use App\Models\User;
+use App\Support\AccreditationUpload;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -43,112 +46,114 @@ class SubmissionController extends Controller
     {
         $this->authorizeUnitKerja();
 
-        $requirementIds = $module->requirements()->pluck('id')->all();
-        if ($requirementIds === []) {
+        $module->load(['requirements' => fn ($q) => $q->orderBy('sort_order')]);
+        $requirements = $module->requirements->keyBy('id');
+
+        if ($requirements->isEmpty()) {
             return redirect()->route('unit.submissions.index')->with('status', 'Modul ini belum memiliki persyaratan.');
         }
 
-        $rules = [];
-        foreach ($requirementIds as $id) {
-            $rules['files.'.$id] = ['nullable', 'file', 'mimes:pdf,xlsx,xls', 'max:20480'];
-        }
-
-        $validated = $request->validate($rules);
-
-        $files = $validated['files'] ?? [];
+        $files = $request->file('files') ?? [];
+        $errors = [];
         $saved = 0;
 
-        DB::transaction(function () use ($files, $request, $module, &$saved) {
+        DB::transaction(function () use ($files, $requirements, $module, $request, &$errors, &$saved) {
             $user = $request->user();
+
             foreach ($files as $requirementId => $file) {
-                if (! $file || ! $file->isValid()) {
+                if (! $file instanceof UploadedFile) {
                     continue;
                 }
 
                 $requirementId = (int) $requirementId;
-                $requirement = Requirement::query()
-                    ->where('id', $requirementId)
-                    ->where('module_id', $module->id)
-                    ->first();
+                $requirement = $requirements->get($requirementId);
+
                 if (! $requirement) {
                     continue;
                 }
 
-                $latest = Submission::query()
-                    ->where('requirement_id', $requirement->id)
-                    ->where('user_id', $user->id)
-                    ->orderByDesc('version')
-                    ->first();
+                $field = 'files.'.$requirementId;
 
-                $nextVersion = $latest ? $latest->version + 1 : 1;
+                if (! $file->isValid()) {
+                    $errors[$field] = AccreditationUpload::fieldErrorMessage(
+                        $module,
+                        $requirement,
+                        $file,
+                        'Berkas tidak valid atau gagal diunggah.'
+                    );
 
-                if ($latest) {
-                    $latest->update(['is_latest' => false]);
+                    continue;
                 }
 
-                $path = $file->store("accreditation/{$user->id}/{$requirement->id}", 'local');
+                $validationMessage = AccreditationUpload::validateFile($file);
 
-                Submission::query()->create([
-                    'requirement_id' => $requirement->id,
-                    'user_id' => $user->id,
-                    'file_path' => $path,
-                    'original_filename' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getClientMimeType(),
-                    'file_size' => $file->getSize(),
-                    'status' => SubmissionStatus::Uploaded,
-                    'version' => $nextVersion,
-                    'is_latest' => true,
-                ]);
+                if ($validationMessage !== null) {
+                    $errors[$field] = AccreditationUpload::fieldErrorMessage(
+                        $module,
+                        $requirement,
+                        $file,
+                        $validationMessage
+                    );
 
+                    continue;
+                }
+
+                $this->persistSubmission($user, $requirement, $file);
                 $saved++;
             }
         });
 
-        if ($saved === 0) {
-            return redirect()->route('unit.submissions.index')->withErrors(['files' => 'Pilih minimal satu berkas untuk diunggah pada modul ini.'])->withInput();
+        if ($saved === 0 && $errors === []) {
+            return redirect()->route('unit.submissions.index')
+                ->withErrors(['files' => 'Pilih minimal satu berkas untuk diunggah pada modul ini.']);
         }
 
-        return redirect()->route('unit.submissions.index')->with('status', $saved.' berkas modul «'.$module->name.'» berhasil disimpan sekaligus.');
+        $redirect = redirect()->route('unit.submissions.index');
+
+        if ($saved > 0) {
+            $redirect->with('status', $saved.' berkas modul «'.$module->name.'» berhasil disimpan.');
+        }
+
+        if ($errors !== []) {
+            $redirect
+                ->withErrors($errors)
+                ->with('upload_partial_failure', true);
+        }
+
+        return $redirect;
     }
 
     public function store(Request $request, Requirement $requirement): RedirectResponse
     {
         $this->authorizeUnitKerja();
 
-        $request->validate([
-            'document' => ['required', 'file', 'mimes:pdf,xlsx,xls', 'max:20480'],
-        ]);
+        $file = $request->file('document');
 
-        $user = $request->user();
-
-        $latest = Submission::query()
-            ->where('requirement_id', $requirement->id)
-            ->where('user_id', $user->id)
-            ->orderByDesc('version')
-            ->first();
-
-        $nextVersion = $latest ? $latest->version + 1 : 1;
-
-        if ($latest) {
-            $latest->update(['is_latest' => false]);
+        if (! $file instanceof UploadedFile) {
+            return redirect()->route('unit.submissions.index')
+                ->withErrors(['document' => 'Pilih berkas untuk diunggah.']);
         }
 
-        $file = $request->file('document');
-        $path = $file->store("accreditation/{$user->id}/{$requirement->id}", 'local');
+        $requirement->load('module');
+        $validationMessage = AccreditationUpload::validateFile($file);
 
-        Submission::query()->create([
-            'requirement_id' => $requirement->id,
-            'user_id' => $user->id,
-            'file_path' => $path,
-            'original_filename' => $file->getClientOriginalName(),
-            'mime_type' => $file->getClientMimeType(),
-            'file_size' => $file->getSize(),
-            'status' => SubmissionStatus::Uploaded,
-            'version' => $nextVersion,
-            'is_latest' => true,
-        ]);
+        if ($validationMessage !== null) {
+            return redirect()->route('unit.submissions.index')
+                ->withErrors([
+                    'document' => AccreditationUpload::fieldErrorMessage(
+                        $requirement->module,
+                        $requirement,
+                        $file,
+                        $validationMessage
+                    ),
+                ]);
+        }
 
-        return redirect()->route('unit.submissions.index')->with('status', 'Dokumen berhasil diunggah (versi '.$nextVersion.').');
+        $user = $request->user();
+        $submission = $this->persistSubmission($user, $requirement, $file);
+
+        return redirect()->route('unit.submissions.index')
+            ->with('status', 'Dokumen berhasil diunggah (versi '.$submission->version.').');
     }
 
     public function show(Submission $submission): View
@@ -207,5 +212,34 @@ class SubmissionController extends Controller
     {
         $user = auth()->user();
         abort_unless($user && $submission->user_id === $user->id, 403);
+    }
+
+    private function persistSubmission(User $user, Requirement $requirement, UploadedFile $file): Submission
+    {
+        $latest = Submission::query()
+            ->where('requirement_id', $requirement->id)
+            ->where('user_id', $user->id)
+            ->orderByDesc('version')
+            ->first();
+
+        $nextVersion = $latest ? $latest->version + 1 : 1;
+
+        if ($latest) {
+            $latest->update(['is_latest' => false]);
+        }
+
+        $path = $file->store("accreditation/{$user->id}/{$requirement->id}", 'local');
+
+        return Submission::query()->create([
+            'requirement_id' => $requirement->id,
+            'user_id' => $user->id,
+            'file_path' => $path,
+            'original_filename' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType(),
+            'file_size' => $file->getSize(),
+            'status' => SubmissionStatus::Uploaded,
+            'version' => $nextVersion,
+            'is_latest' => true,
+        ]);
     }
 }

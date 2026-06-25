@@ -10,13 +10,13 @@
         @csrf
 
         <div>
-            <x-input-label for="email" :value="__('Email')" />
+            <x-input-label for="email" value="Email" />
             <x-text-input id="email" class="mt-2 block w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <div>
-            <x-input-label for="password" :value="__('Password')" />
+            <x-input-label for="password" value="Kata sandi" />
             <x-text-input id="password" class="mt-2 block w-full"
                             type="password"
                             name="password"
@@ -27,11 +27,11 @@
         <div class="flex items-center justify-between gap-4">
             <label for="remember_me" class="inline-flex cursor-pointer items-center gap-2">
                 <input id="remember_me" type="checkbox" class="rounded border-slate-300 text-violet-600 shadow-sm focus:ring-violet-500/30" name="remember">
-                <span class="text-sm text-slate-600">{{ __('Remember me') }}</span>
+                <span class="text-sm text-slate-600">Ingat saya</span>
             </label>
             @if (Route::has('password.request'))
                 <a class="text-sm font-semibold text-violet-600 hover:text-violet-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
+                    Lupa kata sandi?
                 </a>
             @endif
         </div>
@@ -41,7 +41,7 @@
                 <a href="{{ route('register') }}" class="ui-btn-secondary order-2 flex-1 justify-center sm:order-1 sm:flex-initial">Daftar</a>
             @endif
             <x-primary-button class="order-1 flex-1 justify-center sm:order-2 sm:flex-initial">
-                {{ __('Log in') }}
+                Masuk
             </x-primary-button>
         </div>
         @unless (Route::has('register'))
