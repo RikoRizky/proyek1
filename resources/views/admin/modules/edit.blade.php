@@ -13,7 +13,7 @@
             @include('admin.modules._form', ['module' => $module])
             <div class="flex flex-wrap gap-3 pt-2">
                 <button type="submit" class="ui-btn-primary">Perbarui</button>
-                <a href="{{ route('admin.modules.show', $module) }}" class="ui-btn-secondary">Batal</a>
+               <a href="{{ route('admin.modules.index') }}" class="ui-btn-secondary">Batal</a>
             </div>
         </form>
     </div>

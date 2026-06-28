@@ -12,6 +12,13 @@
         </div>
     </x-slot>
 
+    <!-- Tautan Kembali ke modul -->
+    <div class="mb-4">
+        <a href="{{ route('admin.modules.index') }}" class="text-sm font-semibold text-violet-600 hover:text-violet-500 flex items-center">
+            &larr; Kembali ke modul
+        </a>
+    </div>
+
     @if ($module->description)
         <p class="mb-6 text-slate-600">{{ $module->description }}</p>
     @endif

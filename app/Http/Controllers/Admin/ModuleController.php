@@ -57,7 +57,8 @@ class ModuleController extends Controller
 
         $module->update($validated);
 
-        return redirect()->route('admin.modules.show', $module)->with('status', 'Modul diperbarui.');
+        // Setelah update berhasil, diarahkan ke halaman index
+        return redirect()->route('admin.modules.index')->with('status', 'Modul diperbarui.');
     }
 
     public function destroy(Module $module): RedirectResponse
