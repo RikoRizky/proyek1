@@ -21,10 +21,12 @@
 
             <div class="relative flex min-h-screen flex-col items-center justify-center px-4 py-10 sm:px-6">
                 <a href="{{ url('/') }}" class="mb-8 flex flex-col items-center gap-3 transition hover:opacity-90">
-                    <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 text-lg font-bold text-white shadow-xl shadow-violet-500/30 ring-4 ring-white/50">
-                        SP
-                    </div>
-                    <span class="text-center text-sm font-semibold text-slate-700">Sistem Penguploadan Data Akreditasi</span>
+                    <img
+                        class="flex h-14 w-14 items-center justify-center rounded-2xl shadow-xl shadow-violet-500/30 ring-4 ring-white/50 object-contain bg-white"
+                        src="{{ asset('images/logoname.png') }}"
+                        alt="SILADATA"
+                    />
+                    <span class="text-center text-sm font-semibold text-slate-700">SILADATA (Sistem Layanan Dokumen Akreditasi)</span>
                 </a>
 
                 <div class="w-full max-w-md">

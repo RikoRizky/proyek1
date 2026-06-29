@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-8 text-center">
         <h1 class="text-xl font-bold tracking-tight text-slate-900">Masuk</h1>
-        <p class="mt-2 text-sm text-slate-600">Sistem penguploadan data akreditasi</p>
+        <p class="mt-2 text-sm text-slate-600">Sistem Layanan Dokumen Akreditasi</p>
     </div>
 
     <x-auth-session-status class="mb-4" :status="session('status')" />

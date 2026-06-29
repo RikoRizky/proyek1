@@ -9,7 +9,7 @@
 
 <x-public-layout title="Dashboard Akreditasi">
     <div class="mb-8">
-        <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Dashboard luaran</p>
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Dashboard</p>
         <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Progress unggahan akreditasi</h1>
         <p class="mt-2 max-w-3xl text-sm text-slate-600">Ringkasan publik kelengkapan dokumen seluruh program studi. Login diperlukan untuk mengunggah atau mengelola berkas.</p>
     </div>

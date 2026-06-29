@@ -16,9 +16,13 @@
         <header class="relative border-b border-white/60 bg-white/70 backdrop-blur-md">
             <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
                 <a href="{{ route('home') }}" class="flex items-center gap-3">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 text-sm font-bold text-white shadow-lg shadow-violet-500/30">SP</div>
+                    <img
+                        class="flex h-11 w-11 items-center justify-center rounded-2xl shadow-lg shadow-violet-500/30 object-contain bg-white"
+                        src="{{ asset('images/logoname.png') }}"
+                        alt="SILADATA"
+                    />
                     <div>
-                        <p class="text-sm font-bold text-slate-900">Sistem Penguploadan Akreditasi</p>
+                        <p class="text-sm font-bold text-slate-900">SILADATA (Sistem Layanan Dokumen Akreditasi)</p>
                         <p class="text-xs text-slate-500">Dashboard progress program studi</p>
                     </div>
                 </a>
@@ -42,3 +46,4 @@
     </div>
 </body>
 </html>
+
