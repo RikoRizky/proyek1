@@ -33,7 +33,7 @@
                     <div class="rounded-3xl border border-white/60 bg-white/80 p-8 shadow-2xl shadow-slate-300/40 ring-1 ring-slate-200/60 backdrop-blur-xl sm:p-10">
                         {{ $slot }}
                     </div>
-                    <p class="mt-6 text-center text-xs text-slate-500">© {{ date('Y') }} — Lingkungan terlindungi</p>
+                    <p class="mt-6 text-center text-xs text-slate-500">© {{ date('Y') }} — SILADATA (Sistem Layanan Dokumen Akreditasi)</p>
                 </div>
             </div>
         </div>

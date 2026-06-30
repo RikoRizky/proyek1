@@ -41,7 +41,7 @@
         </main>
 
         <footer class="relative border-t border-slate-200/80 bg-white/50 py-6 text-center text-xs text-slate-500">
-            © {{ date('Y') }} — Dashboard luaran akreditasi program studi
+            © {{ date('Y') }} — SILADATA (Sistem Layanan Dokumen Akreditasi)
         </footer>
     </div>
 </body>
