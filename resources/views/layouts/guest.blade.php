@@ -5,7 +5,25 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>SILADATA (Sistem Layanan Dokumen Akreditasi)</title>
+
+        <!-- Favicons & Apple Touch Icons -->
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=2">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/logoname.png') }}?v=2">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logoname.png') }}?v=2">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/logoname.png') }}?v=2">
+
+        <!-- Meta SEO & Keywords -->
+        <meta name="description" content="SILADATA (Sistem Layanan Dokumen Akreditasi) adalah sistem layanan dokumen akreditasi perguruan tinggi untuk Lembaga Akreditasi Mandiri (LAM) yang menilai mutu pendidikan tinggi di Indonesia. Memudahkan pengunggahan data, manajemen, dan monitoring kelengkapan dokumen akreditasi secara terstruktur.">
+        <meta name="keywords" content="SILADATA, Sistem Layanan Dokumen Akreditasi, akreditasi perguruan tinggi, upload data akreditasi, LAM, Lembaga Akreditasi Mandiri, mutu pendidikan tinggi Indonesia, akreditasi LAM, dokumen akreditasi prodi, monitoring akreditasi, unggah data, perguruan tinggi">
+        <meta name="author" content="SILADATA">
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:title" content="SILADATA (Sistem Layanan Dokumen Akreditasi)">
+        <meta property="og:description" content="SILADATA membantu perguruan tinggi mengelola dan mempersiapkan dokumen akreditasi sesuai kebutuhan Lembaga Akreditasi Mandiri (LAM).">
+        <meta property="og:image" content="{{ asset('images/logoname.png') }}?v=2">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap" rel="stylesheet" />
