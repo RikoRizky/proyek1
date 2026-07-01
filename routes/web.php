@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RequirementController;
+use App\Http\Controllers\Admin\DiscussionController as AdminDiscussionController;
 use App\Http\Controllers\Admin\SubmissionOverviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DashboardController;
@@ -28,6 +29,7 @@ Route::get('/dashboard', DashboardController::class)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', AdminDashboardController::class)->name('home');
     Route::get('analytics', AnalyticsController::class)->name('analytics');
+    Route::get('discussions', [AdminDiscussionController::class, 'index'])->name('discussions.index');
 
     Route::resource('users', UserController::class)->except(['show']);
     Route::get('submissions', [SubmissionOverviewController::class, 'index'])->name('submissions.index');
