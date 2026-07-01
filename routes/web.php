@@ -8,13 +8,18 @@ use App\Http\Controllers\Admin\RequirementController;
 use App\Http\Controllers\Admin\SubmissionOverviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\HomeController;
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UnitKerja\ProgressController as UnitProgressController;
 use App\Http\Controllers\UnitKerja\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/diskusi', [DiscussionController::class, 'show'])->name('discussion');
+Route::post('/diskusi', [DiscussionController::class, 'store'])->name('discussion.store');
+
 
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
