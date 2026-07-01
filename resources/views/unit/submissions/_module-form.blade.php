@@ -41,7 +41,7 @@
                     @endif
                 </div>
             </div>
-            <div class="flex justify-end">
+            <div class="flex items-center justify-end">
                 @if ($latest)
                     @php
                         $existingLinks = $latest->google_drive_links ?? [];
@@ -51,9 +51,9 @@
                         type="button"
                         data-upload-btn="{{ $req->id }}"
                         onclick="openUploadModal('{{ $req->id }}', {{ $existingLinksJson }})"
-                        class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition-all duration-150"
+                        class="inline-flex shrink-0 items-center gap-2 self-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:border-violet-300 hover:bg-violet-50 hover:text-violet-700 transition-all duration-150"
                     >
-                        <svg style="width:14px;height:14px;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+                        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
                         Perbarui Berkas
                     </button>
                 @else
@@ -61,12 +61,12 @@
                         type="button"
                         data-upload-btn="{{ $req->id }}"
                         onclick="openUploadModal('{{ $req->id }}')"
-                        class="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold text-white shadow-sm transition-all duration-150"
-                        style="background: linear-gradient(135deg, #7c3aed, #6d28d9)"
-                        onmouseover="this.style.background='linear-gradient(135deg,#6d28d9,#5b21b6)';this.style.boxShadow='0 4px 14px rgba(109,40,217,0.4)'"
+                        class="inline-flex shrink-0 items-center gap-2 self-center rounded-lg px-4 py-2 text-sm font-bold text-white shadow-sm transition-all duration-150"
+                        style="background:linear-gradient(135deg,#7c3aed,#6d28d9)"
+                        onmouseover="this.style.background='linear-gradient(135deg,#6d28d9,#5b21b6)';this.style.boxShadow='0 3px 10px rgba(109,40,217,0.3)'"
                         onmouseout="this.style.background='linear-gradient(135deg,#7c3aed,#6d28d9)';this.style.boxShadow=''"
                     >
-                        <svg style="width:14px;height:14px;flex-shrink:0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
+                        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>
                         Unggah Berkas
                     </button>
                 @endif
