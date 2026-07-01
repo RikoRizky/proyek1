@@ -6,7 +6,7 @@
         </div>
     </x-slot>
 
-    <div class="ui-card max-w-2xl p-6 sm:p-8">
+    <div class="ui-card max-w-2xl mx-auto p-6 sm:p-8">
         <form method="post" action="{{ route('admin.modules.requirements.store', $module) }}" class="space-y-6">
             @csrf
             @include('admin.requirements._form', ['requirement' => null])

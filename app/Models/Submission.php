@@ -22,6 +22,8 @@ class Submission extends Model
         'status',
         'version',
         'is_latest',
+        'google_drive_links',
+        'files',
     ];
 
     protected function casts(): array
@@ -29,6 +31,8 @@ class Submission extends Model
         return [
             'status' => SubmissionStatus::class,
             'is_latest' => 'boolean',
+            'google_drive_links' => 'array',
+            'files' => 'array',
         ];
     }
 

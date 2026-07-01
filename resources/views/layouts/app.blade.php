@@ -31,7 +31,10 @@
                                 {{ $header }}
                             </div>
                             <div class="hidden shrink-0 items-center gap-2 sm:flex">
-                                <a href="{{ route('profile.edit') }}" class="ui-btn-ghost text-xs font-medium text-slate-600">Profil</a>
+                                <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 rounded-xl px-3 py-1.5 ui-btn-ghost text-xs font-medium text-slate-600 transition hover:bg-slate-50">
+                                    <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile" class="h-6 w-6 rounded-full object-cover ring-1 ring-slate-200 bg-slate-100">
+                                    <span>Profil</span>
+                                </a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="rounded-xl px-3 py-2 text-xs font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-800">

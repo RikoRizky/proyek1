@@ -8,10 +8,10 @@
     </x-slot>
 
     <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <x-stat-card label="Total pengguna" :value="$usersCount" accent="violet" />
+        <x-stat-card label="Total Universitas" :value="$pertiCount" accent="violet" />
         <x-stat-card label="Program studi" :value="$unitCount" accent="emerald" />
         <x-stat-card label="Persyaratan aktif" :value="$requirementsCount" accent="sky" />
-        <x-stat-card label="Total berkas (semua versi)" :value="$submissionsCount" accent="amber" />
+        <x-stat-card label="Total semua berkas terkumpul" :value="$submissionsCount" accent="amber" />
     </div>
 
     <div class="mb-8 grid gap-6 lg:grid-cols-2">

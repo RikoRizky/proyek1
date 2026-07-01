@@ -115,4 +115,50 @@ class UnitSubmissionBatchUploadTest extends TestCase
 
         $this->assertSame(1, Submission::query()->count());
     }
+
+    public function test_upload_with_google_drive_links_and_multiple_files_works(): void
+    {
+        Storage::fake('local');
+
+        $user = User::factory()->create(['role' => UserRole::UnitKerja]);
+        $module = Module::query()->create(['name' => 'Kriteria Demo', 'sort_order' => 1]);
+        $requirement = Requirement::query()->create([
+            'module_id' => $module->id,
+            'title' => 'Dokumen Valid',
+            'sort_order' => 1,
+        ]);
+
+        $response = $this->actingAs($user)->post(route('unit.submissions.store', $requirement), [
+            'google_drive_links' => [
+                ['name' => 'SK Rektor', 'url' => 'https://drive.google.com/link1'],
+                ['name' => 'Laporan Akreditasi', 'url' => 'https://drive.google.com/link2'],
+            ],
+            'documents' => [
+                UploadedFile::fake()->create('doc1.pdf', 256, 'application/pdf'),
+                UploadedFile::fake()->create('doc2.xlsx', 512, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+            ],
+        ]);
+
+        $response
+            ->assertRedirect(route('unit.submissions.module', $requirement->module))
+            ->assertSessionHas('status')
+            ->assertSessionDoesntHaveErrors();
+
+        $submission = Submission::query()->first();
+        $this->assertNotNull($submission);
+        $this->assertSame($requirement->id, $submission->requirement_id);
+        
+        // Assert json columns are correctly stored
+        $this->assertCount(2, $submission->google_drive_links);
+        $this->assertSame('SK Rektor', $submission->google_drive_links[0]['name']);
+        $this->assertSame('https://drive.google.com/link1', $submission->google_drive_links[0]['url']);
+        
+        $this->assertCount(2, $submission->files);
+        $this->assertSame('doc1.pdf', $submission->files[0]['original_filename']);
+        $this->assertSame('doc2.xlsx', $submission->files[1]['original_filename']);
+        
+        // Assert first file is filled in legacy columns
+        $this->assertSame('doc1.pdf', $submission->original_filename);
+        $this->assertNotNull($submission->file_path);
+    }
 }

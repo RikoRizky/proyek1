@@ -39,6 +39,8 @@
         @include('unit.submissions._module-form', ['module' => $module])
     </div>
 
+    @include('unit.submissions._module-modals', ['module' => $module])
+
     <script>
         const uploadStatus = sessionStorage.getItem('upload_status');
         if (uploadStatus) {

@@ -27,7 +27,7 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', [
             'modules' => $modules,
-            'usersCount' => User::query()->count(),
+            'pertiCount' => User::query()->where('role', UserRole::Perti)->count(),
             'unitCount' => User::query()->where('role', UserRole::UnitKerja)->count(),
             'requirementsCount' => Requirement::query()->count(),
             'submissionsCount' => Submission::query()->count(),

@@ -10,7 +10,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap" rel="stylesheet" />
 
-        <link rel="stylesheet" href="{{ asset('build/assets/app-B0llDWQp.css') }}">
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="min-h-screen h-full font-sans text-slate-900 antialiased">
         <div
@@ -47,6 +47,5 @@
                 </div>
             </div>
         </div>
-        <script src="{{ asset('build/assets/app-CoaHkm5D.js') }}"></script>
     </body>
 </html>

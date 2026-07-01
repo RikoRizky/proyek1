@@ -1,18 +1,20 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Riwayat</p>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Riwayat Unggahan</p>
             <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $submission->requirement->title }}</h1>
-            <p class="mt-1 text-sm text-slate-600">{{ $submission->requirement->module->name }}</p>
+            <p class="mt-1 text-sm text-slate-600">
+                Prodi: <span class="font-semibold text-slate-800">{{ $submission->user->name }}</span> · {{ $submission->requirement->module->name }}
+            </p>
         </div>
     </x-slot>
 
     <div class="mb-6 flex flex-wrap gap-3">
-        <a href="{{ route('unit.submissions.view', $submission) }}" class="ui-btn-primary">Lihat di aplikasi</a>
+        <a href="{{ route('perti.submissions.view', $submission) }}" class="ui-btn-primary">Lihat di aplikasi</a>
         @if ($submission->file_path && (empty($submission->files) || count($submission->files) === 1))
-            <a href="{{ route('unit.submissions.download', $submission) }}" class="ui-btn-secondary">Unduh versi ini</a>
+            <a href="{{ route('perti.submissions.download', $submission) }}" class="ui-btn-secondary">Unduh versi ini</a>
         @endif
-        <a href="{{ route('unit.submissions.module', $submission->requirement->module) }}" class="ui-btn-secondary">Kembali</a>
+        <a href="{{ route('perti.prodis.modul', [$submission->user_id, $submission->requirement->module_id]) }}" class="ui-btn-secondary">Kembali</a>
     </div>
 
     <div class="ui-table-wrap">
@@ -50,7 +52,7 @@
                                     <ul class="list-disc pl-4 space-y-0.5">
                                         @foreach ($row->files as $index => $file)
                                             <li>
-                                                <a href="{{ route('unit.submissions.view', [$row, 'file' => $index]) }}" class="hover:underline text-slate-800 font-medium">{{ $file['original_filename'] }}</a>
+                                                <a href="{{ route('perti.submissions.view', [$row, 'file' => $index]) }}" class="hover:underline text-slate-800 font-medium">{{ $file['original_filename'] }}</a>
                                                 <span class="text-slate-400">({{ number_format($file['file_size'] / 1024, 1) }} KB)</span>
                                             </li>
                                         @endforeach
@@ -59,7 +61,7 @@
                                     <div class="font-semibold text-slate-700 @if(!empty($row->google_drive_links)) mt-2 @endif">Berkas Dokumen:</div>
                                     <ul class="list-disc pl-4">
                                         <li>
-                                            <a href="{{ route('unit.submissions.view', $row) }}" class="hover:underline text-slate-800 font-medium">{{ $row->original_filename }}</a>
+                                            <a href="{{ route('perti.submissions.view', $row) }}" class="hover:underline text-slate-800 font-medium">{{ $row->original_filename }}</a>
                                             <span class="text-slate-400">({{ number_format($row->file_size / 1024, 1) }} KB)</span>
                                         </li>
                                     </ul>
@@ -67,7 +69,7 @@
                             </div>
                         </td>
                         <td class="text-right space-x-3">
-                            <a href="{{ route('unit.submissions.view', $row) }}" class="text-sm font-semibold text-violet-600 hover:text-violet-500">Lihat</a>
+                            <a href="{{ route('perti.submissions.view', $row) }}" class="text-sm font-semibold text-violet-600 hover:text-violet-500">Lihat</a>
                         </td>
                     </tr>
                 @endforeach

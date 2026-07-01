@@ -33,7 +33,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('modules', ModuleController::class);
     Route::resource('modules.requirements', RequirementController::class);
     Route::get('reports/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
-    Route::get('reports/excel', [ReportController::class, 'excel'])->name('reports.excel');
+});
+
+Route::middleware(['auth', 'role:perti'])->prefix('perti')->name('perti.')->group(function () {
+    Route::resource('prodis', App\Http\Controllers\Perti\ProdiController::class)->except(['show']);
+    Route::get('prodis/{prodi}/progress', [App\Http\Controllers\Perti\ProdiProgressController::class, 'index'])->name('prodis.progress');
+    Route::get('prodis/{prodi}/modul/{module}', [App\Http\Controllers\Perti\ProdiProgressController::class, 'module'])->name('prodis.modul');
+    Route::get('reports/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
+
+    Route::get('submissions/{submission}/view', [App\Http\Controllers\Perti\SubmissionController::class, 'viewer'])->name('submissions.view');
+    Route::get('submissions/{submission}/inline', [App\Http\Controllers\Perti\SubmissionController::class, 'inline'])->name('submissions.inline');
+    Route::get('submissions/{submission}/download', [App\Http\Controllers\Perti\SubmissionController::class, 'download'])->name('submissions.download');
+    Route::get('submissions/{submission}', [App\Http\Controllers\Perti\SubmissionController::class, 'show'])->name('submissions.show');
 });
 
 Route::middleware(['auth', 'role:unit_kerja'])->prefix('unit')->name('unit.')->group(function () {
@@ -47,7 +58,6 @@ Route::middleware(['auth', 'role:unit_kerja'])->prefix('unit')->name('unit.')->g
     Route::get('submissions/{submission}/download', [SubmissionController::class, 'download'])->name('submissions.download');
     Route::get('submissions/{submission}', [SubmissionController::class, 'show'])->name('submissions.show');
     Route::get('reports/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
-    Route::get('reports/excel', [ReportController::class, 'excel'])->name('reports.excel');
 });
 
 Route::middleware('auth')->group(function () {

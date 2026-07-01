@@ -50,16 +50,28 @@ class SubmissionOverviewController extends Controller
     public function viewer(Submission $submission): View
     {
         $this->authorizeAdminSubmission($submission);
-
-        abort_unless(Storage::disk('local')->exists($submission->file_path), 404);
-
         $submission->load(['requirement.module', 'user']);
 
+        $fileIndex = request()->query('file');
+        $activeFileIndex = 0;
+
+        if ($fileIndex !== null) {
+            $activeFileIndex = (int) $fileIndex;
+        }
+
+        $files = $submission->files ?? [];
+        $activeFile = $files[$activeFileIndex] ?? null;
+
+        $filename = $activeFile ? $activeFile['original_filename'] : $submission->original_filename;
+
         return view('submissions.viewer', [
+            'submission' => $submission,
             'title' => $submission->requirement->title.' — '.$submission->user->name,
-            'filename' => $submission->original_filename,
-            'inlineUrl' => route('admin.submissions.inline', $submission),
-            'downloadUrl' => route('admin.submissions.download', $submission),
+            'filename' => $filename,
+            'activeFileIndex' => $activeFileIndex,
+            'routePrefix' => 'admin',
+            'inlineUrl' => route('admin.submissions.inline', [$submission, 'file' => $activeFileIndex]),
+            'downloadUrl' => route('admin.submissions.download', [$submission, 'file' => $activeFileIndex]),
             'backUrl' => route('admin.submissions.index'),
         ]);
     }

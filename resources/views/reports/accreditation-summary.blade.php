@@ -15,6 +15,9 @@
 </head>
 <body>
     <h1>Laporan ringkasan unggahan akreditasi</h1>
+    @if(isset($pertiName))
+        <p style="font-size: 13px; margin: 4px 0; font-weight: bold; color: #4f46e5;">{{ $pertiName }}</p>
+    @endif
     <p class="muted">Dihasilkan: {{ $generatedAt->translatedFormat('d F Y H:i') }}</p>
 
     @foreach ($summaries as $block)
