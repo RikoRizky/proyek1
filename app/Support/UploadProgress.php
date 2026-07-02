@@ -79,15 +79,18 @@ class UploadProgress
         $totalReq = self::totalRequirements();
         $units = User::query()
             ->where('role', UserRole::Prodi)
+            ->with('prodiProfile.perti.user')
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get();
 
         $rows = $units->map(function (User $unit) use ($totalReq) {
             $progress = self::forUnit($unit);
+            $uniName = $unit->prodiProfile?->perti?->user?->name ?? 'Lainnya';
 
             return [
                 'id' => $unit->id,
                 'name' => $unit->name,
+                'university_name' => $uniName,
                 'uploaded' => $progress['uploaded'],
                 'total' => $totalReq,
                 'percent' => $progress['percent'],

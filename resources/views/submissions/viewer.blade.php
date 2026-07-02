@@ -1,18 +1,9 @@
 <x-viewer-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="min-w-0">
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Pratinjau dokumen</p>
-                <h1 class="mt-0.5 truncate text-base font-bold text-slate-900 sm:text-lg">{{ $title }}</h1>
-                <p class="mt-0.5 truncate text-xs text-slate-500" id="header-filename">{{ $filename }}</p>
-            </div>
-            <div class="flex shrink-0 flex-wrap gap-2">
-                @if ($submission->file_path || (!empty($submission->files)))
-                    <a href="{{ $inlineUrl }}" id="btn-tab-baru" target="_blank" rel="noopener" class="ui-btn-secondary py-2 text-xs">Tab baru</a>
-                    <a href="{{ $downloadUrl }}" id="btn-download" class="ui-btn-secondary py-2 text-xs">Unduh</a>
-                @endif
-                <a href="{{ $backUrl }}" class="ui-btn-primary py-2 text-xs">Kembali</a>
-            </div>
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Pratinjau dokumen</p>
+            <h1 class="mt-0.5 truncate text-base font-bold text-slate-900 sm:text-lg">{{ $title }}</h1>
+            <p class="mt-0.5 truncate text-xs text-slate-500" id="header-filename">{{ $filename }}</p>
         </div>
     </x-slot>
 
@@ -24,6 +15,21 @@
         $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
         $isPdf = $ext === 'pdf';
     @endphp
+
+    <div class="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 py-2.5 select-none">
+        <a href="{{ $backUrl }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-600 hover:text-violet-500">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Kembali
+        </a>
+        @if ($submission->file_path || (!empty($submission->files)))
+            <div class="flex gap-2">
+                <a href="{{ $inlineUrl }}" id="btn-tab-baru" target="_blank" rel="noopener" class="ui-btn-secondary py-1.5 px-3.5 text-xs">Tab baru</a>
+                <a href="{{ $downloadUrl }}" id="btn-download" class="ui-btn-secondary py-1.5 px-3.5 text-xs">Unduh</a>
+            </div>
+        @endif
+    </div>
 
     @if ($hasMultiple)
         <div class="flex flex-1 overflow-hidden min-h-0">

@@ -30,7 +30,7 @@ class ProdiProgressController extends Controller
         $progress = UploadProgress::forUnit($prodiUser);
 
         return view('perti.progress.index', [
-            'prodi'    => $prodiUser,
+            'prodi'    => $prodiRecord,
             'progress' => $progress,
         ]);
     }
@@ -64,7 +64,7 @@ class ProdiProgressController extends Controller
         $allModules = Module::query()->orderBy('sort_order')->get();
 
         return view('perti.progress.module', [
-            'prodi'        => $prodiUser,
+            'prodi'        => $prodiRecord,
             'module'       => $module,
             'requirements' => $requirements,
             'allModules'   => $allModules,

@@ -1,17 +1,20 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">{{ $module->name }}</p>
-                <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">Persyaratan</h1>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.modules.show', $module) }}" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:text-slate-900" title="Kembali ke Modul">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                </a>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">{{ $module->name }}</p>
+                    <h1 class="mt-0.5 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">Persyaratan</h1>
+                </div>
             </div>
             <a href="{{ route('admin.modules.requirements.create', $module) }}" class="ui-btn-primary shrink-0 text-sm">+ Tambah</a>
         </div>
     </x-slot>
-
-    <div class="mb-6">
-        <a href="{{ route('admin.modules.show', $module) }}" class="text-sm font-semibold text-violet-600 hover:text-violet-500">← Kembali ke modul</a>
-    </div>
 
     <div class="ui-card divide-y divide-slate-100 overflow-hidden">
         @forelse ($requirements as $req)

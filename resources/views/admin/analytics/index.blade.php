@@ -7,13 +7,10 @@
 
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Admin</p>
-                <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Analitik progress prodi</h1>
-                <p class="mt-1 text-sm text-slate-600">Perbandingan kelengkapan unggahan dokumen antar program studi.</p>
-            </div>
-            <a href="{{ route('admin.home') }}" class="ui-btn-secondary text-sm">← Panel admin</a>
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Admin</p>
+            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Analitik progress prodi</h1>
+            <p class="mt-1 text-sm text-slate-600">Perbandingan kelengkapan unggahan dokumen antar program studi.</p>
         </div>
     </x-slot>
 
@@ -29,35 +26,59 @@
         <x-chart-card title="Status kelengkapan" subtitle="Lengkap vs berjalan vs belum mulai" canvas-id="adminStatusPie" height="280px" />
     </div>
 
-    @foreach ($units as $unit)
+    @foreach (collect($units)->groupBy('university_name') as $uniName => $uniUnits)
         <div class="ui-card mb-6 overflow-hidden">
-            <div class="ui-section-header">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">{{ $unit['name'] }}</h2>
-                    <p class="text-sm text-slate-600">{{ $unit['uploaded'] }}/{{ $unit['total'] }} dokumen · {{ $unit['percent'] }}%</p>
-                </div>
-                @if ($unit['percent'] >= 100)
-                    <span class="ui-badge bg-emerald-50 text-emerald-900 ring-emerald-500/20">Lengkap</span>
-                @elseif ($unit['percent'] > 0)
-                    <span class="ui-badge bg-amber-50 text-amber-900 ring-amber-500/25">Berjalan</span>
-                @else
-                    <span class="ui-badge bg-slate-100 text-slate-700 ring-slate-500/15">Belum mulai</span>
-                @endif
-            </div>
-            <div class="grid gap-3 px-6 py-5 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach ($unit['modules'] as $module)
-                    <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-                        <p class="text-xs font-bold uppercase tracking-wider text-violet-700">{{ $module['short_label'] }}</p>
-                        <p class="mt-1 line-clamp-2 text-sm font-semibold text-slate-900">{{ $module['name'] }}</p>
-                        <div class="mt-3 flex items-center justify-between text-xs font-semibold text-slate-600">
-                            <span>{{ $module['uploaded'] }}/{{ $module['total'] }}</span>
-                            <span>{{ $module['percent'] }}%</span>
-                        </div>
-                        <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200">
-                            <div class="h-full rounded-full bg-violet-500" style="width: {{ $module['percent'] }}%"></div>
-                        </div>
+            <div class="ui-section-header bg-gradient-to-r from-violet-50/60 to-white">
+                <div class="flex items-center gap-3">
+                    <svg class="h-5 w-5 text-violet-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.33l-7.5-5-7.5 5V21m16.5 0H3" />
+                    </svg>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">{{ $uniName }}</h2>
+                        <p class="text-xs text-slate-500 font-semibold">{{ $uniUnits->count() }} Program Studi</p>
                     </div>
-                @endforeach
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="ui-table">
+                    <thead>
+                        <tr>
+                            <th>Program Studi</th>
+                            <th>Terunggah</th>
+                            <th class="w-1/2">Progress</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($uniUnits as $unit)
+                            <tr>
+                                <td>
+                                    <div class="font-semibold text-slate-900">{{ $unit['name'] }}</div>
+                                </td>
+                                <td class="whitespace-nowrap text-sm text-slate-655 tabular-nums">
+                                    {{ $unit['uploaded'] }}/{{ $unit['total'] }} dokumen
+                                </td>
+                                <td>
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-2 flex-1 rounded-full bg-slate-100 overflow-hidden min-w-[6rem]">
+                                            <div class="h-full rounded-full bg-violet-600 transition-all duration-300" style="width: {{ $unit['percent'] }}%"></div>
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-750 tabular-nums">{{ $unit['percent'] }}%</span>
+                                    </div>
+                                </td>
+                                <td class="whitespace-nowrap">
+                                    @if ($unit['percent'] >= 100)
+                                        <span class="ui-badge bg-emerald-50 text-emerald-900 ring-emerald-500/20">Lengkap</span>
+                                    @elseif ($unit['percent'] > 0)
+                                        <span class="ui-badge bg-amber-50 text-amber-900 ring-amber-500/25">Berjalan</span>
+                                    @else
+                                        <span class="ui-badge bg-slate-100 text-slate-700 ring-slate-500/15">Belum mulai</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     @endforeach

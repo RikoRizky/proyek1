@@ -1,20 +1,26 @@
 @php use App\Enums\SubmissionStatus; @endphp
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Perguruan Tinggi</p>
-                <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{{ $module->name }}</h1>
-                <p class="mt-1 text-sm text-slate-600">
-                    Prodi: <span class="font-semibold text-slate-800">{{ $prodi->name }}</span>
-                    @if ($module->description)
-                        · {{ $module->description }}
-                    @endif
-                </p>
-            </div>
-            <a href="{{ route('perti.prodis.progress', $prodi->id) }}" class="ui-btn-secondary text-sm">← Progress {{ $prodi->name }}</a>
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Perguruan Tinggi</p>
+            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{{ $module->name }}</h1>
+            <p class="mt-1 text-sm text-slate-655">
+                Prodi: <span class="font-semibold text-slate-800">{{ $prodi->name }}</span>
+                @if ($module->description)
+                    · {{ $module->description }}
+                @endif
+            </p>
         </div>
     </x-slot>
+
+    <div class="mb-4">
+        <a href="{{ route('perti.prodis.progress', $prodi->id) }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-600 hover:text-violet-500">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Kembali ke progress
+        </a>
+    </div>
 
     {{-- Module quick nav --}}
     <div class="mb-6 flex flex-wrap gap-2">

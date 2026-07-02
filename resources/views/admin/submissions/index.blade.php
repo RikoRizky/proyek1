@@ -1,17 +1,35 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Dokumen</p>
-                <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Unggahan per perguruan tinggi</h1>
-                <p class="mt-1 text-sm text-slate-600">Data dikelompokkan berdasarkan Perguruan Tinggi induk.</p>
-            </div>
-            <form method="get" class="flex w-full max-w-md gap-2 sm:w-auto">
-                <input type="search" name="q" value="{{ $q }}" placeholder="Cari nama prodi, syarat, berkas…" class="ui-input flex-1">
-                <button type="submit" class="ui-btn-secondary shrink-0">Cari</button>
-            </form>
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Dokumen</p>
+            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Unggahan per perguruan tinggi</h1>
+            <p class="mt-1 text-sm text-slate-600">Data dikelompokkan berdasarkan Perguruan Tinggi induk.</p>
         </div>
     </x-slot>
+
+    {{-- Search Bar --}}
+    <div class="mb-6">
+        <form method="GET" class="flex gap-3">
+            <div class="relative flex-1">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                    <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z"/>
+                    </svg>
+                </div>
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ $q }}"
+                    placeholder="Cari nama prodi, syarat, berkas..."
+                    class="w-full rounded-xl border-slate-200 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-900 shadow-sm ring-1 ring-slate-200 focus:border-violet-500 focus:ring-violet-500/30 placeholder:text-slate-400"
+                >
+            </div>
+            <button type="submit" class="ui-btn-primary px-5 py-2.5 text-sm">Cari</button>
+            @if($q)
+                <a href="{{ route('admin.submissions.index') }}" class="ui-btn-secondary px-5 py-2.5 text-sm">Reset</a>
+            @endif
+        </form>
+    </div>
 
     @forelse ($pertis as $perti)
         <div class="mb-10">

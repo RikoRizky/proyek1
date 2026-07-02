@@ -1,14 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Modul</p>
-                <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Kriteria &amp; persyaratan</h1>
-                <p class="mt-1 text-sm text-slate-600">Kelola struktur akreditasi</p>
-            </div>
-            <a href="{{ route('admin.modules.create') }}" class="ui-btn-primary shrink-0">+ Modul baru</a>
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Modul</p>
+            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Kriteria &amp; persyaratan</h1>
+            <p class="mt-1 text-sm text-slate-600">Kelola struktur akreditasi</p>
         </div>
     </x-slot>
+
+    <div class="mb-6 flex justify-end">
+        <a href="{{ route('admin.modules.create') }}" class="ui-btn-primary">+ Modul baru</a>
+    </div>
 
     <div class="ui-table-wrap">
         <table class="ui-table">

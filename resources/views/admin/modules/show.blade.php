@@ -1,28 +1,28 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Modul</p>
-                <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $module->name }}</h1>
-            </div>
-            <div class="flex flex-wrap gap-2">
-                <button
-                    x-data=""
-                    x-on:click.prevent="$dispatch('open-modal', 'add-requirement')"
-                    class="ui-btn-primary text-sm"
-                >
-                    + Tambah Persyaratan
-                </button>
-                <a href="{{ route('admin.modules.edit', $module) }}" class="ui-btn-secondary text-sm">Edit modul</a>
-            </div>
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Modul</p>
+            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{{ $module->name }}</h1>
         </div>
     </x-slot>
 
-    <!-- Tautan Kembali ke modul -->
-    <div class="mb-4">
-        <a href="{{ route('admin.modules.index') }}" class="text-sm font-semibold text-violet-600 hover:text-violet-500 flex items-center">
-            &larr; Kembali ke modul
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <a href="{{ route('admin.modules.index') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-600 hover:text-violet-500">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Kembali ke modul
         </a>
+        <div class="flex flex-wrap gap-2">
+            <button
+                x-data=""
+                x-on:click.prevent="$dispatch('open-modal', 'add-requirement')"
+                class="ui-btn-primary text-sm"
+            >
+                + Tambah Persyaratan
+            </button>
+            <a href="{{ route('admin.modules.edit', $module) }}" class="ui-btn-secondary text-sm">Edit modul</a>
+        </div>
     </div>
 
 

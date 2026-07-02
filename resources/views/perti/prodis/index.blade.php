@@ -1,14 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Perguruan Tinggi</p>
-                <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Kelola Program Studi</h1>
-                <p class="mt-1 text-sm text-slate-600">Daftar program studi di bawah naungan {{ auth()->user()->name }}.</p>
-            </div>
-            <a href="{{ route('perti.prodis.create') }}" class="ui-btn-primary shrink-0">+ Buat akun prodi</a>
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Perguruan Tinggi</p>
+            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Kelola Program Studi</h1>
+            <p class="mt-1 text-sm text-slate-600">Daftar program studi di bawah naungan {{ auth()->user()->name }}.</p>
         </div>
     </x-slot>
+
+    <div class="mb-6 flex justify-end">
+        <a href="{{ route('perti.prodis.create') }}" class="ui-btn-primary">+ Buat akun prodi</a>
+    </div>
 
 
 

@@ -8,13 +8,10 @@
     @endphp
 
     <x-slot name="header">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Perguruan Tinggi</p>
-                <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Progress: {{ $prodi->name }}</h1>
-                <p class="mt-1 text-sm text-slate-600">{{ $progress['uploaded'] }}/{{ $progress['total'] }} dokumen terunggah ({{ $progress['percent'] }}%)</p>
-            </div>
-            <a href="{{ route('dashboard') }}" class="ui-btn-secondary text-sm">← Ringkasan</a>
+        <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Perguruan Tinggi</p>
+            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Progress: {{ $prodi->name }}</h1>
+            <p class="mt-1 text-sm text-slate-600">{{ $progress['uploaded'] }}/{{ $progress['total'] }} dokumen terunggah ({{ $progress['percent'] }}%)</p>
         </div>
     </x-slot>
 
