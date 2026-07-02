@@ -25,6 +25,33 @@
             show(data) {
                 this.item = data;
                 this.open = true;
+            },
+            getWhatsAppUrl() {
+                if (!this.item || !this.item.whatsapp) return '#';
+                
+                // Ambil nomor whatsapp & bersihkan
+                let phone = this.item.whatsapp.replace(/\D/g, '');
+                if (phone.startsWith('0')) {
+                    phone = '62' + phone.slice(1);
+                } else if (!phone.startsWith('62')) {
+                    phone = '62' + phone;
+                }
+
+                // Susun daftar kebutuhan utama
+                let kebutuhanText = '';
+                if (Array.isArray(this.item.kebutuhan) && this.item.kebutuhan.length > 0) {
+                    kebutuhanText = this.item.kebutuhan.map((keb, i) => `  ${i + 1}. ${keb}`).join('\n');
+                } else {
+                    kebutuhanText = '  -';
+                }
+
+                if (this.item.kebutuhan_lainnya) {
+                    kebutuhanText += `\n  Keterangan lainnya: ${this.item.kebutuhan_lainnya}`;
+                }
+
+                const message = `Halo *${this.item.nama}* dari *${this.item.perusahaan}*,\n\nKami dari *SILADATA* ingin menindaklanjuti terkait formulir diskusi yang Anda ajukan mengenai kebutuhan sistem di perguruan tinggi Anda.\n\nBerikut adalah ringkasan pengajuan diskusi Anda:\n\n*Kebutuhan Utama:*\n${kebutuhanText}\n\n*Sistem Saat Ini:* ${this.item.sistem}\n*Kesiapan Investasi:* ${this.item.investasi}\n\nApakah Anda memiliki waktu luang untuk berdiskusi lebih lanjut? Terima kasih.`;
+
+                return 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
             }
         }"
         @keydown.escape.window="open = false"
@@ -231,7 +258,7 @@
                         </div>
                         <div>
                             <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">WhatsApp</p>
-                            <a :href="'https://wa.me/62' + item?.whatsapp?.replace(/^0/, '')" target="_blank" class="mt-1 block text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition" x-text="'+62 ' + (item?.whatsapp?.replace(/^0/, '') ?? '')"></a>
+                            <a :href="getWhatsAppUrl()" target="_blank" class="mt-1 block text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition" x-text="'+62 ' + (item?.whatsapp?.replace(/^0/, '') ?? '')"></a>
                         </div>
                     </div>
 
@@ -289,7 +316,7 @@
                 {{-- Modal Footer --}}
                 <div class="border-t border-slate-100 bg-slate-50/60 px-6 py-4 flex justify-between items-center gap-3">
                     <a
-                        :href="'https://wa.me/62' + item?.whatsapp?.replace(/^0/, '')"
+                        :href="getWhatsAppUrl()"
                         target="_blank"
                         class="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:scale-[1.02] active:scale-[0.98] shadow-sm"
                     >
