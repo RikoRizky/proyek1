@@ -45,7 +45,7 @@ class AccreditationDemoSeeder extends Seeder
         $pertiProfile = Perti::query()->updateOrCreate(
             ['user_id' => $pertiUser->id],
             [
-                'kode_pt' => '001009',
+                'kode_pt' => '041104',
                 'alamat'  => 'Bandung, Jawa Barat',
             ]
         );
