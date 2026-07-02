@@ -21,193 +21,81 @@
         <x-stat-card label="Total persyaratan" :value="$progress['total_requirements']" accent="sky" />
     </div> -->
 
-    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-    {{-- Tentang SILADATA --}}
-    <div class="mb-12 ui-card p-8">
-        <div class="grid gap-10 lg:grid-cols-2 items-center">
-            <div>
-                <span class="inline-flex rounded-full bg-violet-100 px-4 py-1 text-sm font-semibold text-violet-700">
-                    Tentang SILADATA
-                </span>
+    {{-- Tentang SILADATA (Full Width) --}}
+    <div class="relative bg-white/70 border-b border-slate-200/60 py-16 backdrop-blur-sm">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="grid gap-10 lg:grid-cols-2 items-center">
+                <div>
+                    <span class="inline-flex rounded-full bg-violet-100 px-4 py-1 text-sm font-semibold text-violet-700">
+                        Tentang SILADATA
+                    </span>
 
-                <h2 class="mt-4 text-3xl font-bold text-slate-900">
-                    Sistem Layanan Dokumen Akreditasi Perguruan Tinggi
-                </h2>
+                    <h2 class="mt-4 text-3xl font-bold text-slate-900 leading-tight">
+                        Sistem Layanan Dokumen Akreditasi Perguruan Tinggi
+                    </h2>
 
-                <p class="mt-4 text-slate-600 leading-relaxed">
-                    SILADATA (Sistem Layanan Dokumen Akreditasi) merupakan platform
-                    terintegrasi yang membantu perguruan tinggi dalam mengelola dan
-                    mempersiapkan dokumen akreditasi sesuai kebutuhan
-                    <strong>Lembaga Akreditasi Mandiri (LAM)</strong>.
-                    Dengan sistem penyimpanan dan pengunggahan dokumen yang
-                    terstruktur, SILADATA mempermudah proses pengumpulan,
-                    pengelolaan, serta pemantauan kelengkapan dokumen sehingga
-                    institusi dapat lebih siap menghadapi proses akreditasi secara
-                    efektif, efisien, dan terdokumentasi dengan baik.
-                </p>
-
-                <div class="mt-6 grid gap-3 sm:grid-cols-2">
-                    <div class="flex items-center gap-2">
-                        <span class="text-emerald-500">✓</span>
-                        <span>Terintegrasi dengan kebutuhan LAM</span>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <span class="text-emerald-500">✓</span>
-                        <span>Penyimpanan dokumen terpusat</span>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <span class="text-emerald-500">✓</span>
-                        <span>Monitoring progres akreditasi</span>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <span class="text-emerald-500">✓</span>
-                        <span>Keamanan dokumen terjamin</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="rounded-2xl bg-violet-50 p-6">
-                    <div class="text-4xl">📁</div>
-                    <h3 class="mt-3 font-bold">Dokumen Akreditasi</h3>
-                </div>
-
-                <div class="rounded-2xl bg-sky-50 p-6">
-                    <div class="text-4xl">☁️</div>
-                    <h3 class="mt-3 font-bold">Cloud Storage</h3>
-                </div>
-
-                <div class="rounded-2xl bg-emerald-50 p-6">
-                    <div class="text-4xl">📊</div>
-                    <h3 class="mt-3 font-bold">Monitoring Progress</h3>
-                </div>
-
-                <div class="rounded-2xl bg-amber-50 p-6">
-                    <div class="text-4xl">🔒</div>
-                    <h3 class="mt-3 font-bold">Keamanan Data</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Paket Berlangganan --}}
-    @php
-    $packages = [
-        [
-            'name' => 'Starter',
-            'price' => 'Rp 499.000',
-            'description' => '1 Perguruan Tinggi & 1 Program Studi',
-            'features' => [
-                'Upload hingga 100 dokumen',
-                'Penyimpanan 5 GB',
-                'Dashboard Monitoring',
-                'Kategori Dokumen LAM'
-            ]
-        ],
-        [
-            'name' => 'Basic',
-            'price' => 'Rp 1.499.000',
-            'description' => 'Hingga 5 Program Studi',
-            'features' => [
-                'Upload hingga 1.000 dokumen',
-                'Penyimpanan 25 GB',
-                'Multi User',
-                'Export Laporan'
-            ]
-        ],
-        [
-            'name' => 'Professional',
-            'price' => 'Rp 3.999.000',
-            'featured' => true,
-            'description' => 'Pilihan Terbaik',
-            'features' => [
-                'Hingga 20 Program Studi',
-                'Upload 10.000 dokumen',
-                'Penyimpanan 100 GB',
-                'Approval Dokumen',
-                'Backup Otomatis'
-            ]
-        ],
-        [
-            'name' => 'Enterprise',
-            'price' => 'Hubungi Kami',
-            'description' => 'Universitas Besar',
-            'features' => [
-                'Program Studi Tak Terbatas',
-                'Dokumen Tak Terbatas',
-                'SSO',
-                'Dedicated Support'
-            ]
-        ]
-    ];
-    @endphp
-
-    <div class="mb-12">
-        <div class="text-center mb-10">
-            <h2 class="text-3xl font-bold text-slate-900">
-                Paket Berlangganan SILADATA
-            </h2>
-
-            <p class="mt-2 text-slate-600">
-                Pilih paket sesuai kebutuhan institusi Anda.
-            </p>
-        </div>
-
-        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            @foreach($packages as $package)
-                <div class="
-                    rounded-3xl p-6 transition-all duration-300
-                    hover:-translate-y-1 hover:shadow-xl
-                    {{ isset($package['featured']) ? 'bg-gradient-to-b from-violet-600 to-indigo-600 text-white shadow-xl scale-105' : 'bg-white border border-slate-200' }}
-                ">
-                    @if(isset($package['featured']))
-                        <div class="mb-4 inline-flex rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-slate-900">
-                            ⭐ PILIHAN TERBAIK
-                        </div>
-                    @endif
-
-                    <h3 class="text-2xl font-bold">
-                        {{ $package['name'] }}
-                    </h3>
-
-                    <p class="mt-2 text-sm opacity-80">
-                        {{ $package['description'] }}
+                    <p class="mt-4 text-slate-600 leading-relaxed">
+                        SILADATA (Sistem Layanan Dokumen Akreditasi) merupakan platform
+                        terintegrasi yang membantu perguruan tinggi dalam mengelola dan
+                        mempersiapkan dokumen akreditasi sesuai kebutuhan
+                        <strong>Lembaga Akreditasi Mandiri (LAM)</strong>.
+                        Dengan sistem penyimpanan dan pengunggahan dokumen yang
+                        terstruktur, SILADATA mempermudah proses pengumpulan,
+                        pengelolaan, serta pemantauan kelengkapan dokumen sehingga
+                        institusi dapat lebih siap menghadapi proses akreditasi secara
+                        efektif, efisien, dan terdokumentasi dengan baik.
                     </p>
 
-                    <div class="mt-5">
-                        <span class="text-3xl font-extrabold">
-                            {{ $package['price'] }}
-                        </span>
+                    <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-500">✓</span>
+                            <span class="text-slate-600">Terintegrasi dengan kebutuhan LAM</span>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-500">✓</span>
+                            <span class="text-slate-600">Penyimpanan dokumen terpusat</span>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-500">✓</span>
+                            <span class="text-slate-600">Monitoring progres akreditasi</span>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-500">✓</span>
+                            <span class="text-slate-600">Keamanan dokumen terjamin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="rounded-2xl bg-violet-50 p-6 shadow-sm border border-violet-100/50">
+                        <div class="text-4xl">📁</div>
+                        <h3 class="mt-3 font-bold text-slate-800">Dokumen Akreditasi</h3>
                     </div>
 
-                    <ul class="mt-6 space-y-3">
-                        @foreach($package['features'] as $feature)
-                            <li class="flex gap-2">
-                                <span>✓</span>
-                                <span>{{ $feature }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
+                    <div class="rounded-2xl bg-sky-50 p-6 shadow-sm border border-sky-100/50">
+                        <div class="text-4xl">☁️</div>
+                        <h3 class="mt-3 font-bold text-slate-800">Cloud Storage</h3>
+                    </div>
 
-                    <button class="
-                        mt-8 w-full rounded-xl py-3 font-semibold transition-colors duration-200
-                        {{ isset($package['featured'])
-                            ? 'bg-white text-violet-700 hover:bg-slate-50'
-                            : 'bg-violet-700 text-white hover:bg-violet-800'
-                        }}
-                    ">
-                        Mulai Sekarang
-                    </button>
+                    <div class="rounded-2xl bg-emerald-50 p-6 shadow-sm border border-emerald-100/50">
+                        <div class="text-4xl">📊</div>
+                        <h3 class="mt-3 font-bold text-slate-800">Monitoring Progress</h3>
+                    </div>
+
+                    <div class="rounded-2xl bg-amber-50 p-6 shadow-sm border border-amber-100/50">
+                        <div class="text-4xl">🔒</div>
+                        <h3 class="mt-3 font-bold text-slate-800">Keamanan Data</h3>
+                    </div>
                 </div>
-            @endforeach
+            </div>
         </div>
     </div>
 
     {{-- Banner Call-To-Action (Sesuai Gambar) --}}
-    <div class="mb-16">
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div class="relative overflow-hidden rounded-[32px] bg-violet-700 px-8 py-16 text-center text-white sm:px-12 sm:py-20 shadow-xl">
             <!-- Background Watermark/Deco pattern di sisi kanan -->
             <div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 hidden md:block select-none pointer-events-none">
@@ -235,10 +123,8 @@
             </div>
         </div>
     </div>
-    </div>
 
     {{-- Footer Gelap (Sesuai Gambar) --}}
-
 
     {{-- Tombol WhatsApp Melayang (Floating Button) --}}
     

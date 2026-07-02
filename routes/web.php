@@ -18,6 +18,9 @@ use App\Http\Controllers\UnitKerja\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/harga', function () {
+    return view('home.harga');
+})->name('harga');
 Route::get('/diskusi', [DiscussionController::class, 'show'])->name('discussion');
 Route::post('/diskusi', [DiscussionController::class, 'store'])->name('discussion.store');
 

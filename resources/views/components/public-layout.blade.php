@@ -29,22 +29,30 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body class="font-sans text-slate-900 antialiased">
-    <div class="relative min-h-screen flex flex-col bg-gradient-to-br from-slate-100 via-violet-50/40 to-indigo-50/30">
-        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-200/25 via-transparent to-transparent"></div>
-
-        <header class="relative border-b border-white/60 bg-white/70 backdrop-blur-md">
-            <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-                <a href="{{ route('home') }}" class="flex items-center gap-3">
-                    <img
-                        class="flex h-11 w-11 items-center justify-center rounded-2xl shadow-lg shadow-violet-500/30 object-contain bg-white"
-                        src="{{ asset('images/logoname.png') }}"
-                        alt="SILADATA"
-                    />
-                    <div>
-                        <p class="text-sm font-bold text-slate-900">SILADATA (Sistem Layanan Dokumen Akreditasi)</p>
-                        <p class="text-xs text-slate-500">Dashboard progress program studi</p>
-                    </div>
-                </a>
+    <header class="sticky top-0 z-50 border-b border-white/60 bg-white/70 backdrop-blur-md">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+            <a href="{{ route('home') }}" class="flex items-center gap-3">
+                <img
+                    class="flex h-11 w-11 items-center justify-center rounded-2xl shadow-lg shadow-violet-500/30 object-contain bg-white"
+                    src="{{ asset('images/logoname.png') }}"
+                    alt="SILADATA"
+                />
+                <div>
+                    <p class="text-sm font-bold text-slate-900 sm:block hidden">SILADATA (Sistem Layanan Dokumen Akreditasi)</p>
+                    <p class="text-sm font-bold text-slate-900 sm:hidden">SILADATA</p>
+                    <p class="text-xs text-slate-500 sm:block hidden">Dashboard progress program studi</p>
+                </div>
+            </a>
+            <div class="flex items-center gap-4 sm:gap-6">
+                <nav class="flex items-center gap-4 sm:gap-6">
+                    <a href="{{ route('home') }}" class="text-sm font-semibold transition-colors duration-200 {{ request()->routeIs('home') ? 'text-violet-600 font-bold' : 'text-slate-600 hover:text-violet-600' }}">
+                        Beranda
+                    </a>
+                    <a href="{{ route('harga') }}" class="text-sm font-semibold transition-colors duration-200 {{ request()->routeIs('harga') ? 'text-violet-600 font-bold' : 'text-slate-600 hover:text-violet-600' }}">
+                        Harga
+                    </a>
+                </nav>
+                <div class="h-5 w-px bg-slate-200"></div>
                 <div class="flex items-center gap-2">
                     @auth
                         <a href="{{ route('dashboard') }}" class="ui-btn-primary text-sm">Masuk aplikasi</a>
@@ -53,7 +61,11 @@
                     @endauth
                 </div>
             </div>
-        </header>
+        </div>
+    </header>
+
+    <div class="relative min-h-screen flex flex-col bg-gradient-to-br from-slate-100 via-violet-50/40 to-indigo-50/30">
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-200/25 via-transparent to-transparent"></div>
 
         <main class="relative flex-grow">
             {{ $slot }}
