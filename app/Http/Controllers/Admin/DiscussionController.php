@@ -23,7 +23,7 @@ class DiscussionController extends Controller
                   ->orWhere('perusahaan', 'like', "%{$search}%");
             })
             ->orderByDesc('created_at')
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
 
         return view('admin.discussions.index', [

@@ -54,7 +54,8 @@
                         $unit = $prodiRecord->user;
                     @endphp
                     @if ($unit)
-                        <div class="ui-card overflow-hidden">
+                        {{-- Alpine: each prodi card has its own showAll state --}}
+                        <div class="ui-card overflow-hidden" x-data="{ showAll: false }">
                             <div class="ui-section-header bg-gradient-to-r from-violet-50/90 to-white">
                                 <div>
                                     <h3 class="text-base font-bold text-slate-900">{{ $unit->name }}</h3>
@@ -65,6 +66,12 @@
                             @if ($unit->submissions->isEmpty())
                                 <p class="px-6 py-6 text-center text-sm text-slate-500">Belum ada unggahan.</p>
                             @else
+                                @php
+                                    $allSubs = $unit->submissions;
+                                    $totalSubs = $allSubs->count();
+                                    $firstFive = $allSubs->take(5);
+                                    $remaining = $allSubs->skip(5);
+                                @endphp
                                 <div class="overflow-x-auto">
                                     <table class="ui-table">
                                         <thead>
@@ -75,8 +82,27 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($unit->submissions as $sub)
+                                            {{-- Selalu tampilkan 5 pertama --}}
+                                            @foreach ($firstFive as $sub)
                                                 <tr>
+                                                    <td>
+                                                        <div class="text-xs text-slate-500">{{ $sub->requirement->module->name }}</div>
+                                                        <div class="max-w-md font-medium text-slate-900">{{ $sub->requirement->title }}</div>
+                                                    </td>
+                                                    <td><span class="ui-badge {{ $sub->status->badgeClass() }}">{{ $sub->status->label() }}</span></td>
+                                                    <td class="text-right space-x-2 text-sm font-semibold">
+                                                        <a href="{{ route('admin.submissions.view', $sub) }}" class="text-violet-600 hover:text-violet-500">Lihat</a>
+                                                        <a href="{{ route('admin.submissions.download', $sub) }}" class="text-slate-600 hover:text-slate-900">Unduh</a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+
+                                            {{-- Sisanya: hanya tampil jika showAll = true --}}
+                                            @foreach ($remaining as $sub)
+                                                <tr x-show="showAll"
+                                                    x-transition:enter="transition ease-out duration-200"
+                                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                                    x-transition:enter-end="opacity-100 translate-y-0">
                                                     <td>
                                                         <div class="text-xs text-slate-500">{{ $sub->requirement->module->name }}</div>
                                                         <div class="max-w-md font-medium text-slate-900">{{ $sub->requirement->title }}</div>
@@ -91,6 +117,31 @@
                                         </tbody>
                                     </table>
                                 </div>
+
+                                {{-- Tombol Lihat Selengkapnya (hanya jika > 5 dokumen) --}}
+                                @if ($totalSubs > 5)
+                                    <div class="border-t border-slate-100 bg-slate-50/60 px-5 py-3 flex items-center justify-between">
+                                        <p class="text-xs text-slate-500" x-show="!showAll">
+                                            Menampilkan 5 dari <span class="font-semibold text-slate-700">{{ $totalSubs }}</span> dokumen
+                                        </p>
+                                        <p class="text-xs text-slate-500" x-show="showAll">
+                                            Menampilkan semua <span class="font-semibold text-slate-700">{{ $totalSubs }}</span> dokumen
+                                        </p>
+                                        <button
+                                            type="button"
+                                            @click="showAll = !showAll"
+                                            class="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 hover:bg-violet-100 px-3 py-1.5 text-xs font-semibold text-violet-700 ring-1 ring-violet-200/80 transition"
+                                        >
+                                            <svg x-show="!showAll" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                            <svg x-show="showAll" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                            <span x-text="showAll ? 'Sembunyikan' : 'Lihat Selengkapnya ({{ $totalSubs - 5 }} lagi)'"></span>
+                                        </button>
+                                    </div>
+                                @endif
                             @endif
                         </div>
                     @endif
@@ -103,5 +154,15 @@
         <div class="ui-empty ui-card py-16 text-sm">Tidak ada perguruan tinggi/program studi yang cocok.</div>
     @endforelse
 
-    <div class="mt-6">{{ $pertis->links() }}</div>
+    {{-- Pagination Perguruan Tinggi --}}
+    @if ($pertis->hasPages())
+        <div class="mt-8 flex flex-col items-center gap-2">
+            <p class="text-xs text-slate-500">
+                Menampilkan halaman <span class="font-semibold text-slate-700">{{ $pertis->currentPage() }}</span>
+                dari <span class="font-semibold text-slate-700">{{ $pertis->lastPage() }}</span>
+                (total <span class="font-semibold text-slate-700">{{ $pertis->total() }}</span> universitas)
+            </p>
+            <div class="mt-1">{{ $pertis->links() }}</div>
+        </div>
+    @endif
 </x-app-layout>

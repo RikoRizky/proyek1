@@ -9,11 +9,38 @@
         </div>
     </x-slot>
 
-
-
     @error('delete')
         <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">{{ $message }}</div>
     @enderror
+
+    {{-- ── SEARCH BAR ── --}}
+    <div class="mb-8">
+        <form method="GET" action="{{ route('admin.users.index') }}" class="flex gap-3">
+            <div class="relative flex-1">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                    <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z"/>
+                    </svg>
+                </div>
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ $search }}"
+                    placeholder="Cari nama atau email akun (Admin, Perti, Prodi)..."
+                    class="w-full rounded-xl border-slate-200 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-900 shadow-sm ring-1 ring-slate-200 focus:border-violet-500 focus:ring-violet-500/30 placeholder:text-slate-400"
+                >
+            </div>
+            <button type="submit" class="ui-btn-primary px-5 py-2.5 text-sm">Cari</button>
+            @if($search)
+                <a href="{{ route('admin.users.index') }}" class="ui-btn-secondary px-5 py-2.5 text-sm">Reset</a>
+            @endif
+        </form>
+        @if($search)
+            <p class="mt-2 text-xs text-slate-500">
+                Menampilkan hasil pencarian untuk: <span class="font-semibold text-violet-700">"{{ $search }}"</span>
+            </p>
+        @endif
+    </div>
 
     {{-- ── SECTION 1: ADMINISTRATOR ── --}}
     <div class="mb-10">
@@ -52,7 +79,9 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="py-6 text-center text-sm text-slate-500">Tidak ada data.</td>
+                            <td colspan="3" class="py-6 text-center text-sm text-slate-500">
+                                @if($search) Tidak ada admin yang cocok dengan "{{ $search }}". @else Tidak ada data. @endif
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -99,13 +128,22 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-6 text-center text-sm text-slate-500">Belum ada akun Perguruan Tinggi. Buat dengan tombol di atas.</td>
+                            <td colspan="5" class="py-6 text-center text-sm text-slate-500">
+                                @if($search) Tidak ada perguruan tinggi yang cocok dengan "{{ $search }}". @else Belum ada akun Perguruan Tinggi. Buat dengan tombol di atas. @endif
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
             @if ($pertis->hasPages())
-                <div class="border-t border-slate-100 bg-slate-50/50 px-4 py-3">{{ $pertis->links() }}</div>
+                <div class="border-t border-slate-100 bg-slate-50/50 px-4 py-3 flex items-center justify-between gap-4">
+                    <p class="text-xs text-slate-500">
+                        Halaman <span class="font-semibold text-slate-700">{{ $pertis->currentPage() }}</span>
+                        dari <span class="font-semibold text-slate-700">{{ $pertis->lastPage() }}</span>
+                        &mdash; <span class="font-semibold text-slate-700">{{ $pertis->total() }}</span> total perti
+                    </p>
+                    <div>{{ $pertis->links() }}</div>
+                </div>
             @endif
         </div>
     </div>
@@ -151,13 +189,22 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="py-6 text-center text-sm text-slate-500">Belum ada akun Program Studi. Perti yang login dapat membuat akun prodi.</td>
+                            <td colspan="4" class="py-6 text-center text-sm text-slate-500">
+                                @if($search) Tidak ada program studi yang cocok dengan "{{ $search }}". @else Belum ada akun Program Studi. Perti yang login dapat membuat akun prodi. @endif
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
             @if ($prodis->hasPages())
-                <div class="border-t border-slate-100 bg-slate-50/50 px-4 py-3">{{ $prodis->links() }}</div>
+                <div class="border-t border-slate-100 bg-slate-50/50 px-4 py-3 flex items-center justify-between gap-4">
+                    <p class="text-xs text-slate-500">
+                        Halaman <span class="font-semibold text-slate-700">{{ $prodis->currentPage() }}</span>
+                        dari <span class="font-semibold text-slate-700">{{ $prodis->lastPage() }}</span>
+                        &mdash; <span class="font-semibold text-slate-700">{{ $prodis->total() }}</span> total prodi
+                    </p>
+                    <div>{{ $prodis->links() }}</div>
+                </div>
             @endif
         </div>
     </div>

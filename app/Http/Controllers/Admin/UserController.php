@@ -20,26 +20,42 @@ use Illuminate\View\View;
  */
 class UserController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $search = trim((string) $request->get('search', ''));
+
         $admins = User::query()
             ->where('role', UserRole::Admin)
+            ->when($search, fn ($q) => $q->where(fn ($q2) =>
+                $q2->where('name', 'like', "%{$search}%")
+                   ->orWhere('email', 'like', "%{$search}%")
+            ))
             ->orderBy('name')
             ->get();
 
         $pertis = User::query()
             ->where('role', UserRole::Perti)
             ->with('pertiProfile')
+            ->when($search, fn ($q) => $q->where(fn ($q2) =>
+                $q2->where('name', 'like', "%{$search}%")
+                   ->orWhere('email', 'like', "%{$search}%")
+            ))
             ->orderBy('name')
-            ->paginate(20, ['*'], 'perti_page');
+            ->paginate(10, ['*'], 'perti_page')
+            ->withQueryString();
 
         $prodis = User::query()
             ->where('role', UserRole::Prodi)
             ->with(['prodiProfile.perti.user'])
+            ->when($search, fn ($q) => $q->where(fn ($q2) =>
+                $q2->where('name', 'like', "%{$search}%")
+                   ->orWhere('email', 'like', "%{$search}%")
+            ))
             ->orderBy('name')
-            ->paginate(20, ['*'], 'prodi_page');
+            ->paginate(10, ['*'], 'prodi_page')
+            ->withQueryString();
 
-        return view('admin.users.index', compact('admins', 'pertis', 'prodis'));
+        return view('admin.users.index', compact('admins', 'pertis', 'prodis', 'search'));
     }
 
     public function create(): View
