@@ -1,14 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Perguruan Tinggi</p>
-            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">Buat Akun Program Studi</h1>
-            <p class="mt-1 text-sm text-slate-600">Akun baru otomatis terhubung di bawah perguruan tinggi <strong>{{ auth()->user()->name }}</strong>.</p>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Program Studi</p>
+            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">Tambah Akun Program Studi</h1>
+            <p class="mt-1 text-sm text-slate-600">Buat akun untuk Program Studi dan hubungkan ke Perguruan Tinggi induk.</p>
         </div>
     </x-slot>
 
     <div class="ui-card max-w-xl mx-auto p-6 sm:p-8">
-        <form method="post" action="{{ route('perti.prodis.store') }}" class="space-y-5">
+        <form method="post" action="{{ route('admin.prodis.store') }}" class="space-y-5">
             @csrf
             <div>
                 <label class="block text-sm font-semibold text-slate-700">Nama Program Studi</label>
@@ -19,6 +19,16 @@
                 <label class="block text-sm font-semibold text-slate-700">Email login</label>
                 <input type="email" name="email" value="{{ old('email') }}" required class="ui-input mt-2" placeholder="prodi@domain.com">
                 @error('email')<p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700">Perguruan Tinggi Induk</label>
+                <select name="perti_id" required class="ui-input mt-2">
+                    <option value="" disabled selected>-- Pilih Perguruan Tinggi --</option>
+                    @foreach ($pertis as $p)
+                        <option value="{{ $p->pertiProfile->id }}" @selected(old('perti_id') == $p->pertiProfile->id)>{{ $p->name }}</option>
+                    @endforeach
+                </select>
+                @error('perti_id')<p class="mt-1.5 text-sm font-medium text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
                 <label class="block text-sm font-semibold text-slate-700">Kode Prodi <span class="font-normal text-slate-400">(opsional)</span></label>
@@ -36,7 +46,7 @@
             </div>
             <div class="flex flex-wrap gap-3 pt-2">
                 <button type="submit" class="ui-btn-primary">Simpan akun prodi</button>
-                <a href="{{ route('perti.prodis.index') }}" class="ui-btn-secondary">Batal</a>
+                <a href="{{ route('admin.users.index') }}" class="ui-btn-secondary">Batal</a>
             </div>
         </form>
     </div>

@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ModuleController;
+use App\Http\Controllers\Admin\PertiController;
+use App\Http\Controllers\Admin\ProdiController as AdminProdiController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RequirementController;
 use App\Http\Controllers\Admin\DiscussionController as AdminDiscussionController;
@@ -34,7 +36,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('analytics', AnalyticsController::class)->name('analytics');
     Route::get('discussions', [AdminDiscussionController::class, 'index'])->name('discussions.index');
 
+    // Manajemen akun: Admin CRUD
     Route::resource('users', UserController::class)->except(['show']);
+    // Manajemen akun: Perti CRUD
+    Route::resource('pertis', PertiController::class)->except(['show']);
+    // Manajemen akun: Prodi CRUD
+    Route::resource('prodis', AdminProdiController::class)->except(['show']);
+
     Route::get('submissions', [SubmissionOverviewController::class, 'index'])->name('submissions.index');
     Route::get('submissions/{submission}/view', [SubmissionOverviewController::class, 'viewer'])->name('submissions.view');
     Route::get('submissions/{submission}/inline', [SubmissionOverviewController::class, 'inline'])->name('submissions.inline');
@@ -57,7 +65,7 @@ Route::middleware(['auth', 'role:perti'])->prefix('perti')->name('perti.')->grou
     Route::get('submissions/{submission}', [App\Http\Controllers\Perti\SubmissionController::class, 'show'])->name('submissions.show');
 });
 
-Route::middleware(['auth', 'role:unit_kerja'])->prefix('unit')->name('unit.')->group(function () {
+Route::middleware(['auth', 'role:prodi'])->prefix('unit')->name('unit.')->group(function () {
     Route::get('progress', UnitProgressController::class)->name('progress');
     Route::get('submissions', [SubmissionController::class, 'index'])->name('submissions.index');
     Route::get('submissions/modul/{module}', [SubmissionController::class, 'module'])->name('submissions.module');

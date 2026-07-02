@@ -151,6 +151,7 @@ class SubmissionController extends Controller
             'google_drive_links.*.url' => 'required_with:google_drive_links.*.name|nullable|url',
             'documents' => 'array',
             'documents.*' => 'file|mimes:pdf,xlsx,xls|max:' . AccreditationUpload::maxUploadKb(),
+            'keep_files' => 'array',
         ], [
             'google_drive_links.*.name.required_with' => 'Nama dokumen wajib diisi jika link Google Drive diisi.',
             'google_drive_links.*.url.required_with' => 'Link Google Drive wajib diisi jika nama dokumen diisi.',
@@ -171,23 +172,42 @@ class SubmissionController extends Controller
             $filesList = [$request->file('document')];
         }
 
-        if (empty($driveLinks) && empty($filesList)) {
-            $validator->errors()->add('google_drive_links', 'Harap isi minimal satu link Google Drive atau unggah berkas dokumen.');
+        $keepFiles = [];
+        foreach ($request->input('keep_files', []) as $keepJson) {
+            $decoded = json_decode($keepJson, true);
+            if ($decoded && isset($decoded['file_path'])) {
+                $keepFiles[] = $decoded;
+            }
         }
 
-        if ($validator->fails() || (empty($driveLinks) && empty($filesList))) {
+        if (empty($driveLinks) && empty($filesList) && empty($keepFiles)) {
+            $validator->errors()->add('google_drive_links', 'Harap isi minimal satu link Google Drive atau unggah/simpan berkas dokumen.');
+        }
+
+        if ($validator->fails() || (empty($driveLinks) && empty($filesList) && empty($keepFiles))) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => $validator->errors()->first() ?: 'Harap isi minimal satu link Google Drive atau unggah berkas dokumen.'], 422);
+                return response()->json(['message' => $validator->errors()->first() ?: 'Harap isi minimal satu link Google Drive atau unggah/simpan berkas dokumen.'], 422);
+            }
+
+            // Collect names of files that were too large so the modal can warn the user
+            $oversizedFiles = [];
+            $maxKb = AccreditationUpload::maxUploadKb();
+            foreach ($request->file('documents', []) as $uploadedFile) {
+                if ($uploadedFile && $uploadedFile->getSize() > $maxKb * 1024) {
+                    $oversizedFiles[] = $uploadedFile->getClientOriginalName();
+                }
             }
 
             return redirect()->route('unit.submissions.module', $requirement->module)
                 ->withErrors($validator)
                 ->withInput()
-                ->with('failed_requirement_id', $requirement->id);
+                ->with('failed_requirement_id', $requirement->id)
+                ->with('oversized_files', $oversizedFiles);
         }
 
+
         $user = $request->user();
-        $submission = $this->persistSubmission($user, $requirement, $driveLinks, $filesList);
+        $submission = $this->persistSubmission($user, $requirement, $driveLinks, $filesList, $keepFiles);
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -245,7 +265,8 @@ class SubmissionController extends Controller
             'routePrefix' => 'unit',
             'inlineUrl' => route('unit.submissions.inline', [$submission, 'file' => $activeFileIndex]),
             'downloadUrl' => route('unit.submissions.download', [$submission, 'file' => $activeFileIndex]),
-            'backUrl' => route('unit.submissions.show', $submission),
+            'backUrl' => route('unit.submissions.module', $submission->requirement->module),
+
         ]);
     }
 
@@ -265,7 +286,7 @@ class SubmissionController extends Controller
 
     private function authorizeUnitKerja(): void
     {
-        abort_unless(auth()->user()?->role === UserRole::UnitKerja, 403);
+        abort_unless(auth()->user()?->role === UserRole::Prodi, 403);
     }
 
     private function authorizeSubmission(Submission $submission): void
@@ -278,7 +299,8 @@ class SubmissionController extends Controller
         User $user,
         Requirement $requirement,
         array|UploadedFile $driveLinksOrFile = [],
-        array $filesList = []
+        array $filesList = [],
+        array $keepFiles = []
     ): Submission {
         $driveLinks = [];
         
@@ -301,6 +323,18 @@ class SubmissionController extends Controller
         }
 
         $savedFiles = [];
+
+        // Pertama, masukkan file lama yang ingin dipertahankan (retensi berkas)
+        foreach ($keepFiles as $fileData) {
+            $savedFiles[] = [
+                'file_path' => $fileData['file_path'],
+                'original_filename' => $fileData['original_filename'],
+                'mime_type' => $fileData['mime_type'] ?? null,
+                'file_size' => $fileData['file_size'] ?? null,
+            ];
+        }
+
+        // Kedua, masukkan file baru yang diunggah
         foreach ($filesList as $file) {
             if ($file instanceof UploadedFile && $file->isValid()) {
                 $path = $file->store("accreditation/{$user->id}/{$requirement->id}", 'local');

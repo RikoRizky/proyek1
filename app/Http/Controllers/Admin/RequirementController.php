@@ -33,7 +33,7 @@ class RequirementController extends Controller
 
         $module->requirements()->create($validated);
 
-        return redirect()->route('admin.modules.requirements.index', $module)->with('status', 'Persyaratan ditambahkan.');
+        return redirect()->route('admin.modules.show', $module)->with('status', 'Persyaratan ditambahkan.');
     }
 
     public function show(Module $module, Requirement $requirement): View
@@ -54,15 +54,22 @@ class RequirementController extends Controller
     {
         abort_unless($requirement->module_id === $module->id, 404);
 
-        $validated = $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $requirement->update($validated);
+        if ($validator->fails()) {
+            return redirect()->route('admin.modules.show', $module)
+                ->withErrors($validator)
+                ->withInput()
+                ->with('edit_requirement_id', $requirement->id);
+        }
 
-        return redirect()->route('admin.modules.requirements.index', $module)->with('status', 'Persyaratan diperbarui.');
+        $requirement->update($validator->validated());
+
+        return redirect()->route('admin.modules.show', $module)->with('status', 'Persyaratan diperbarui.');
     }
 
     public function destroy(Module $module, Requirement $requirement): RedirectResponse
@@ -71,6 +78,6 @@ class RequirementController extends Controller
 
         $requirement->delete();
 
-        return redirect()->route('admin.modules.requirements.index', $module)->with('status', 'Persyaratan dihapus.');
+        return redirect()->route('admin.modules.show', $module)->with('status', 'Persyaratan dihapus.');
     }
 }

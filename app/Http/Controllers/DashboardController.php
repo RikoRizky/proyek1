@@ -21,7 +21,7 @@ class DashboardController extends Controller
         $stats = match ($user->role) {
             UserRole::Admin => $this->adminStats(),
             UserRole::Perti => $this->pertiStats($user),
-            UserRole::UnitKerja => $this->unitStats($user),
+            UserRole::Prodi => $this->unitStats($user),
         };
 
         return view('dashboard', [
@@ -29,7 +29,7 @@ class DashboardController extends Controller
             'progress' => match ($user->role) {
                 UserRole::Admin => UploadProgress::forAllUnits(),
                 UserRole::Perti => UploadProgress::forAllUnitsOfPerti($user),
-                UserRole::UnitKerja => UploadProgress::forUnit($user),
+                UserRole::Prodi => UploadProgress::forUnit($user),
                 default => null,
             },
         ]);
@@ -37,26 +37,31 @@ class DashboardController extends Controller
 
     private function pertiStats(User $user): array
     {
-        $prodiIds = User::query()
-            ->where('role', UserRole::UnitKerja)
-            ->where('perti_id', $user->id)
-            ->pluck('id');
+        $pertiProfile = $user->pertiProfile;
+
+        // Ambil user_id semua Prodi yang berada di bawah Perti ini
+        $prodiUserIds = $pertiProfile
+            ? \App\Models\Prodi::query()
+                ->where('perti_id', $pertiProfile->id)
+                ->pluck('user_id')
+            : collect();
 
         $uploadedLatest = Submission::query()
             ->latestForUnit()
-            ->whereIn('user_id', $prodiIds)
+            ->whereIn('user_id', $prodiUserIds)
             ->where('status', SubmissionStatus::Uploaded)
             ->count();
 
         $totalReq = Requirement::query()->count();
 
         return [
-            'role' => UserRole::Perti,
-            'prodiCount' => $prodiIds->count(),
+            'role'             => UserRole::Perti,
+            'prodiCount'       => $prodiUserIds->count(),
             'totalRequirements' => $totalReq,
-            'uploadedLatest' => $uploadedLatest,
+            'uploadedLatest'   => $uploadedLatest,
         ];
     }
+
 
     private function adminStats(): array
     {
@@ -74,7 +79,7 @@ class DashboardController extends Controller
             'role' => UserRole::Admin,
             'modules' => $modules,
             'pertiCount' => User::query()->where('role', UserRole::Perti)->count(),
-            'unitCount' => User::query()->where('role', UserRole::UnitKerja)->count(),
+            'unitCount' => User::query()->where('role', UserRole::Prodi)->count(),
             'totalRequirements' => Requirement::query()->count(),
             'uploadedLatest' => $uploadedLatest,
         ];
@@ -107,7 +112,7 @@ class DashboardController extends Controller
         $notUploadedCount = max(0, $totalReq - $latestSubmissions->count());
 
         return [
-            'role' => UserRole::UnitKerja,
+            'role' => UserRole::Prodi,
             'modules' => $modules,
             'totalRequirements' => $totalReq,
             'notUploadedCount' => $notUploadedCount,

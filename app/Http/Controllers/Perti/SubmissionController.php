@@ -25,7 +25,13 @@ class SubmissionController extends Controller
             ->orderByDesc('version')
             ->get();
 
-        return view('perti.submissions.show', compact('submission', 'history'));
+        // Resolve the Prodi record ID (perti.prodis.modul route needs prodis.id, not user_id)
+        $prodiRecord = \App\Models\Prodi::query()
+            ->where('user_id', $submission->user_id)
+            ->first();
+        $prodiId = $prodiRecord?->id;
+
+        return view('perti.submissions.show', compact('submission', 'history', 'prodiId'));
     }
 
     public function viewer(Submission $submission): View
@@ -45,15 +51,25 @@ class SubmissionController extends Controller
 
         $filename = $activeFile ? $activeFile['original_filename'] : $submission->original_filename;
 
+        // Resolve the Prodi record ID (perti.prodis.modul route needs prodis.id, not user_id)
+        $prodiRecord = \App\Models\Prodi::query()
+            ->where('user_id', $submission->user_id)
+            ->first();
+        $prodiId = $prodiRecord?->id;
+
+        $backUrl = $prodiId
+            ? route('perti.prodis.modul', [$prodiId, $submission->requirement->module_id])
+            : route('perti.prodis.index');
+
         return view('submissions.viewer', [
-            'submission' => $submission,
-            'title' => $submission->requirement->title,
-            'filename' => $filename,
+            'submission'      => $submission,
+            'title'           => $submission->requirement->title,
+            'filename'        => $filename,
             'activeFileIndex' => $activeFileIndex,
-            'routePrefix' => 'perti',
-            'inlineUrl' => route('perti.submissions.inline', [$submission, 'file' => $activeFileIndex]),
-            'downloadUrl' => route('perti.submissions.download', [$submission, 'file' => $activeFileIndex]),
-            'backUrl' => route('perti.submissions.show', $submission),
+            'routePrefix'     => 'perti',
+            'inlineUrl'       => route('perti.submissions.inline', [$submission, 'file' => $activeFileIndex]),
+            'downloadUrl'     => route('perti.submissions.download', [$submission, 'file' => $activeFileIndex]),
+            'backUrl'         => $backUrl,
         ]);
     }
 
@@ -76,12 +92,21 @@ class SubmissionController extends Controller
     private function authorizeSubmission(Submission $submission): void
     {
         $user = auth()->user();
+
+        // Cek apakah submission ini milik prodi yang berada di bawah naungan perti yang sedang login
+        $pertiProfile = $user?->pertiProfile;
+
+        $isOwned = $pertiProfile && $submission->user &&
+            $submission->user->role === \App\Enums\UserRole::Prodi &&
+            \App\Models\Prodi::query()
+                ->where('user_id', $submission->user_id)
+                ->where('perti_id', $pertiProfile->id)
+                ->exists();
+
         abort_unless(
-            $user && 
-            $user->role === UserRole::Perti && 
-            $submission->user && 
-            $submission->user->role === UserRole::UnitKerja && 
-            $submission->user->perti_id === $user->id, 
+            $user &&
+            $user->role === UserRole::Perti &&
+            $isOwned,
             403
         );
     }

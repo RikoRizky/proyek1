@@ -15,14 +15,18 @@
             : 'text-slate-400 hover:bg-white/5 hover:text-slate-100';
     };
 
-    $uploadModules = $role === UserRole::UnitKerja
+    $uploadModules = $role === UserRole::Prodi
         ? Module::query()->orderBy('sort_order')->get()
         : collect();
 
     $uploadMenuActive = request()->routeIs('unit.submissions.module');
 
     $pertiProdis = $role === UserRole::Perti
-        ? auth()->user()->prodis()->orderBy('name')->get()
+        ? \App\Models\Prodi::query()
+            ->where('perti_id', auth()->user()->pertiProfile?->id)
+            ->with('user')
+            ->orderBy('id')
+            ->get()
         : collect();
 
     $pertiModules = $role === UserRole::Perti
@@ -182,7 +186,7 @@
             </a>
         @endif
 
-        @if ($role === UserRole::UnitKerja)
+        @if ($role === UserRole::Prodi)
             <p class="px-3 pt-5 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Unit kerja</p>
 
             <a href="{{ route('unit.progress') }}" @click="sidebarOpen = false"

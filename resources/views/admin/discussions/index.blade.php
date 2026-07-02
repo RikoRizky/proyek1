@@ -220,7 +220,7 @@
             style="display:none;"
         >
             {{-- Backdrop --}}
-            <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="open = false"></div>
+            <div class="absolute inset-0 bg-slate-950/75" @click="open = false"></div>
 
             {{-- Panel --}}
             <div

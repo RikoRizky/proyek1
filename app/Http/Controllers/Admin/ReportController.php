@@ -49,7 +49,7 @@ class ReportController extends Controller
             if ($request->filled('user_id')) {
                 $unit = User::query()
                     ->where('id', $request->integer('user_id'))
-                    ->where('role', UserRole::UnitKerja)
+                    ->where('role', UserRole::Prodi)
                     ->firstOrFail();
                 return ['onlyUnit' => $unit, 'pertiId' => null, 'pertiName' => null];
             }
@@ -59,17 +59,19 @@ class ReportController extends Controller
                     ->where('id', $request->integer('perti_id'))
                     ->where('role', UserRole::Perti)
                     ->firstOrFail();
-                return ['onlyUnit' => null, 'pertiId' => $perti->id, 'pertiName' => $perti->name];
+                $pertiProfile = $perti->pertiProfile;
+                return ['onlyUnit' => null, 'pertiId' => $pertiProfile?->id, 'pertiName' => $perti->name];
             }
 
             return ['selectionRequired' => true];
         }
 
         if ($user->role === UserRole::Perti) {
-            return ['onlyUnit' => null, 'pertiId' => $user->id, 'pertiName' => $user->name];
+            $pertiProfile = $user->pertiProfile;
+            return ['onlyUnit' => null, 'pertiId' => $pertiProfile?->id, 'pertiName' => $user->name];
         }
 
-        abort_unless($user->role === UserRole::UnitKerja, 403);
+        abort_unless($user->role === UserRole::Prodi, 403);
 
         return ['onlyUnit' => $user, 'pertiId' => null, 'pertiName' => null];
     }
@@ -80,9 +82,15 @@ class ReportController extends Controller
     private function summariesForExport(?User $onlyUnit, ?int $pertiId = null): array
     {
         $units = User::query()
-            ->where('role', UserRole::UnitKerja)
+            ->where('role', UserRole::Prodi)
             ->when($onlyUnit, fn ($q) => $q->where('id', $onlyUnit->id))
-            ->when($pertiId, fn ($q) => $q->where('perti_id', $pertiId))
+            ->when($pertiId, function ($q) use ($pertiId) {
+                // Filter berdasarkan perti_id di tabel prodis
+                $prodiUserIds = \App\Models\Prodi::query()
+                    ->where('perti_id', $pertiId)
+                    ->pluck('user_id');
+                $q->whereIn('id', $prodiUserIds);
+            })
             ->orderBy('name')
             ->get();
 

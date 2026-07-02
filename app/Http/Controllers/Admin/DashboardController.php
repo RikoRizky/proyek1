@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $recentSubmissions = Submission::query()
             ->latestForUnit()
             ->with(['user', 'requirement.module'])
-            ->whereHas('user', fn ($q) => $q->where('role', UserRole::UnitKerja))
+            ->whereHas('user', fn ($q) => $q->where('role', UserRole::Prodi))
             ->orderByDesc('created_at')
             ->limit(8)
             ->get();
@@ -28,7 +28,7 @@ class DashboardController extends Controller
         return view('admin.dashboard', [
             'modules' => $modules,
             'pertiCount' => User::query()->where('role', UserRole::Perti)->count(),
-            'unitCount' => User::query()->where('role', UserRole::UnitKerja)->count(),
+            'unitCount' => User::query()->where('role', UserRole::Prodi)->count(),
             'requirementsCount' => Requirement::query()->count(),
             'submissionsCount' => Submission::query()->count(),
             'recentUsers' => $recentUsers,

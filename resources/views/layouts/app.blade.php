@@ -66,11 +66,19 @@
 
                 <main class="mx-auto min-h-0 w-full max-w-7xl flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
                     @if (session('status'))
-                        <div class="ui-alert-success" role="status">
+                        <div class="mb-4 ui-alert-success" role="status">
                             <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white text-xs font-bold">✓</span>
                             <span>{{ session('status') }}</span>
                         </div>
                     @endif
+
+                    @if (session('error'))
+                        <div class="mb-4 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm" role="alert">
+                            <svg class="h-5 w-5 shrink-0 text-rose-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+                            <span class="font-medium text-rose-800">{{ session('error') }}</span>
+                        </div>
+                    @endif
+
 
                     {{ $slot }}
                 </main>

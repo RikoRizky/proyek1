@@ -29,4 +29,17 @@ class ProfileUpdateRequest extends FormRequest
             'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ];
     }
+
+    /**
+     * Custom Indonesian error messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'profile_photo.image'    => 'File foto profil harus berupa gambar.',
+            'profile_photo.mimes'    => 'Format foto profil tidak didukung. Gunakan JPEG, PNG, JPG, atau GIF.',
+            'profile_photo.max'      => 'Foto profil tidak boleh melebihi 2 MB. Silakan pilih gambar yang lebih kecil.',
+        ];
+    }
 }
+

@@ -4,58 +4,87 @@ namespace Database\Seeders;
 
 use App\Enums\UserRole;
 use App\Models\Module;
+use App\Models\Perti;
+use App\Models\Prodi;
 use App\Models\Requirement;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Data demo: admin, program studi, modul, dan persyaratan.
- * Akun program studi tambahan sebaiknya dibuat lewat panel Admin → Akun program studi.
+ * Data demo: admin, perguruan tinggi, program studi, modul, dan persyaratan.
+ * Akun program studi tambahan sebaiknya dibuat lewat panel Perti → Kelola Program Studi.
  */
 class AccreditationDemoSeeder extends Seeder
 {
     public function run(): void
     {
+        // ── Admin ─────────────────────────────────────────
         User::query()->updateOrCreate(
             ['email' => 'admin@gmail.com'],
             [
-                'name' => 'Administrator',
-                'password' => Hash::make('Admin123'),
-                'role' => UserRole::Admin,
+                'name'              => 'Administrator',
+                'password'          => Hash::make('Admin123'),
+                'role'              => UserRole::Admin,
                 'email_verified_at' => now(),
             ]
         );
 
-        $perti = User::query()->updateOrCreate(
+        // ── Perguruan Tinggi ───────────────────────────────
+        $pertiUser = User::query()->updateOrCreate(
             ['email' => 'ulbi@gmail.com'],
             [
-                'name' => 'Universitas Logistik & Bisnis Internasional',
-                'password' => Hash::make('Ulbi1234'),
-                'role' => UserRole::Perti,
+                'name'              => 'Universitas Logistik & Bisnis Internasional',
+                'password'          => Hash::make('Ulbi1234'),
+                'role'              => UserRole::Perti,
                 'email_verified_at' => now(),
             ]
         );
 
-        User::query()->updateOrCreate(
+        // Buat/update profil perti di tabel pertis
+        $pertiProfile = Perti::query()->updateOrCreate(
+            ['user_id' => $pertiUser->id],
+            [
+                'kode_pt' => '001009',
+                'alamat'  => 'Bandung, Jawa Barat',
+            ]
+        );
+
+        // ── Program Studi 1: Informatika ───────────────────
+        $prodiUserA = User::query()->updateOrCreate(
             ['email' => 'informatika@gmail.com'],
             [
-                'name' => 'Program Studi Informatika',
-                'password' => Hash::make('Informatika123'),
-                'role' => UserRole::UnitKerja,
-                'perti_id' => $perti->id,
+                'name'              => 'Program Studi Informatika',
+                'password'          => Hash::make('Informatika123'),
+                'role'              => UserRole::Prodi,
                 'email_verified_at' => now(),
             ]
         );
 
-        User::query()->updateOrCreate(
+        Prodi::query()->updateOrCreate(
+            ['user_id' => $prodiUserA->id],
+            [
+                'perti_id'   => $pertiProfile->id,
+                'kode_prodi' => 'IF001',
+            ]
+        );
+
+        // ── Program Studi 2: Logistik ──────────────────────
+        $prodiUserB = User::query()->updateOrCreate(
             ['email' => 'logistik@gmail.com'],
             [
-                'name' => 'Program Studi Logistik',
-                'password' => Hash::make('Logistik123'),
-                'role' => UserRole::UnitKerja,
-                'perti_id' => $perti->id,
+                'name'              => 'Program Studi Logistik',
+                'password'          => Hash::make('Logistik123'),
+                'role'              => UserRole::Prodi,
                 'email_verified_at' => now(),
+            ]
+        );
+
+        Prodi::query()->updateOrCreate(
+            ['user_id' => $prodiUserB->id],
+            [
+                'perti_id'   => $pertiProfile->id,
+                'kode_prodi' => 'LG001',
             ]
         );
 

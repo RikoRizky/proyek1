@@ -4,74 +4,94 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreUserRequest;
-use App\Http\Requests\Admin\UpdateUserRequest;
+use App\Models\Perti;
+use App\Models\Prodi;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
+/**
+ * Halaman utama manajemen akun di panel Admin.
+ * Menampilkan 3 tabel: Admin, Perti, Prodi.
+ * CRUD akun Admin ada di sini; CRUD Perti ada di PertiController.
+ */
 class UserController extends Controller
 {
     public function index(): View
     {
-        $users = User::query()
-            ->orderByRaw("CASE role WHEN 'admin' THEN 1 WHEN 'perti' THEN 2 WHEN 'unit_kerja' THEN 3 END")
+        $admins = User::query()
+            ->where('role', UserRole::Admin)
             ->orderBy('name')
-            ->paginate(20);
+            ->get();
 
-        return view('admin.users.index', compact('users'));
+        $pertis = User::query()
+            ->where('role', UserRole::Perti)
+            ->with('pertiProfile')
+            ->orderBy('name')
+            ->paginate(20, ['*'], 'perti_page');
+
+        $prodis = User::query()
+            ->where('role', UserRole::Prodi)
+            ->with(['prodiProfile.perti.user'])
+            ->orderBy('name')
+            ->paginate(20, ['*'], 'prodi_page');
+
+        return view('admin.users.index', compact('admins', 'pertis', 'prodis'));
     }
 
     public function create(): View
     {
-        $pertis = User::query()->where('role', UserRole::Perti)->orderBy('name')->get();
-        return view('admin.users.create', compact('pertis'));
+        return view('admin.users.create');
     }
 
-    public function store(StoreUserRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
+        $validated = $request->validate([
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
         User::query()->create([
-            'name' => $request->validated('name'),
-            'email' => $request->validated('email'),
-            'password' => $request->validated('password'),
-            'role' => UserRole::from($request->validated('role')),
-            'perti_id' => $request->validated('role') === UserRole::UnitKerja->value ? $request->validated('perti_id') : null,
+            'name'              => $validated['name'],
+            'email'             => $validated['email'],
+            'password'          => $validated['password'],
+            'role'              => UserRole::Admin,
             'email_verified_at' => now(),
         ]);
 
-        return redirect()->route('admin.users.index')->with('status', 'Akun berhasil dibuat.');
+        return redirect()->route('admin.users.index')->with('status', 'Akun administrator berhasil dibuat.');
     }
 
     public function edit(User $user): View
     {
-        $pertis = User::query()->where('role', UserRole::Perti)->orderBy('name')->get();
-        return view('admin.users.edit', compact('user', 'pertis'));
+        abort_unless($user->role === UserRole::Admin, 404);
+
+        return view('admin.users.edit', compact('user'));
     }
 
-    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    public function update(Request $request, User $user): RedirectResponse
     {
-        if ($user->isAdmin() && User::query()->where('role', UserRole::Admin)->count() === 1) {
-            if (UserRole::from($request->validated('role')) !== UserRole::Admin) {
-                return redirect()->back()->withErrors(['role' => 'Harus ada minimal satu akun administrator.'])->withInput();
-            }
+        abort_unless($user->role === UserRole::Admin, 404);
+
+        // Cegah hapus admin terakhir via role change (tidak berlaku di sini karena edit hanya admin)
+        $validated = $request->validate([
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'password' => ['nullable', 'confirmed', Password::defaults()],
+        ]);
+
+        $user->name  = $validated['name'];
+        $user->email = $validated['email'];
+        if (!empty($validated['password'])) {
+            $user->password = $validated['password'];
         }
-
-        $data = $request->safe()->only(['name', 'email', 'role', 'perti_id']);
-        $data['role'] = UserRole::from($data['role']);
-
-        if ($data['role'] !== UserRole::UnitKerja) {
-            $data['perti_id'] = null;
-        }
-
-        $user->fill($data);
-
-        if (! empty($request->validated('password'))) {
-            $user->password = $request->validated('password');
-        }
-
         $user->save();
 
-        return redirect()->route('admin.users.index')->with('status', 'Data pengguna diperbarui.');
+        return redirect()->route('admin.users.index')->with('status', 'Data administrator diperbarui.');
     }
 
     public function destroy(User $user): RedirectResponse
@@ -80,7 +100,7 @@ class UserController extends Controller
             return redirect()->route('admin.users.index')->withErrors(['delete' => 'Anda tidak dapat menghapus akun sendiri.']);
         }
 
-        if ($user->isAdmin() && User::query()->where('role', UserRole::Admin)->count() === 1) {
+        if ($user->role === UserRole::Admin && User::query()->where('role', UserRole::Admin)->count() === 1) {
             return redirect()->route('admin.users.index')->withErrors(['delete' => 'Tidak dapat menghapus administrator terakhir.']);
         }
 

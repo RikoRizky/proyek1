@@ -1,6 +1,18 @@
 @php
     $maxUploadMb = \App\Support\AccreditationUpload::maxUploadMb();
+    $postMaxSizeStr = ini_get('post_max_size');
+    $val = trim($postMaxSizeStr);
+    $last = strtolower($val[strlen($val)-1]);
+    $val = (float)$val;
+    switch($last) {
+        case 'g': $val *= 1024;
+        case 'm': $val *= 1024;
+        case 'k': $val *= 1024;
+    }
+    $postMaxSizeBytes = $val;
+    $postMaxSizeLabel = \App\Support\AccreditationUpload::iniSizeLabel($postMaxSizeStr);
 @endphp
+
 
 @foreach ($module->requirements as $req)
     <!-- Floating Modal for each Requirement -->
@@ -133,14 +145,45 @@
                                         class="sr-only" onchange="updateFilePreview('{{ $req->id }}', this)">
                                 </label>
 
-                                <!-- File preview list -->
+                                <!-- File preview list (newly selected files) -->
                                 <div id="file-preview-{{ $req->id }}" class="mt-2 space-y-1.5 hidden"></div>
+
+                                <!-- Oversized file warning (shown after failed upload due to file size) -->
+                                <div id="oversized-warning-{{ $req->id }}" class="mt-2 hidden rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3">
+                                    <div class="flex items-start gap-2.5">
+                                        <svg class="h-4 w-4 shrink-0 text-rose-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-xs font-bold text-rose-700">Berkas terlalu besar:</p>
+                                            <ul id="oversized-list-{{ $req->id }}" class="mt-1 space-y-0.5 text-[11px] text-rose-600 list-disc pl-4"></ul>
+                                            <p class="mt-1.5 text-[11px] text-rose-600">Hapus berkas di atas lalu pilih ulang berkas yang lebih kecil dari {{ $maxUploadMb }} MB.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Total request size warning -->
+                                <div id="total-size-warning-{{ $req->id }}" class="mt-2 hidden rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3">
+                                    <div class="flex items-start gap-2.5">
+                                        <svg class="h-4 w-4 shrink-0 text-rose-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-xs font-bold text-rose-700">Total berkas melebihi batas request:</p>
+                                            <p class="mt-1 text-[11px] text-rose-600">
+                                                Total ukuran berkas terpilih adalah <span id="total-size-current-{{ $req->id }}" class="font-bold">0 MB</span>, melebihi batas total request server sebesar <span class="font-bold">{{ $postMaxSizeLabel }}</span>.
+                                            </p>
+                                            <p class="mt-1.5 text-[11px] text-rose-600">Silakan hapus beberapa berkas atau kurangi dokumen agar dapat diunggah bersamaan.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <!-- Container for existing files (retained files) -->
+                                <div id="existing-files-container-{{ $req->id }}" class="mt-3 space-y-2"></div>
+
                             </div>
                         </div>
 
                         <!-- Footer -->
                         <div class="flex items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/60 px-6 py-3.5">
-                            <p class="text-[11px] text-slate-400 leading-tight hidden sm:block">Data yang sudah ada tetap tersimpan jika dikosongkan</p>
+                            <p class="text-[11px] text-slate-400 leading-tight hidden sm:block">Dokumen lama &amp; link lama dapat dipertahankan atau dihapus secara selektif.</p>
                             <div class="flex items-center gap-2 ml-auto">
                                 <button type="button" onclick="closeUploadModal('{{ $req->id }}')"
                                     class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition">
@@ -202,28 +245,91 @@
             return row;
         };
 
-        window.openUploadModal = (reqId, existingLinks) => {
+        window.openUploadModal = (reqId, existingLinks, existingFiles) => {
             const modal = document.getElementById(`upload-modal-${reqId}`);
             const modalBox = document.getElementById(`modal-box-${reqId}`);
 
             // Pre-fill existing Google Drive links (Perbarui Berkas mode)
-            if (existingLinks && existingLinks.length > 0) {
-                const container = document.getElementById(`drive-links-container-${reqId}`);
-                if (container) {
-                    container.innerHTML = '';
+            const container = document.getElementById(`drive-links-container-${reqId}`);
+            if (container) {
+                container.innerHTML = '';
+                if (existingLinks && existingLinks.length > 0) {
                     existingLinks.forEach((link, idx) => {
                         const row = buildDriveLinkRow(reqId, idx, link.name || '', link.url || '', idx > 0);
                         container.appendChild(row);
                     });
                     linkIndices[reqId] = existingLinks.length + 10;
+                } else {
+                    const row = buildDriveLinkRow(reqId, 0, '', '', false);
+                    container.appendChild(row);
+                    linkIndices[reqId] = 1;
                 }
             }
+
+            // Pre-fill existing uploaded files
+            const existingFilesContainer = document.getElementById(`existing-files-container-${reqId}`);
+            if (existingFilesContainer) {
+                existingFilesContainer.innerHTML = '';
+                if (existingFiles && existingFiles.length > 0) {
+                    // Add a label
+                    const header = document.createElement('p');
+                    header.className = 'text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5';
+                    header.textContent = 'Berkas terunggah sebelumnya (tetap disimpan):';
+                    existingFilesContainer.appendChild(header);
+
+                    existingFiles.forEach((file, idx) => {
+                        const fileRow = document.createElement('div');
+                        fileRow.className = 'flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5';
+                        fileRow.id = `existing-file-row-${reqId}-${idx}`;
+                        
+                        const sizeKb = (file.file_size / 1024).toFixed(1);
+                        const ext = file.original_filename.split('.').pop().toLowerCase();
+                        const bg = ext === 'pdf' ? '#fef2f2' : '#f0fdf4';
+                        const fg = ext === 'pdf' ? '#b91c1c' : '#15803d';
+
+                        fileRow.innerHTML = `
+                            <input type="hidden" name="keep_files[]" value='${JSON.stringify(file).replace(/'/g, "&#39;")}' id="keep-file-input-${reqId}-${idx}">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold" style="background:${bg};color:${fg}">${ext.toUpperCase()}</span>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-xs font-semibold text-slate-700">${file.original_filename}</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">${sizeKb} KB</p>
+                            </div>
+                            <button type="button" onclick="removeExistingFileRow('${reqId}', ${idx})"
+                                class="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500">
+                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        `;
+                        existingFilesContainer.appendChild(fileRow);
+                    });
+                }
+            }
+
+            // Reset file input preview and selected files state
+            selectedFilesMap[reqId] = [];
+            const preview = document.getElementById(`file-preview-${reqId}`);
+            if (preview) { preview.classList.add('hidden'); preview.innerHTML = ''; }
+            const label = document.getElementById(`dropzone-label-${reqId}`);
+            if (label) label.textContent = 'Klik atau seret berkas ke sini';
+            const input = document.getElementById(`file-input-${reqId}`);
+            if (input) input.value = '';
+
 
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modalBox.classList.remove('scale-95', 'opacity-0');
                 modalBox.classList.add('scale-100', 'opacity-100');
             }, 50);
+        };
+
+        window.removeExistingFileRow = (reqId, idx) => {
+            const row = document.getElementById(`existing-file-row-${reqId}-${idx}`);
+            if (row) {
+                row.remove();
+            }
+            const container = document.getElementById(`existing-files-container-${reqId}`);
+            if (container && container.querySelectorAll('[id^="existing-file-row-"]').length === 0) {
+                container.innerHTML = '';
+            }
         };
 
         window.closeUploadModal = (reqId) => {
@@ -260,34 +366,154 @@
             }
         };
 
-        window.updateFilePreview = (reqId, input) => {
+        // Per-modal mutable list of selected files (so we can remove individual ones)
+        const selectedFilesMap = {};
+
+        const MAX_UPLOAD_MB = {{ \App\Support\AccreditationUpload::maxUploadMb() }};
+        const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
+        const POST_MAX_SIZE_BYTES = {{ $postMaxSizeBytes }};
+
+        const rebuildInputFiles = (reqId) => {
+            const input = document.getElementById(`file-input-${reqId}`);
+            if (!input) return;
+            const dt = new DataTransfer();
+            // Only add non-oversized files to the actual input
+            (selectedFilesMap[reqId] || [])
+                .filter(f => f.size <= MAX_UPLOAD_BYTES)
+                .forEach(f => dt.items.add(f));
+            input.files = dt.files;
+        };
+
+        const renderFilePreview = (reqId) => {
             const preview = document.getElementById(`file-preview-${reqId}`);
             const label = document.getElementById(`dropzone-label-${reqId}`);
             if (!preview) return;
-            const files = Array.from(input.files);
-            if (!files.length) { preview.classList.add('hidden'); preview.innerHTML = ''; return; }
+            const files = selectedFilesMap[reqId] || [];
+            if (!files.length) {
+                preview.classList.add('hidden');
+                preview.innerHTML = '';
+                if (label) label.textContent = 'Klik atau seret berkas ke sini';
+                // Hide warnings
+                const warn = document.getElementById(`oversized-warning-${reqId}`);
+                if (warn) warn.classList.add('hidden');
+                const totalWarn = document.getElementById(`total-size-warning-${reqId}`);
+                if (totalWarn) totalWarn.classList.add('hidden');
+                return;
+            }
 
             preview.innerHTML = '';
             preview.classList.remove('hidden');
-            files.forEach(file => {
+
+            const oversizedInList = files.filter(f => f.size > MAX_UPLOAD_BYTES);
+            const validFiles = files.filter(f => f.size <= MAX_UPLOAD_BYTES);
+            const totalBytes = validFiles.reduce((sum, f) => sum + f.size, 0);
+            const isTotalOver = totalBytes > POST_MAX_SIZE_BYTES;
+
+            files.forEach((file, idx) => {
                 const sizeKb = (file.size / 1024).toFixed(1);
+                const sizeMb = (file.size / 1024 / 1024).toFixed(1);
+                const isOver = file.size > MAX_UPLOAD_BYTES;
                 const ext = file.name.split('.').pop().toLowerCase();
-                const bg = ext === 'pdf' ? '#fef2f2' : '#f0fdf4';
-                const fg = ext === 'pdf' ? '#b91c1c' : '#15803d';
+
+                const bg = isOver ? '#fff1f2' : (ext === 'pdf' ? '#fef2f2' : '#f0fdf4');
+                const fg = isOver ? '#be123c' : (ext === 'pdf' ? '#b91c1c' : '#15803d');
+                const border = isOver ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-white';
+
                 const item = document.createElement('div');
-                item.className = 'flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5';
+                item.className = `flex items-center gap-3 rounded-xl border px-3 py-2.5 ${border}`;
+                item.dataset.fileIdx = idx;
                 item.innerHTML = `
                     <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold" style="background:${bg};color:${fg}">${ext.toUpperCase()}</span>
                     <div class="min-w-0 flex-1">
-                        <p class="truncate text-xs font-semibold text-slate-700">${file.name}</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">${sizeKb} KB</p>
+                        <p class="truncate text-xs font-semibold ${isOver ? 'text-rose-700' : 'text-slate-700'}">${file.name}</p>
+                        <p class="text-[10px] mt-0.5 ${isOver ? 'text-rose-500 font-semibold' : 'text-slate-400'}">
+                            ${isOver ? `⚠ ${sizeMb} MB — melebihi batas ${MAX_UPLOAD_MB} MB` : `${sizeKb} KB`}
+                        </p>
                     </div>
-                    <svg class="h-4 w-4 shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                    <button type="button"
+                        class="flex h-7 w-7 items-center justify-center rounded-lg border ${isOver ? 'border-rose-300 bg-rose-100 text-rose-500 hover:bg-rose-200' : 'border-slate-200 text-slate-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500'} transition"
+                        title="Hapus berkas ini"
+                        onclick="removeSelectedFile('${reqId}', ${idx})">
+                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 `;
                 preview.appendChild(item);
             });
-            if (label) label.textContent = `${files.length} berkas dipilih`;
+
+            // Update label
+            if (label) {
+                label.textContent = oversizedInList.length > 0
+                    ? `${files.length} berkas dipilih (${oversizedInList.length} terlalu besar)`
+                    : `${files.length} berkas dipilih`;
+            }
+
+            // Show/hide oversized banner
+            const warnBox = document.getElementById(`oversized-warning-${reqId}`);
+            const warnList = document.getElementById(`oversized-list-${reqId}`);
+            if (warnBox && warnList) {
+                if (oversizedInList.length > 0) {
+                    warnList.innerHTML = oversizedInList.map(f =>
+                        `<li>${f.name} <span class="text-rose-400">(${(f.size/1024/1024).toFixed(1)} MB)</span></li>`
+                    ).join('');
+                    warnBox.classList.remove('hidden');
+                } else {
+                    warnBox.classList.add('hidden');
+                }
+            }
+
+            // Total size warning handling
+            const totalSizeWarnBox = document.getElementById(`total-size-warning-${reqId}`);
+            const totalSizeCurrentSpan = document.getElementById(`total-size-current-${reqId}`);
+            if (totalSizeWarnBox) {
+                if (isTotalOver) {
+                    if (totalSizeCurrentSpan) {
+                        totalSizeCurrentSpan.textContent = (totalBytes / 1024 / 1024).toFixed(1) + ' MB';
+                    }
+                    totalSizeWarnBox.classList.remove('hidden');
+                } else {
+                    totalSizeWarnBox.classList.add('hidden');
+                }
+            }
+
+            // Enable/disable submit button based on oversized files and total request size
+            const submitBtn = document.getElementById(`btn-submit-${reqId}`);
+            if (submitBtn) {
+                if (oversizedInList.length > 0) {
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.style.cursor = 'not-allowed';
+                    submitBtn.title = `Hapus ${oversizedInList.length} berkas yang terlalu besar terlebih dahulu`;
+                } else if (isTotalOver) {
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.style.cursor = 'not-allowed';
+                    submitBtn.title = `Total ukuran berkas melebihi batas request server`;
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '';
+                    submitBtn.style.cursor = '';
+                    submitBtn.title = '';
+                }
+            }
         };
+
+
+        window.removeSelectedFile = (reqId, idx) => {
+            if (!selectedFilesMap[reqId]) return;
+            selectedFilesMap[reqId].splice(idx, 1);
+            rebuildInputFiles(reqId);
+            renderFilePreview(reqId);
+        };
+
+        window.updateFilePreview = (reqId, input) => {
+            const newFiles = Array.from(input.files);
+            if (!newFiles.length) return;
+            if (!selectedFilesMap[reqId]) selectedFilesMap[reqId] = [];
+            newFiles.forEach(f => selectedFilesMap[reqId].push(f));
+            rebuildInputFiles(reqId);
+            renderFilePreview(reqId);
+        };
+
 
         // Drag and drop
         document.querySelectorAll('[id^="dropzone-"]').forEach(zone => {
@@ -311,3 +537,4 @@
         @endif
     })();
 </script>
+

@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * Validasi form edit akun Administrator.
+ */
 class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
@@ -20,15 +22,9 @@ class UpdateUserRequest extends FormRequest
         $target = $this->route('user');
 
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($target->id)],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($target->id)],
             'password' => ['nullable', 'confirmed', Password::defaults()],
-            'role' => ['required', Rule::in([UserRole::Admin->value, UserRole::Perti->value, UserRole::UnitKerja->value])],
-            'perti_id' => [
-                'required_if:role,' . UserRole::UnitKerja->value,
-                'nullable',
-                Rule::exists('users', 'id')->where('role', UserRole::Perti->value)
-            ],
         ];
     }
 }

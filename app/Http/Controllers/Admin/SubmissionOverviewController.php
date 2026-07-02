@@ -20,31 +20,41 @@ class SubmissionOverviewController extends Controller
     {
         $q = trim((string) $request->get('q', ''));
 
-        $units = User::query()
-            ->where('role', UserRole::UnitKerja)
-            ->with(['submissions' => function ($query) {
-                $query->latestForUnit()
+        $pertisQuery = User::query()
+            ->where('role', UserRole::Perti)
+            ->orderBy('name');
+
+        if ($q !== '') {
+            $pertisQuery->where(function ($outer) use ($q) {
+                // Match perti name / email directly
+                $outer->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    // Or match any prodi / requirement under this perti
+                    ->orWhereHas('pertiProfile.prodis.user', function ($query) use ($q) {
+                        $query->where('name', 'like', "%{$q}%")
+                            ->orWhere('email', 'like', "%{$q}%")
+                            ->orWhereHas('submissions', function ($s) use ($q) {
+                                $s->where('is_latest', true)
+                                    ->where(function ($inner) use ($q) {
+                                        $inner->whereHas('requirement', fn ($r) => $r->where('title', 'like', "%{$q}%"))
+                                            ->orWhere('original_filename', 'like', "%{$q}%");
+                                    });
+                            });
+                    });
+            });
+        }
+
+        $pertis = $pertisQuery
+            ->with(['pertiProfile.prodis.user.submissions' => function ($subQuery) {
+                $subQuery->latestForUnit()
                     ->with(['requirement.module'])
                     ->orderBy('requirement_id');
             }])
-            ->when($q !== '', function ($query) use ($q) {
-                $query->where(function ($w) use ($q) {
-                    $w->where('name', 'like', "%{$q}%")
-                        ->orWhere('email', 'like', "%{$q}%")
-                        ->orWhereHas('submissions', function ($s) use ($q) {
-                            $s->where('is_latest', true)
-                                ->where(function ($inner) use ($q) {
-                                    $inner->whereHas('requirement', fn ($r) => $r->where('title', 'like', "%{$q}%"))
-                                        ->orWhere('original_filename', 'like', "%{$q}%");
-                                });
-                        });
-                });
-            })
-            ->orderBy('name')
             ->paginate(12)
             ->withQueryString();
 
-        return view('admin.submissions.index', compact('units', 'q'));
+
+        return view('admin.submissions.index', compact('pertis', 'q'));
     }
 
     public function viewer(Submission $submission): View
@@ -93,6 +103,6 @@ class SubmissionOverviewController extends Controller
     private function authorizeAdminSubmission(Submission $submission): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
-        abort_unless($submission->user?->role === UserRole::UnitKerja, 403);
+        abort_unless($submission->user?->role === UserRole::Prodi, 403);
     }
 }

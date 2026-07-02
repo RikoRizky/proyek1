@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Perti;
 
 use App\Http\Controllers\Controller;
 use App\Models\Module;
+use App\Models\Prodi;
 use App\Support\UploadProgress;
-use App\Models\User;
 use Illuminate\View\View;
 
 class ProdiProgressController extends Controller
@@ -15,11 +15,17 @@ class ProdiProgressController extends Controller
      */
     public function index(string $prodi): View
     {
-        /** @var User $perti */
-        $perti = auth()->user();
+        $pertiProfile = auth()->user()->pertiProfile;
+        abort_if(is_null($pertiProfile), 403);
 
         // Pastikan prodi ini benar milik perti yang sedang login
-        $prodiUser = $perti->prodis()->findOrFail($prodi);
+        $prodiRecord = Prodi::query()
+            ->where('id', $prodi)
+            ->where('perti_id', $pertiProfile->id)
+            ->with('user')
+            ->firstOrFail();
+
+        $prodiUser = $prodiRecord->user;
 
         $progress = UploadProgress::forUnit($prodiUser);
 
@@ -34,11 +40,17 @@ class ProdiProgressController extends Controller
      */
     public function module(string $prodi, Module $module): View
     {
-        /** @var User $perti */
-        $perti = auth()->user();
+        $pertiProfile = auth()->user()->pertiProfile;
+        abort_if(is_null($pertiProfile), 403);
 
         // Pastikan prodi ini benar milik perti yang sedang login
-        $prodiUser = $perti->prodis()->findOrFail($prodi);
+        $prodiRecord = Prodi::query()
+            ->where('id', $prodi)
+            ->where('perti_id', $pertiProfile->id)
+            ->with('user')
+            ->firstOrFail();
+
+        $prodiUser = $prodiRecord->user;
 
         // Ambil semua requirements dari modul ini beserta submission terbaru dari prodi ini
         $requirements = $module->requirements()

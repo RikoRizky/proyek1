@@ -78,7 +78,7 @@ class UploadProgress
     {
         $totalReq = self::totalRequirements();
         $units = User::query()
-            ->where('role', UserRole::UnitKerja)
+            ->where('role', UserRole::Prodi)
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -120,9 +120,29 @@ class UploadProgress
     public static function forAllUnitsOfPerti(User $perti): array
     {
         $totalReq = self::totalRequirements();
+
+        $pertiProfile = $perti->pertiProfile;
+        if (is_null($pertiProfile)) {
+            return [
+                'total_requirements' => $totalReq,
+                'units' => [],
+                'summary' => [
+                    'unit_count' => 0,
+                    'complete_count' => 0,
+                    'in_progress_count' => 0,
+                    'empty_count' => 0,
+                    'average_percent' => 0.0,
+                ],
+            ];
+        }
+
+        // Ambil user_id semua prodi di bawah perti ini
+        $prodiUserIds = \App\Models\Prodi::query()
+            ->where('perti_id', $pertiProfile->id)
+            ->pluck('user_id');
+
         $units = User::query()
-            ->where('role', UserRole::UnitKerja)
-            ->where('perti_id', $perti->id)
+            ->whereIn('id', $prodiUserIds)
             ->orderBy('name')
             ->get(['id', 'name']);
 

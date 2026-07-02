@@ -14,7 +14,8 @@
         @if ($submission->file_path && (empty($submission->files) || count($submission->files) === 1))
             <a href="{{ route('perti.submissions.download', $submission) }}" class="ui-btn-secondary">Unduh versi ini</a>
         @endif
-        <a href="{{ route('perti.prodis.modul', [$submission->user_id, $submission->requirement->module_id]) }}" class="ui-btn-secondary">Kembali</a>
+        <a href="{{ $prodiId ? route('perti.prodis.modul', [$prodiId, $submission->requirement->module_id]) : route('perti.prodis.index') }}" class="ui-btn-secondary">Kembali</a>
+
     </div>
 
     <div class="ui-table-wrap">

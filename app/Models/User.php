@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -20,7 +20,6 @@ class User extends Authenticatable
         'role',
         'password',
         'profile_photo_path',
-        'perti_id',
     ];
 
     protected $hidden = [
@@ -32,10 +31,12 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'role' => UserRole::class,
+            'password'          => 'hashed',
+            'role'              => UserRole::class,
         ];
     }
+
+    // ─── Role helpers ─────────────────────────────────────────────────
 
     public function isAdmin(): bool
     {
@@ -47,25 +48,38 @@ class User extends Authenticatable
         return $this->role === UserRole::Perti;
     }
 
-    public function isUnitKerja(): bool
+    public function isProdi(): bool
     {
-        return $this->role === UserRole::UnitKerja;
+        return $this->role === UserRole::Prodi;
     }
 
+    // ─── Relations ────────────────────────────────────────────────────
+
+    /**
+     * Profil Perguruan Tinggi untuk akun dengan role=perti.
+     */
+    public function pertiProfile(): HasOne
+    {
+        return $this->hasOne(Perti::class, 'user_id');
+    }
+
+    /**
+     * Profil Program Studi untuk akun dengan role=prodi.
+     */
+    public function prodiProfile(): HasOne
+    {
+        return $this->hasOne(Prodi::class, 'user_id');
+    }
+
+    /**
+     * Semua submission yang diunggah oleh user ini.
+     */
     public function submissions(): HasMany
     {
         return $this->hasMany(Submission::class);
     }
 
-    public function prodis(): HasMany
-    {
-        return $this->hasMany(User::class, 'perti_id');
-    }
-
-    public function perti(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'perti_id');
-    }
+    // ─── Accessories ─────────────────────────────────────────────────
 
     public function getProfilePhotoUrlAttribute(): string
     {

@@ -10,12 +10,7 @@
         </div>
     </x-slot>
 
-    @if (session('status'))
-        <div class="mb-6 ui-alert-success" role="status">
-            <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white text-xs font-bold">✓</span>
-            <span>{{ session('status') }}</span>
-        </div>
-    @endif
+
 
     <div class="ui-table-wrap">
         <table class="ui-table">
@@ -23,7 +18,7 @@
                 <tr>
                     <th>Nama Program Studi</th>
                     <th>Email Login</th>
-                    <th>Peran</th>
+                    <th>Kode Prodi</th>
                     <th class="text-right">Aksi</th>
                 </tr>
             </thead>
@@ -32,13 +27,12 @@
                     <tr>
                         <td class="font-semibold text-slate-900">{{ $p->name }}</td>
                         <td class="text-slate-600">{{ $p->email }}</td>
-                        <td>
-                            <span class="ui-badge bg-emerald-100 text-emerald-900 ring-emerald-500/20">{{ $p->role->label() }}</span>
-                        </td>
+                        <td class="text-slate-500 text-sm">{{ $p->kode_prodi ?? '-' }}</td>
                         <td class="text-right text-sm font-semibold">
-                            <a href="{{ route('perti.prodis.edit', $p) }}" class="text-violet-600 hover:text-violet-500">Edit</a>
+                            <a href="{{ route('perti.prodis.edit', $p->id) }}" class="text-violet-600 hover:text-violet-500">Edit</a>
                             <span class="mx-2 text-slate-300">|</span>
-                            <form action="{{ route('perti.prodis.destroy', $p) }}" method="post" class="inline" onsubmit="return confirm('Hapus akun program studi ini? Semua dokumen unggahan mereka juga akan terhapus.');">
+                            <form action="{{ route('perti.prodis.destroy', $p->id) }}" method="post" class="inline"
+                                onsubmit="return confirm('Hapus akun program studi ini? Semua dokumen unggahan mereka juga akan terhapus.');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-500">Hapus</button>
@@ -47,8 +41,8 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="ui-empty text-center py-8 text-slate-500">
-                            Belum ada program studi yang dibuat. Klik tombol "+ Buat akun prodi" untuk menambahkan.
+                        <td colspan="4" class="py-8 text-center text-sm text-slate-500">
+                            Belum ada program studi yang dibuat. Klik tombol <strong>+ Buat akun prodi</strong> untuk menambahkan.
                         </td>
                     </tr>
                 @endforelse

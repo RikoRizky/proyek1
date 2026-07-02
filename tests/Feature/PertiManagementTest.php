@@ -20,21 +20,27 @@ class PertiManagementTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->post(route('admin.users.store'), [
+            ->post(route('admin.pertis.store'), [
                 'name' => 'ITB Universitas',
                 'email' => 'itb@example.com',
-                'role' => UserRole::Perti->value,
                 'password' => 'password123',
                 'password_confirmation' => 'password123',
+                'kode_pt' => '123456',
+                'alamat' => 'Bandung',
             ]);
 
         $response->assertSessionHasNoErrors();
-        $response->assertRedirect(route('admin.users.index'));
+        $response->assertRedirect(route('admin.pertis.index'));
 
         $this->assertDatabaseHas('users', [
             'name' => 'ITB Universitas',
             'email' => 'itb@example.com',
             'role' => UserRole::Perti->value,
+        ]);
+
+        $this->assertDatabaseHas('pertis', [
+            'kode_pt' => '123456',
+            'alamat' => 'Bandung',
         ]);
     }
 
@@ -50,16 +56,20 @@ class PertiManagementTest extends TestCase
                 'email' => 'if@itb.example.com',
                 'password' => 'password123',
                 'password_confirmation' => 'password123',
+                'kode_prodi' => 'IF001',
             ]);
 
         $response->assertSessionHasNoErrors();
         $response->assertRedirect(route('perti.prodis.index'));
 
-        $this->assertDatabaseHas('users', [
-            'name' => 'S1 Informatika ITB',
-            'email' => 'if@itb.example.com',
-            'role' => UserRole::UnitKerja->value,
-            'perti_id' => $perti->id,
+        $user = User::where('email', 'if@itb.example.com')->first();
+        $this->assertNotNull($user);
+        $this->assertEquals(UserRole::Prodi, $user->role);
+
+        $this->assertDatabaseHas('prodis', [
+            'user_id' => $user->id,
+            'perti_id' => $perti->pertiProfile->id,
+            'kode_prodi' => 'IF001',
         ]);
     }
 
@@ -68,17 +78,24 @@ class PertiManagementTest extends TestCase
         $pertiA = User::factory()->create(['role' => UserRole::Perti]);
         $pertiB = User::factory()->create(['role' => UserRole::Perti]);
 
-        $prodiA = User::factory()->create([
-            'role' => UserRole::UnitKerja,
-            'perti_id' => $pertiA->id,
+        $prodiUserA = User::factory()->create([
+            'role' => UserRole::Prodi,
             'name' => 'Prodi Perti A',
         ]);
+        $prodiUserA->prodiProfile()->update([
+            'perti_id' => $pertiA->pertiProfile->id,
+        ]);
 
-        $prodiB = User::factory()->create([
-            'role' => UserRole::UnitKerja,
-            'perti_id' => $pertiB->id,
+        $prodiUserB = User::factory()->create([
+            'role' => UserRole::Prodi,
             'name' => 'Prodi Perti B',
         ]);
+        $prodiUserB->prodiProfile()->update([
+            'perti_id' => $pertiB->pertiProfile->id,
+        ]);
+
+        $prodiA = \App\Models\Prodi::where('user_id', $prodiUserA->id)->first();
+        $prodiB = \App\Models\Prodi::where('user_id', $prodiUserB->id)->first();
 
         // Access as Perti A
         $response = $this->actingAs($pertiA)->get(route('perti.prodis.index'));
@@ -87,11 +104,11 @@ class PertiManagementTest extends TestCase
         $response->assertDontSee('Prodi Perti B');
 
         // Try to edit Prodi B as Perti A
-        $responseEdit = $this->actingAs($pertiA)->get(route('perti.prodis.edit', $prodiB));
+        $responseEdit = $this->actingAs($pertiA)->get(route('perti.prodis.edit', $prodiB->id));
         $responseEdit->assertStatus(404);
 
         // Try to update Prodi B as Perti A
-        $responseUpdate = $this->actingAs($pertiA)->put(route('perti.prodis.update', $prodiB), [
+        $responseUpdate = $this->actingAs($pertiA)->put(route('perti.prodis.update', $prodiB->id), [
             'name' => 'Hacked Name',
             'email' => 'hacked@example.com',
         ]);

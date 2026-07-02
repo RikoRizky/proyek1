@@ -20,7 +20,7 @@ class UnitSubmissionBatchUploadTest extends TestCase
     {
         Storage::fake('local');
 
-        $user = User::factory()->create(['role' => UserRole::UnitKerja]);
+        $user = User::factory()->create(['role' => UserRole::Prodi]);
         $module = Module::query()->create([
             'name' => 'Kriteria Demo',
             'sort_order' => 1,
@@ -62,7 +62,7 @@ class UnitSubmissionBatchUploadTest extends TestCase
     {
         Storage::fake('local');
 
-        $user = User::factory()->create(['role' => UserRole::UnitKerja]);
+        $user = User::factory()->create(['role' => UserRole::Prodi]);
         $module = Module::query()->create([
             'name' => 'Kriteria Demo',
             'sort_order' => 1,
@@ -97,7 +97,7 @@ class UnitSubmissionBatchUploadTest extends TestCase
     {
         Storage::fake('local');
 
-        $user = User::factory()->create(['role' => UserRole::UnitKerja]);
+        $user = User::factory()->create(['role' => UserRole::Prodi]);
         $module = Module::query()->create(['name' => 'Kriteria Demo', 'sort_order' => 1]);
         $requirement = Requirement::query()->create([
             'module_id' => $module->id,
@@ -120,7 +120,7 @@ class UnitSubmissionBatchUploadTest extends TestCase
     {
         Storage::fake('local');
 
-        $user = User::factory()->create(['role' => UserRole::UnitKerja]);
+        $user = User::factory()->create(['role' => UserRole::Prodi]);
         $module = Module::query()->create(['name' => 'Kriteria Demo', 'sort_order' => 1]);
         $requirement = Requirement::query()->create([
             'module_id' => $module->id,
