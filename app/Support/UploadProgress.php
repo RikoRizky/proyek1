@@ -109,4 +109,48 @@ class UploadProgress
             ],
         ];
     }
+
+    /**
+     * @return array{
+     *     total_requirements: int,
+     *     units: list<array<string, mixed>>,
+     *     summary: array{unit_count: int, complete_count: int, in_progress_count: int, empty_count: int, average_percent: float}
+     * }
+     */
+    public static function forAllUnitsOfPerti(User $perti): array
+    {
+        $totalReq = self::totalRequirements();
+        $units = User::query()
+            ->where('role', UserRole::UnitKerja)
+            ->where('perti_id', $perti->id)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $rows = $units->map(function (User $unit) use ($totalReq) {
+            $progress = self::forUnit($unit);
+
+            return [
+                'id' => $unit->id,
+                'name' => $unit->name,
+                'uploaded' => $progress['uploaded'],
+                'total' => $totalReq,
+                'percent' => $progress['percent'],
+                'modules' => $progress['modules'],
+            ];
+        })->values()->all();
+
+        $collection = collect($rows);
+
+        return [
+            'total_requirements' => $totalReq,
+            'units' => $rows,
+            'summary' => [
+                'unit_count' => $collection->count(),
+                'complete_count' => $collection->where('percent', 100)->count(),
+                'in_progress_count' => $collection->where(fn (array $row) => $row['percent'] > 0 && $row['percent'] < 100)->count(),
+                'empty_count' => $collection->where('percent', 0)->count(),
+                'average_percent' => $collection->isEmpty() ? 0.0 : round($collection->avg('percent'), 1),
+            ],
+        ];
+    }
 }

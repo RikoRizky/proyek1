@@ -20,7 +20,12 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::defaults()],
-            'role' => ['required', Rule::in([UserRole::UnitKerja->value])],
+            'role' => ['required', Rule::in([UserRole::Admin->value, UserRole::Perti->value, UserRole::UnitKerja->value])],
+            'perti_id' => [
+                'required_if:role,' . UserRole::UnitKerja->value,
+                'nullable',
+                Rule::exists('users', 'id')->where('role', UserRole::Perti->value)
+            ],
         ];
     }
 }

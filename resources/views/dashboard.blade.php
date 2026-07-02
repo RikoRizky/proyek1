@@ -5,10 +5,17 @@
 
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Beranda</p>
-            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Ringkasan</h1>
-            <p class="mt-1 text-sm text-slate-600">Sistem penguploadan data akreditasi</p>
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Beranda</p>
+                <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Ringkasan</h1>
+                <p class="mt-1 text-sm text-slate-600">Sistem penguploadan data akreditasi</p>
+            </div>
+            @if (auth()->user()->role === UserRole::Perti)
+                <div class="flex gap-2">
+                    <a href="{{ route('perti.reports.pdf') }}" class="ui-btn-primary shrink-0 text-sm">Laporan PDF</a>
+                </div>
+            @endif
         </div>
     </x-slot>
 
@@ -20,7 +27,7 @@
         @endphp
 
         <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <x-stat-card label="Total pengguna" :value="$stats['usersCount']" accent="violet" />
+            <x-stat-card label="Total Universitas" :value="$stats['pertiCount']" accent="violet" />
             <x-stat-card label="Program studi" :value="$stats['unitCount']" accent="emerald" />
             <x-stat-card label="Rata-rata progress" :value="$summary['average_percent'].'%'" accent="sky" />
             <x-stat-card label="Prodi lengkap" :value="$summary['complete_count']" accent="amber" />
@@ -79,6 +86,145 @@
                         scales: {
                             y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
                         },
+                    },
+                });
+            });
+        </script>
+    @elseif ($stats['role'] === UserRole::Perti)
+        @php
+            $summary = $progress['summary'];
+            $units = $progress['units'];
+            $unitLabels = collect($units)->pluck('name')->values()->all();
+            $unitPercents = collect($units)->pluck('percent')->values()->all();
+            $unitUploaded = collect($units)->pluck('uploaded')->values()->all();
+        @endphp
+
+        <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <x-stat-card label="Program studi" :value="$stats['prodiCount']" accent="emerald" />
+            <x-stat-card label="Rata-rata progress" :value="$summary['average_percent'].'%'" accent="sky" />
+            <x-stat-card label="Prodi lengkap" :value="$summary['complete_count']" accent="amber" />
+            <x-stat-card label="Total dokumen terunggah" :value="$stats['uploadedLatest']" accent="violet" />
+        </div>
+
+        <div class="mb-8 grid gap-6 lg:grid-cols-2">
+            <x-chart-card title="Perbandingan progress prodi" subtitle="Snapshot kelengkapan unggahan prodi Anda" canvas-id="dashPertiBar" height="280px" />
+            <x-chart-card title="Status kelengkapan" subtitle="Distribusi prodi Anda berdasarkan progress" canvas-id="dashPertiStatusDoughnut" height="280px" />
+        </div>
+
+        <div class="mb-8 grid gap-6 lg:grid-cols-3">
+            <div class="lg:col-span-2 ui-card overflow-hidden">
+                <div class="ui-section-header flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-slate-900">Detail per program studi</h2>
+                    <span class="text-xs font-semibold text-slate-500">Total: {{ count($units) }} Program Studi</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="ui-table">
+                        <thead>
+                            <tr>
+                                <th>Program studi</th>
+                                <th>Terunggah</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($units as $unit)
+                                <tr>
+                                    <td class="font-semibold text-slate-900">{{ $unit['name'] }}</td>
+                                    <td class="tabular-nums text-slate-600">{{ $unit['uploaded'] }}/{{ $unit['total'] }}</td>
+                                    <td class="min-w-[12rem]">
+                                        <div class="flex items-center gap-3">
+                                            <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                                                <div class="h-full rounded-full bg-emerald-500" style="width: {{ $unit['percent'] }}%"></div>
+                                            </div>
+                                            <span class="w-10 text-right text-sm font-bold tabular-nums text-slate-700">{{ $unit['percent'] }}%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if ($unit['percent'] >= 100)
+                                            <span class="ui-badge bg-emerald-50 text-emerald-900 ring-emerald-500/20">Lengkap</span>
+                                        @elseif ($unit['percent'] > 0)
+                                            <span class="ui-badge bg-amber-50 text-amber-900 ring-amber-500/25">Berjalan</span>
+                                        @else
+                                            <span class="ui-badge bg-slate-100 text-slate-700 ring-slate-500/15">Belum mulai</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="ui-empty text-sm py-6">Belum ada program studi terdaftar.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="ui-card flex flex-col justify-center p-6 sm:p-8">
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Manajemen</p>
+                <h2 class="mt-2 text-xl font-bold text-slate-900">Kelola akun program studi</h2>
+                <p class="mt-2 text-sm text-slate-600">Buat, edit, dan kelola akun program studi di bawah perguruan tinggi Anda.</p>
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a href="{{ route('perti.prodis.index') }}" class="ui-btn-primary text-sm">Kelola program studi</a>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const labels = @json($unitLabels);
+                const percents = @json($unitPercents);
+                const uploaded = @json($unitUploaded);
+                const summary = @json($summary);
+
+                new Chart(document.getElementById('dashPertiBar'), {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Progress (%)',
+                            data: percents,
+                            backgroundColor: percents.map(p => p >= 100 ? 'rgba(16,185,129,0.85)' : p > 0 ? 'rgba(59,130,246,0.85)' : 'rgba(148,163,184,0.7)'),
+                            borderRadius: 8,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: (ctx) => {
+                                        const i = ctx.dataIndex;
+                                        return uploaded[i] + ' dokumen terunggah';
+                                    },
+                                },
+                            },
+                        },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
+                            x: { ticks: { maxRotation: 45, minRotation: 0 } },
+                        },
+                    },
+                });
+
+                new Chart(document.getElementById('dashPertiStatusDoughnut'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Lengkap', 'Berjalan', 'Belum mulai'],
+                        datasets: [{
+                            data: [summary.complete_count, summary.in_progress_count, summary.empty_count],
+                            backgroundColor: ['#10b981', '#8b5cf6', '#cbd5e1'],
+                            borderWidth: 0,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '62%',
+                        plugins: { legend: { position: 'bottom' } },
                     },
                 });
             });
@@ -151,7 +297,7 @@
                         <div class="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
                             <div class="h-full rounded-full bg-violet-500 transition-all" style="width: {{ $moduleProgress }}%"></div>
                         </div>
-                        <p class="mt-4 text-sm font-semibold text-violet-600 group-hover:text-violet-500">Unggah dokumen →</p>
+                        <p class="mt-4 text-sm font-semibold text-violet-600 group-hover:text-violet-500">Lihat lebih detail →</p>
                     </div>
                 </a>
             @endforeach

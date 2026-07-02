@@ -27,12 +27,23 @@ class AccreditationDemoSeeder extends Seeder
             ]
         );
 
+        $perti = User::query()->updateOrCreate(
+            ['email' => 'ulbi@gmail.com'],
+            [
+                'name' => 'Universitas Logistik & Bisnis Internasional',
+                'password' => Hash::make('Ulbi1234'),
+                'role' => UserRole::Perti,
+                'email_verified_at' => now(),
+            ]
+        );
+
         User::query()->updateOrCreate(
             ['email' => 'informatika@gmail.com'],
             [
                 'name' => 'Program Studi Informatika',
                 'password' => Hash::make('Informatika123'),
                 'role' => UserRole::UnitKerja,
+                'perti_id' => $perti->id,
                 'email_verified_at' => now(),
             ]
         );
@@ -43,6 +54,7 @@ class AccreditationDemoSeeder extends Seeder
                 'name' => 'Program Studi Logistik',
                 'password' => Hash::make('Logistik123'),
                 'role' => UserRole::UnitKerja,
+                'perti_id' => $perti->id,
                 'email_verified_at' => now(),
             ]
         );

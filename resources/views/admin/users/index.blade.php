@@ -27,11 +27,17 @@
             <tbody>
                 @foreach ($users as $u)
                     <tr>
-                        <td class="font-semibold text-slate-900">{{ $u->name }}</td>
+                        <td class="font-semibold text-slate-900">
+                            {{ $u->name }}
+                            @if ($u->perti)
+                                <span class="block text-xs font-normal text-slate-500">Induk: {{ $u->perti->name }}</span>
+                            @endif
+                        </td>
                         <td class="text-slate-600">{{ $u->email }}</td>
                         <td>
                             <span class="ui-badge
                                 @if($u->role === \App\Enums\UserRole::Admin) bg-violet-100 text-violet-900 ring-violet-500/20
+                                @elseif($u->role === \App\Enums\UserRole::Perti) bg-sky-100 text-sky-900 ring-sky-500/20
                                 @else bg-emerald-100 text-emerald-900 ring-emerald-500/20 @endif">{{ $u->role->label() }}</span>
                         </td>
                         <td class="text-right text-sm font-semibold">

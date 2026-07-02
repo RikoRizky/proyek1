@@ -143,57 +143,51 @@ class SubmissionController extends Controller
     public function store(Request $request, Requirement $requirement): RedirectResponse|JsonResponse
     {
         $this->authorizeUnitKerja();
-
-        $file = $request->file('document');
         $requirement->load('module');
 
-        if (! $file instanceof UploadedFile) {
-            $message = 'Pilih berkas untuk diunggah.';
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'google_drive_links' => 'array',
+            'google_drive_links.*.name' => 'required_with:google_drive_links.*.url|nullable|string|max:255',
+            'google_drive_links.*.url' => 'required_with:google_drive_links.*.name|nullable|url',
+            'documents' => 'array',
+            'documents.*' => 'file|mimes:pdf,xlsx,xls|max:' . AccreditationUpload::maxUploadKb(),
+        ], [
+            'google_drive_links.*.name.required_with' => 'Nama dokumen wajib diisi jika link Google Drive diisi.',
+            'google_drive_links.*.url.required_with' => 'Link Google Drive wajib diisi jika nama dokumen diisi.',
+            'google_drive_links.*.url.url' => 'Format link Google Drive tidak valid.',
+            'documents.*.mimes' => 'Berkas dokumen harus berupa PDF atau Excel (xlsx/xls).',
+            'documents.*.max' => 'Berkas dokumen tidak boleh lebih dari ' . AccreditationUpload::maxUploadMb() . ' MB.',
+        ]);
 
-            if ($request->expectsJson()) {
-                return response()->json(['message' => $message], 422);
-            }
+        // Filter out empty links
+        $driveLinks = collect($request->input('google_drive_links', []))
+            ->filter(fn ($link) => !empty($link['name']) || !empty($link['url']))
+            ->values()
+            ->all();
 
-            return redirect()->route('unit.submissions.module', $requirement->module)
-                ->withErrors(['document' => $message]);
+        // Support single file upload "document" parameter for backward compatibility / tests
+        $filesList = $request->file('documents', []);
+        if (empty($filesList) && $request->hasFile('document')) {
+            $filesList = [$request->file('document')];
         }
 
-        if (! $file->isValid()) {
-            $message = AccreditationUpload::fieldErrorMessage(
-                $requirement->module,
-                $requirement,
-                $file,
-                AccreditationUpload::uploadErrorMessage($file)
-            );
-
-            if ($request->expectsJson()) {
-                return response()->json(['message' => $message], 422);
-            }
-
-            return redirect()->route('unit.submissions.module', $requirement->module)
-                ->withErrors(['document' => $message]);
+        if (empty($driveLinks) && empty($filesList)) {
+            $validator->errors()->add('google_drive_links', 'Harap isi minimal satu link Google Drive atau unggah berkas dokumen.');
         }
 
-        $validationMessage = AccreditationUpload::validateFile($file);
-
-        if ($validationMessage !== null) {
-            $message = AccreditationUpload::fieldErrorMessage(
-                $requirement->module,
-                $requirement,
-                $file,
-                $validationMessage
-            );
-
+        if ($validator->fails() || (empty($driveLinks) && empty($filesList))) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => $message], 422);
+                return response()->json(['message' => $validator->errors()->first() ?: 'Harap isi minimal satu link Google Drive atau unggah berkas dokumen.'], 422);
             }
 
             return redirect()->route('unit.submissions.module', $requirement->module)
-                ->withErrors(['document' => $message]);
+                ->withErrors($validator)
+                ->withInput()
+                ->with('failed_requirement_id', $requirement->id);
         }
 
         $user = $request->user();
-        $submission = $this->persistSubmission($user, $requirement, $file);
+        $submission = $this->persistSubmission($user, $requirement, $driveLinks, $filesList);
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -229,15 +223,28 @@ class SubmissionController extends Controller
     {
         $this->authorizeSubmission($submission);
 
-        abort_unless(Storage::disk('local')->exists($submission->file_path), 404);
-
         $submission->load('requirement.module');
 
+        $fileIndex = request()->query('file');
+        $activeFileIndex = 0;
+
+        if ($fileIndex !== null) {
+            $activeFileIndex = (int) $fileIndex;
+        }
+
+        $files = $submission->files ?? [];
+        $activeFile = $files[$activeFileIndex] ?? null;
+
+        $filename = $activeFile ? $activeFile['original_filename'] : $submission->original_filename;
+
         return view('submissions.viewer', [
+            'submission' => $submission,
             'title' => $submission->requirement->title,
-            'filename' => $submission->original_filename,
-            'inlineUrl' => route('unit.submissions.inline', $submission),
-            'downloadUrl' => route('unit.submissions.download', $submission),
+            'filename' => $filename,
+            'activeFileIndex' => $activeFileIndex,
+            'routePrefix' => 'unit',
+            'inlineUrl' => route('unit.submissions.inline', [$submission, 'file' => $activeFileIndex]),
+            'downloadUrl' => route('unit.submissions.download', [$submission, 'file' => $activeFileIndex]),
             'backUrl' => route('unit.submissions.show', $submission),
         ]);
     }
@@ -267,8 +274,20 @@ class SubmissionController extends Controller
         abort_unless($user && $submission->user_id === $user->id, 403);
     }
 
-    private function persistSubmission(User $user, Requirement $requirement, UploadedFile $file): Submission
-    {
+    private function persistSubmission(
+        User $user,
+        Requirement $requirement,
+        array|UploadedFile $driveLinksOrFile = [],
+        array $filesList = []
+    ): Submission {
+        $driveLinks = [];
+        
+        if ($driveLinksOrFile instanceof UploadedFile) {
+            $filesList = [$driveLinksOrFile];
+        } else {
+            $driveLinks = $driveLinksOrFile;
+        }
+
         $latest = Submission::query()
             ->where('requirement_id', $requirement->id)
             ->where('user_id', $user->id)
@@ -281,18 +300,33 @@ class SubmissionController extends Controller
             $latest->update(['is_latest' => false]);
         }
 
-        $path = $file->store("accreditation/{$user->id}/{$requirement->id}", 'local');
+        $savedFiles = [];
+        foreach ($filesList as $file) {
+            if ($file instanceof UploadedFile && $file->isValid()) {
+                $path = $file->store("accreditation/{$user->id}/{$requirement->id}", 'local');
+                $savedFiles[] = [
+                    'file_path' => $path,
+                    'original_filename' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getClientMimeType(),
+                    'file_size' => $file->getSize(),
+                ];
+            }
+        }
+
+        $firstFile = $savedFiles[0] ?? null;
 
         return Submission::query()->create([
             'requirement_id' => $requirement->id,
             'user_id' => $user->id,
-            'file_path' => $path,
-            'original_filename' => $file->getClientOriginalName(),
-            'mime_type' => $file->getClientMimeType(),
-            'file_size' => $file->getSize(),
+            'file_path' => $firstFile ? $firstFile['file_path'] : null,
+            'original_filename' => $firstFile ? $firstFile['original_filename'] : null,
+            'mime_type' => $firstFile ? $firstFile['mime_type'] : null,
+            'file_size' => $firstFile ? $firstFile['file_size'] : null,
             'status' => SubmissionStatus::Uploaded,
             'version' => $nextVersion,
             'is_latest' => true,
+            'google_drive_links' => $driveLinks,
+            'files' => $savedFiles,
         ]);
     }
 }

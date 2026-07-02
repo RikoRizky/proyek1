@@ -20,6 +20,7 @@ class DashboardController extends Controller
 
         $stats = match ($user->role) {
             UserRole::Admin => $this->adminStats(),
+            UserRole::Perti => $this->pertiStats($user),
             UserRole::UnitKerja => $this->unitStats($user),
         };
 
@@ -27,10 +28,34 @@ class DashboardController extends Controller
             'stats' => $stats,
             'progress' => match ($user->role) {
                 UserRole::Admin => UploadProgress::forAllUnits(),
+                UserRole::Perti => UploadProgress::forAllUnitsOfPerti($user),
                 UserRole::UnitKerja => UploadProgress::forUnit($user),
                 default => null,
             },
         ]);
+    }
+
+    private function pertiStats(User $user): array
+    {
+        $prodiIds = User::query()
+            ->where('role', UserRole::UnitKerja)
+            ->where('perti_id', $user->id)
+            ->pluck('id');
+
+        $uploadedLatest = Submission::query()
+            ->latestForUnit()
+            ->whereIn('user_id', $prodiIds)
+            ->where('status', SubmissionStatus::Uploaded)
+            ->count();
+
+        $totalReq = Requirement::query()->count();
+
+        return [
+            'role' => UserRole::Perti,
+            'prodiCount' => $prodiIds->count(),
+            'totalRequirements' => $totalReq,
+            'uploadedLatest' => $uploadedLatest,
+        ];
     }
 
     private function adminStats(): array
@@ -48,7 +73,7 @@ class DashboardController extends Controller
         return [
             'role' => UserRole::Admin,
             'modules' => $modules,
-            'usersCount' => User::query()->count(),
+            'pertiCount' => User::query()->where('role', UserRole::Perti)->count(),
             'unitCount' => User::query()->where('role', UserRole::UnitKerja)->count(),
             'totalRequirements' => Requirement::query()->count(),
             'uploadedLatest' => $uploadedLatest,

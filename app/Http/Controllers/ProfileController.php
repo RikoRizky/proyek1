@@ -25,13 +25,35 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        if ($request->hasFile('profile_photo')) {
+            $file = $request->file('profile_photo');
+            $filename = uniqid('avatar_') . '.' . $file->getClientOriginalExtension();
+
+            // Create directory if not exists
+            if (!file_exists(public_path('uploads/profile_photos'))) {
+                mkdir(public_path('uploads/profile_photos'), 0755, true);
+            }
+
+            // Delete old profile photo if exists
+            if ($user->profile_photo_path && file_exists(public_path('uploads/profile_photos/' . $user->profile_photo_path))) {
+                @unlink(public_path('uploads/profile_photos/' . $user->profile_photo_path));
+            }
+
+            // Move new file to public/uploads/profile_photos
+            $file->move(public_path('uploads/profile_photos'), $filename);
+
+            // Save filename in database
+            $user->profile_photo_path = $filename;
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

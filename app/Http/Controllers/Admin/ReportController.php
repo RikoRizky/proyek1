@@ -11,62 +11,78 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use App\Exports\AccreditationReportExport;
 
 class ReportController extends Controller
 {
     public function pdf(Request $request)
     {
-        $unit = $this->resolveTargetUnit($request);
-        $summaries = $this->summariesForExport($unit);
+        $filters = $this->resolveTargetFilters($request);
+
+        if (isset($filters['selectionRequired']) && $filters['selectionRequired']) {
+            $pertis = User::query()
+                ->where('role', UserRole::Perti)
+                ->orderBy('name')
+                ->get();
+            return view('admin.reports.pdf-select', compact('pertis'));
+        }
+
+        $summaries = $this->summariesForExport($filters['onlyUnit'], $filters['pertiId']);
+
+        $filename = 'laporan-ringkasan-akreditasi';
+        if (!empty($filters['pertiName'])) {
+            $filename .= '-' . \Illuminate\Support\Str::slug($filters['pertiName']);
+        }
+        $filename .= '.pdf';
 
         return Pdf::loadView('reports.accreditation-summary', [
             'summaries' => $summaries,
             'generatedAt' => now(),
-        ])->setPaper('a4', 'portrait')->download('laporan-ringkasan-akreditasi.pdf');
+            'pertiName' => $filters['pertiName'] ?? null,
+        ])->setPaper('a4', 'portrait')->download($filename);
     }
 
-    public function excel(Request $request): BinaryFileResponse
-    {
-        $unit = $this->resolveTargetUnit($request);
-        $rows = $this->detailedRows($unit);
-
-        return Excel::download(
-            new AccreditationReportExport($rows),
-            'laporan-detail-akreditasi.xlsx'
-        );
-    }
-
-    private function resolveTargetUnit(Request $request): ?User
+    private function resolveTargetFilters(Request $request): array
     {
         $user = $request->user();
 
         if ($user->role === UserRole::Admin) {
             if ($request->filled('user_id')) {
-                return User::query()
+                $unit = User::query()
                     ->where('id', $request->integer('user_id'))
                     ->where('role', UserRole::UnitKerja)
                     ->firstOrFail();
+                return ['onlyUnit' => $unit, 'pertiId' => null, 'pertiName' => null];
             }
 
-            return null;
+            if ($request->filled('perti_id')) {
+                $perti = User::query()
+                    ->where('id', $request->integer('perti_id'))
+                    ->where('role', UserRole::Perti)
+                    ->firstOrFail();
+                return ['onlyUnit' => null, 'pertiId' => $perti->id, 'pertiName' => $perti->name];
+            }
+
+            return ['selectionRequired' => true];
+        }
+
+        if ($user->role === UserRole::Perti) {
+            return ['onlyUnit' => null, 'pertiId' => $user->id, 'pertiName' => $user->name];
         }
 
         abort_unless($user->role === UserRole::UnitKerja, 403);
 
-        return $user;
+        return ['onlyUnit' => $user, 'pertiId' => null, 'pertiName' => null];
     }
 
     /**
      * @return list<array{user: User, modules: Collection, uploadedCount: int, totalRequirements: int, progressPercent: int}>
      */
-    private function summariesForExport(?User $onlyUnit): array
+    private function summariesForExport(?User $onlyUnit, ?int $pertiId = null): array
     {
         $units = User::query()
             ->where('role', UserRole::UnitKerja)
             ->when($onlyUnit, fn ($q) => $q->where('id', $onlyUnit->id))
+            ->when($pertiId, fn ($q) => $q->where('perti_id', $pertiId))
             ->orderBy('name')
             ->get();
 
@@ -109,42 +125,5 @@ class ReportController extends Controller
             ];
         })->all();
     }
-
-    private function detailedRows(?User $onlyUnit): Collection
-    {
-        $units = User::query()
-            ->where('role', UserRole::UnitKerja)
-            ->when($onlyUnit, fn ($q) => $q->where('id', $onlyUnit->id))
-            ->orderBy('name')
-            ->get();
-
-        $modules = Module::query()->with(['requirements' => fn ($q) => $q->orderBy('sort_order')])->orderBy('sort_order')->get();
-
-        $rows = collect();
-
-        foreach ($units as $unit) {
-            foreach ($modules as $module) {
-                foreach ($module->requirements as $requirement) {
-                    $submission = Submission::query()
-                        ->where('requirement_id', $requirement->id)
-                        ->where('user_id', $unit->id)
-                        ->latestForUnit()
-                        ->first();
-
-                    $rows->push([
-                        $unit->name,
-                        $unit->email,
-                        $module->name,
-                        $requirement->title,
-                        $submission?->status?->label() ?? 'Menunggu unggah',
-                        $submission?->version,
-                        $submission?->original_filename,
-                        $submission?->updated_at?->translatedFormat('d M Y H:i'),
-                    ]);
-                }
-            }
-        }
-
-        return $rows;
-    }
 }
+

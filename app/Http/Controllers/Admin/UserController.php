@@ -15,7 +15,7 @@ class UserController extends Controller
     public function index(): View
     {
         $users = User::query()
-            ->orderByRaw("CASE role WHEN 'admin' THEN 1 WHEN 'unit_kerja' THEN 2 END")
+            ->orderByRaw("CASE role WHEN 'admin' THEN 1 WHEN 'perti' THEN 2 WHEN 'unit_kerja' THEN 3 END")
             ->orderBy('name')
             ->paginate(20);
 
@@ -24,7 +24,8 @@ class UserController extends Controller
 
     public function create(): View
     {
-        return view('admin.users.create');
+        $pertis = User::query()->where('role', UserRole::Perti)->orderBy('name')->get();
+        return view('admin.users.create', compact('pertis'));
     }
 
     public function store(StoreUserRequest $request): RedirectResponse
@@ -34,6 +35,7 @@ class UserController extends Controller
             'email' => $request->validated('email'),
             'password' => $request->validated('password'),
             'role' => UserRole::from($request->validated('role')),
+            'perti_id' => $request->validated('role') === UserRole::UnitKerja->value ? $request->validated('perti_id') : null,
             'email_verified_at' => now(),
         ]);
 
@@ -42,7 +44,8 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
-        return view('admin.users.edit', compact('user'));
+        $pertis = User::query()->where('role', UserRole::Perti)->orderBy('name')->get();
+        return view('admin.users.edit', compact('user', 'pertis'));
     }
 
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
@@ -53,8 +56,12 @@ class UserController extends Controller
             }
         }
 
-        $data = $request->safe()->only(['name', 'email', 'role']);
+        $data = $request->safe()->only(['name', 'email', 'role', 'perti_id']);
         $data['role'] = UserRole::from($data['role']);
+
+        if ($data['role'] !== UserRole::UnitKerja) {
+            $data['perti_id'] = null;
+        }
 
         $user->fill($data);
 
