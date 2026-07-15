@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_the_home_page_is_public(): void
     {
         $response = $this->get('/');
@@ -14,3 +17,4 @@ class ExampleTest extends TestCase
         $response->assertSee('Progress unggahan');
     }
 }
+
