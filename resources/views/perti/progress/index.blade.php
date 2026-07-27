@@ -15,11 +15,78 @@
         </div>
     </x-slot>
 
+    @php
+        $notUploaded = $progress['total'] - $progress['uploaded'];
+        $hasRevision = ($progress['revision'] ?? 0) > 0;
+        $hasPending = ($progress['pending_validation'] ?? 0) > 0;
+    @endphp
+
     <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <x-stat-card label="Progress keseluruhan" :value="$progress['percent'].'%'" accent="emerald" />
-        <x-stat-card label="Sudah terunggah" :value="$progress['uploaded']" accent="violet" />
-        <x-stat-card label="Perlu divalidasi" :value="$progress['pending_validation']" accent="rose" />
-        <x-stat-card label="Belum terunggah" :value="$progress['total'] - $progress['uploaded']" accent="sky" />
+        <!-- Progress Keseluruhan -->
+        <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg {{ $hasRevision ? 'ring-2 ring-amber-500/40 bg-amber-50/40' : '' }}">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold uppercase tracking-wider {{ $hasRevision ? 'text-amber-800' : 'text-slate-500' }}">Progress Keseluruhan</p>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl {{ $hasRevision ? 'bg-amber-100 text-amber-700 font-black' : 'bg-emerald-50 text-emerald-600 font-extrabold' }} text-xs">
+                    {{ $hasRevision ? '!' : '%' }}
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight {{ $hasRevision ? 'text-amber-900' : 'text-slate-900' }}">{{ $progress['percent'] }}%</p>
+            <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                <div class="h-full rounded-full transition-all duration-500 {{ $hasRevision ? 'bg-amber-500' : 'bg-emerald-500' }}" style="width: {{ $progress['percent'] }}%"></div>
+            </div>
+            @if ($hasRevision)
+                <p class="mt-2 text-xs font-bold text-amber-800 flex items-center gap-1">
+                    <svg class="h-3.5 w-3.5 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+                    </svg>
+                    <span>{{ $progress['uploaded'] }} dari {{ $progress['total'] }} ({{ $progress['revision'] }} perlu revisi)</span>
+                </p>
+            @else
+                <p class="mt-2 text-xs font-medium text-slate-500">{{ $progress['uploaded'] }} dari {{ $progress['total'] }} persyaratan</p>
+            @endif
+        </div>
+
+        <!-- Sudah Terunggah -->
+        <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Sudah Terunggah</p>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $progress['uploaded'] }}</p>
+            <p class="mt-4 text-xs font-medium text-slate-500">Dokumen telah terunggah ke sistem</p>
+        </div>
+
+        <!-- Perlu Divalidasi -->
+        <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg {{ $hasPending ? 'ring-2 ring-amber-500/40 bg-amber-50/40' : '' }}">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold uppercase tracking-wider {{ $hasPending ? 'text-amber-800 font-extrabold' : 'text-slate-500' }}">Perlu Divalidasi</p>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl {{ $hasPending ? 'bg-amber-100 text-amber-700 animate-pulse font-black' : 'bg-slate-100 text-slate-400' }}">
+                    {{ $hasPending ? '!' : '✓' }}
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight {{ $hasPending ? 'text-amber-900' : 'text-slate-900' }}">{{ $progress['pending_validation'] }}</p>
+            <p class="mt-4 text-xs {{ $hasPending ? 'font-bold text-amber-800' : 'font-medium text-slate-500' }}">
+                {{ $hasPending ? 'Dokumen menunggu pemeriksaan' : 'Tidak ada antrean validasi' }}
+            </p>
+        </div>
+
+        <!-- Belum Terunggah -->
+        <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Belum Terunggah</p>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $notUploaded }}</p>
+            <p class="mt-4 text-xs font-medium text-slate-500">Dari {{ $progress['total'] }} total persyaratan</p>
+        </div>
     </div>
 
     <div class="mb-8 grid gap-6 lg:grid-cols-2">
