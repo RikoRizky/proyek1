@@ -47,8 +47,11 @@
                     @foreach ($modules as $module)
                         @php
                             $pendingVal = $module['pending_validation'] ?? 0;
+                            $revisionVal = $module['revision'] ?? 0;
+                            $approvedVal = $module['approved'] ?? 0;
+                            $uploadedVal = $module['uploaded'] ?? 0;
                         @endphp
-                        <tr class="{{ $pendingVal > 0 ? 'bg-amber-50/30' : '' }}">
+                        <tr class="{{ $pendingVal > 0 ? 'bg-amber-50/30' : ($revisionVal > 0 ? 'bg-rose-50/20' : '') }}">
                             <td>
                                 <div class="flex items-center gap-2">
                                     <p class="font-semibold text-slate-900">{{ $module['short_label'] }}</p>
@@ -56,6 +59,11 @@
                                         <span class="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-100/90 px-2 py-0.5 text-[11px] font-extrabold text-amber-800 animate-pulse">
                                             <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
                                             {{ $pendingVal }} Perlu Validasi
+                                        </span>
+                                    @elseif ($revisionVal > 0)
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-100/90 px-2 py-0.5 text-[11px] font-extrabold text-rose-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                                            {{ $revisionVal }} Perlu Revisi
                                         </span>
                                     @endif
                                 </div>
@@ -65,7 +73,7 @@
                             <td class="min-w-[10rem]">
                                 <div class="flex items-center gap-2">
                                     <div class="h-2 flex-1 rounded-full bg-slate-100">
-                                        <div class="h-full rounded-full bg-emerald-500" style="width: {{ $module['percent'] }}%"></div>
+                                        <div class="h-full rounded-full {{ $pendingVal > 0 ? 'bg-amber-500' : ($revisionVal > 0 ? 'bg-rose-500' : 'bg-emerald-500') }}" style="width: {{ $module['percent'] }}%"></div>
                                     </div>
                                     <span class="text-sm font-bold tabular-nums">{{ $module['percent'] }}%</span>
                                 </div>
@@ -76,18 +84,37 @@
                                         <span class="h-2 w-2 rounded-full bg-amber-500"></span>
                                         {{ $pendingVal }} pending
                                     </span>
-                                @elseif ($module['uploaded'] > 0)
+                                @elseif ($revisionVal > 0)
+                                    <span class="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-xs font-extrabold text-rose-700">
+                                        <svg class="h-3 w-3 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+                                        {{ $revisionVal }} Perlu Revisi
+                                    </span>
+                                @elseif ($uploadedVal > 0 && $approvedVal === $uploadedVal)
                                     <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
                                         ✓ Valid
+                                    </span>
+                                @elseif ($uploadedVal > 0)
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                                        {{ $uploadedVal }}/{{ $module['total'] }} Terunggah
                                     </span>
                                 @else
                                     <span class="text-xs text-slate-400">-</span>
                                 @endif
                             </td>
                             <td class="text-right">
-                                <a href="{{ route('perti.prodis.modul', [$prodi->id, $module['module_id']]) }}" class="text-xs font-extrabold {{ $pendingVal > 0 ? 'text-amber-700 hover:text-amber-800 underline' : 'text-violet-600 hover:text-violet-500' }}">
-                                    {{ $pendingVal > 0 ? 'Validasi sekarang →' : 'Lihat detail →' }}
-                                </a>
+                                @if ($pendingVal > 0)
+                                    <a href="{{ route('perti.prodis.modul', [$prodi->id, $module['module_id']]) }}" class="text-xs font-extrabold text-amber-700 hover:text-amber-800 underline">
+                                        Validasi sekarang →
+                                    </a>
+                                @elseif ($revisionVal > 0)
+                                    <a href="{{ route('perti.prodis.modul', [$prodi->id, $module['module_id']]) }}" class="text-xs font-extrabold text-rose-600 hover:text-rose-700 underline">
+                                        Lihat Revisi →
+                                    </a>
+                                @else
+                                    <a href="{{ route('perti.prodis.modul', [$prodi->id, $module['module_id']]) }}" class="text-xs font-semibold text-violet-600 hover:text-violet-500">
+                                        Lihat detail →
+                                    </a>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
