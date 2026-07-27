@@ -16,19 +16,49 @@
         $isPdf = $ext === 'pdf';
     @endphp
 
-    <div class="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 py-2.5 select-none">
-        <a href="{{ $backUrl }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-600 hover:text-violet-500">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            Kembali
-        </a>
-        @if ($submission->file_path || (!empty($submission->files)))
-            <div class="flex gap-2">
+    @if (session('status'))
+        <div class="border-b border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-900 flex items-center gap-2">
+            <svg class="h-4 w-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+            <span>{{ session('status') }}</span>
+        </div>
+    @endif
+
+    <div class="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 py-2.5 select-none">
+        <div class="flex items-center gap-3">
+            <a href="{{ $backUrl }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-600 hover:text-violet-500">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                Kembali
+            </a>
+            <span class="text-slate-300">|</span>
+            <span class="ui-badge {{ $submission->status->badgeClass() }}">{{ $submission->status->label() }}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+            @if ($routePrefix === 'perti' && $submission->status !== \App\Enums\SubmissionStatus::Approved)
+                <form action="{{ route('perti.submissions.validate', $submission) }}" method="POST" class="inline">
+                    @csrf
+                    <input type="hidden" name="status" value="approved">
+                    <button type="submit" class="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition shadow-sm">
+                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                        Setujui (Sesuai)
+                    </button>
+                </form>
+
+                <button type="button"
+                    id="btnViewerRevision"
+                    class="inline-flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition shadow-sm">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg>
+                    {{ $submission->status === \App\Enums\SubmissionStatus::Revision ? 'Edit Catatan Revisi' : 'Perlu Revisi' }}
+                </button>
+            @endif
+
+            @if ($submission->file_path || (!empty($submission->files)))
                 <a href="{{ $inlineUrl }}" id="btn-tab-baru" target="_blank" rel="noopener" class="ui-btn-secondary py-1.5 px-3.5 text-xs">Tab baru</a>
                 <a href="{{ $downloadUrl }}" id="btn-download" class="ui-btn-secondary py-1.5 px-3.5 text-xs">Unduh</a>
-            </div>
-        @endif
+            @endif
+        </div>
     </div>
 
     @if ($hasMultiple)
@@ -75,7 +105,7 @@
                                     data-inline-url="{{ $fileInlineUrl }}"
                                     data-download-url="{{ $fileDownloadUrl }}"
                                     data-filename="{{ $file['original_filename'] }}"
-                                    onclick="selectFile({{ $index }}, '{{ $fileInlineUrl }}', '{{ $fileDownloadUrl }}', '{{ addslashes($file['original_filename']) }}')"
+                                    onclick='selectFile({{ $index }}, {{ json_encode($fileInlineUrl) }}, {{ json_encode($fileDownloadUrl) }}, {{ json_encode($file["original_filename"]) }})'
                                     class="w-full text-left flex items-start gap-2.5 rounded-xl border p-3 transition file-item-btn
                                         {{ $isActive 
                                             ? 'border-violet-500 bg-violet-50/50 text-violet-900 font-medium' 
@@ -193,5 +223,166 @@
                 class="min-h-0 w-full flex-1 border-0 bg-white"
             ></iframe>
         </div>
+    @endif
+
+    @if ($routePrefix === 'perti')
+        {{-- Revision Modal in Viewer --}}
+        <div id="viewerRevisionModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm transition-opacity">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white p-6 shadow-2xl transition-all">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12v-.008Z"/></svg>
+                            </span>
+                            Catatan Perlu Revisi
+                        </h3>
+                        <button type="button" onclick="closeViewerRevisionModal()" class="text-slate-400 hover:text-slate-600">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+
+                    <form id="viewerRevisionForm" method="POST" action="" class="mt-4">
+                        @csrf
+                        <input type="hidden" name="status" value="revision">
+                        
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Persyaratan:</p>
+                        <p class="text-sm font-semibold text-slate-800 mb-4" id="viewerModalReqTitle"></p>
+
+                        <!-- Selection for Files & Links to Revise -->
+                        @php
+                            $modalFiles = $submission->files ?? [];
+                            $modalDriveLinks = $submission->google_drive_links ?? [];
+                            $hasFilesOrLinks = !empty($modalFiles) || !empty($modalDriveLinks);
+                        @endphp
+
+                        @if ($hasFilesOrLinks)
+                            <div class="mb-4 rounded-xl border border-rose-200/60 bg-rose-50/40 p-3.5">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-rose-900 mb-2">Pilih Berkas / Link yang Perlu Direvisi:</label>
+                                
+                                @if (!empty($modalDriveLinks))
+                                    <div class="mb-3">
+                                        <p class="text-[11px] font-bold text-violet-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>
+                                            Link Google Drive:
+                                        </p>
+                                        <div class="space-y-1.5">
+                                            @foreach ($modalDriveLinks as $idx => $link)
+                                                <label class="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-800 cursor-pointer hover:border-rose-400 transition select-none">
+                                                    <input type="checkbox" name="target_links[]" value="{{ $link['name'] }}" class="h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500">
+                                                    <span class="font-semibold text-violet-700">🔗 {{ $link['name'] }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @if (!empty($modalFiles))
+                                    <div>
+                                        <p class="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+                                            Berkas Dokumen:
+                                        </p>
+                                        <div class="space-y-1.5">
+                                            @foreach ($modalFiles as $idx => $file)
+                                                <label class="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-800 cursor-pointer hover:border-rose-400 transition select-none">
+                                                    <input type="checkbox" name="target_files[]" value="{{ $file['original_filename'] }}" class="h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500">
+                                                    <span class="font-semibold text-slate-800 truncate">📄 {{ $file['original_filename'] }}</span>
+                                                    <span class="text-[10px] text-slate-400">({{ number_format($file['file_size'] / 1024, 1) }} KB)</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        <div>
+                            <label for="viewer_validation_notes" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Catatan / Alasan Revisi untuk Prodi:</label>
+                            <p class="mt-1 text-[11px] text-slate-500">Tentukan instruksi/catatan detail mengenai perbaikan yang harus dilakukan.</p>
+                            <textarea id="viewer_validation_notes" name="validation_notes" rows="3"
+                                placeholder="Contoh: Berkas Dokumen A halaman 2 TTD Dekan belum ada. Link Google Drive B tidak dapat diakses (Access Denied). Harap diperbaiki..."
+                                class="mt-1.5 w-full rounded-xl border border-slate-200 p-3 text-sm text-slate-800 placeholder-slate-400 focus:border-rose-500 focus:ring-rose-500"></textarea>
+                        </div>
+
+                        <div class="mt-6 flex justify-end gap-3">
+                            <button type="button" onclick="closeViewerRevisionModal()" class="ui-btn-secondary py-2 px-4 text-xs">Batal</button>
+                            <button type="submit" class="inline-flex items-center justify-center rounded-xl px-4 py-2 text-xs font-bold text-white shadow-md transition hover:opacity-90" style="background-color: #e11d48 !important; color: #ffffff !important;">Kirim Catatan Revisi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function parseValidationNotes(notesStr) {
+                if (!notesStr) return { targetFiles: [], targetLinks: [], customNote: '' };
+
+                let targetFiles = [];
+                let targetLinks = [];
+                let customNote = notesStr;
+
+                if (notesStr.includes('📌 Target Revisi:')) {
+                    const parts = notesStr.split('💬 Catatan Perti:');
+                    const headerPart = parts[0];
+                    customNote = parts[1] ? parts[1].trim() : '';
+
+                    const fileMatch = headerPart.match(/• Berkas Dokumen:\s*(.+)/);
+                    if (fileMatch && fileMatch[1]) {
+                        targetFiles = fileMatch[1].split(',').map(s => s.trim());
+                    }
+
+                    const linkMatch = headerPart.match(/• Link Google Drive:\s*(.+)/);
+                    if (linkMatch && linkMatch[1]) {
+                        targetLinks = linkMatch[1].split(',').map(s => s.trim());
+                    }
+                }
+
+                return { targetFiles, targetLinks, customNote };
+            }
+
+            function openViewerRevisionModal() {
+                const form = document.getElementById('viewerRevisionForm');
+                if (form) {
+                    form.action = @json(route('perti.submissions.validate', $submission));
+                    document.getElementById('viewerModalReqTitle').textContent = @json($submission->requirement->title);
+                    
+                    const rawNotes = @json($submission->validation_notes ?? '');
+                    const { targetFiles, targetLinks, customNote } = parseValidationNotes(rawNotes);
+
+                    document.getElementById('viewer_validation_notes').value = customNote;
+
+                    // Pre-check target links
+                    document.querySelectorAll('#viewerRevisionModal input[name="target_links[]"]').forEach(cb => {
+                        cb.checked = targetLinks.includes(cb.value);
+                    });
+
+                    // Pre-check target files
+                    document.querySelectorAll('#viewerRevisionModal input[name="target_files[]"]').forEach(cb => {
+                        cb.checked = targetFiles.includes(cb.value);
+                    });
+
+                    document.getElementById('viewerRevisionModal').classList.remove('hidden');
+                }
+            }
+
+            function closeViewerRevisionModal() {
+                const modal = document.getElementById('viewerRevisionModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const btn = document.getElementById('btnViewerRevision');
+                if (btn) {
+                    btn.addEventListener('click', openViewerRevisionModal);
+                }
+
+                @if(request('action') === 'revision')
+                    openViewerRevisionModal();
+                @endif
+            });
+        </script>
     @endif
 </x-viewer-layout>

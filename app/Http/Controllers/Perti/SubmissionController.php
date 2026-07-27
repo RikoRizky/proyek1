@@ -14,6 +14,58 @@ class SubmissionController extends Controller
 {
     use SendsSubmissionFile;
 
+    public function validateSubmission(\Illuminate\Http\Request $request, Submission $submission): \Illuminate\Http\RedirectResponse
+    {
+        $submission->load('user');
+        $this->authorizeSubmission($submission);
+
+        $validated = $request->validate([
+            'status'           => 'required|in:approved,revision',
+            'validation_notes' => 'nullable|string|max:2000',
+            'target_files'     => 'nullable|array',
+            'target_files.*'   => 'string|max:255',
+            'target_links'     => 'nullable|array',
+            'target_links.*'   => 'string|max:255',
+        ]);
+
+        $finalNotes = $validated['validation_notes'] ?? null;
+
+        if ($validated['status'] === 'revision') {
+            if (!empty($finalNotes) && str_contains($finalNotes, '📌 Target Revisi:')) {
+                $parts = explode('💬 Catatan Perti:', $finalNotes);
+                $finalNotes = isset($parts[1]) ? trim($parts[1]) : '';
+            }
+
+            $targetItems = [];
+            if (!empty($validated['target_files'])) {
+                $targetItems[] = "• Berkas Dokumen: " . implode(', ', $validated['target_files']);
+            }
+            if (!empty($validated['target_links'])) {
+                $targetItems[] = "• Link Google Drive: " . implode(', ', $validated['target_links']);
+            }
+
+            if (!empty($targetItems)) {
+                $formattedTargets = "📌 Target Revisi:\n" . implode("\n", $targetItems);
+                if (!empty($finalNotes)) {
+                    $finalNotes = $formattedTargets . "\n\n💬 Catatan Perti:\n" . trim($finalNotes);
+                } else {
+                    $finalNotes = $formattedTargets;
+                }
+            }
+        }
+
+        $submission->update([
+            'status'           => $validated['status'],
+            'validation_notes' => $finalNotes,
+            'validated_at'     => now(),
+            'validated_by'     => auth()->id(),
+        ]);
+
+        $statusLabel = $validated['status'] === 'approved' ? 'Sesuai' : 'Perlu Revisi';
+
+        return redirect()->route('perti.submissions.view', $submission)->with('status', "Status validasi berhasil diperbarui: {$statusLabel}.");
+    }
+
     public function show(Submission $submission): View
     {
         $submission->load(['user', 'requirement.module']);

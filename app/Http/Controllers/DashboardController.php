@@ -49,7 +49,7 @@ class DashboardController extends Controller
         $uploadedLatest = Submission::query()
             ->latestForUnit()
             ->whereIn('user_id', $prodiUserIds)
-            ->where('status', SubmissionStatus::Uploaded)
+            ->where('status', '!=', SubmissionStatus::Pending)
             ->count();
 
         $totalReq = Requirement::query()->count();
@@ -72,7 +72,7 @@ class DashboardController extends Controller
 
         $uploadedLatest = Submission::query()
             ->latestForUnit()
-            ->where('status', SubmissionStatus::Uploaded)
+            ->where('status', '!=', SubmissionStatus::Pending)
             ->count();
 
         return [
@@ -106,7 +106,7 @@ class DashboardController extends Controller
             ->keyBy('requirement_id');
 
         $uploadedCount = $latestSubmissions->filter(
-            fn (Submission $s) => $s->status === SubmissionStatus::Uploaded
+            fn (Submission $s) => $s->status !== SubmissionStatus::Pending
         )->count();
 
         $notUploadedCount = max(0, $totalReq - $latestSubmissions->count());

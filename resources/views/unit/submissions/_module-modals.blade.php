@@ -215,28 +215,67 @@
             return linkIndices[reqId]++;
         };
 
-        const buildDriveLinkRow = (reqId, idx, nameVal, urlVal, showRemove) => {
+        const escapeHtml = (str) => {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        };
+
+        const parseValidationNotes = (notesStr) => {
+            if (!notesStr) return { targetFiles: [], targetLinks: [], customNote: '' };
+
+            let targetFiles = [];
+            let targetLinks = [];
+            let customNote = String(notesStr);
+
+            if (customNote.includes('📌 Target Revisi:')) {
+                const parts = customNote.split('💬 Catatan Perti:');
+                const headerPart = parts[0];
+                customNote = parts[1] ? parts[1].trim() : '';
+
+                const fileMatch = headerPart.match(/• Berkas Dokumen:\s*([^\r\n]+)/);
+                if (fileMatch && fileMatch[1]) {
+                    targetFiles = fileMatch[1].split(',').map(s => s.trim().toLowerCase());
+                }
+
+                const linkMatch = headerPart.match(/• Link Google Drive:\s*([^\r\n]+)/);
+                if (linkMatch && linkMatch[1]) {
+                    targetLinks = linkMatch[1].split(',').map(s => s.trim().toLowerCase());
+                }
+            }
+
+            return { targetFiles, targetLinks, customNote };
+        };
+
+        window.clearTargetHighlight = (rowId) => {
+            const row = document.getElementById(rowId);
+            if (row) {
+                row.className = 'flex items-start gap-2 p-2 rounded-xl border border-slate-200 bg-white transition duration-150';
+            }
+        };
+
+        const buildDriveLinkRow = (reqId, idx, nameVal, urlVal, isTargeted = false) => {
             const row = document.createElement('div');
-            row.className = 'flex items-start gap-2';
+            row.className = 'flex items-start gap-2 p-2 rounded-xl transition duration-150 ' +
+                (isTargeted ? 'border-2 border-rose-500 bg-rose-50/60 shadow-sm' : 'border border-slate-200 bg-white');
             row.id = `drive-row-${reqId}-${idx}`;
 
-            const removeBtnHtml = showRemove
-                ? `<button type="button" onclick="removeDriveLinkRow('${reqId}', ${idx})"
-                        class="mt-5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-300 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500">
-                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
-                   </button>`
-                : `<div class="mt-5 h-8 w-8 shrink-0"></div>`;
+            const removeBtnHtml = `<button type="button" onclick="removeDriveLinkRow('${reqId}', ${idx})"
+                    class="mt-5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+               </button>`;
 
             row.innerHTML = `
                 <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Nama Dokumen</label>
                         <input type="text" name="google_drive_links[${idx}][name]" value="${nameVal}" placeholder="Contoh: SK Rektor..."
+                            oninput="clearTargetHighlight('drive-row-${reqId}-${idx}')"
                             class="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-violet-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Link Google Drive</label>
                         <input type="url" name="google_drive_links[${idx}][url]" value="${urlVal}" placeholder="https://drive.google.com/..."
+                            oninput="clearTargetHighlight('drive-row-${reqId}-${idx}')"
                             class="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-violet-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition">
                     </div>
                 </div>
@@ -245,9 +284,10 @@
             return row;
         };
 
-        window.openUploadModal = (reqId, existingLinks, existingFiles) => {
+        window.openUploadModal = (reqId, existingLinks, existingFiles, validationNotes) => {
             const modal = document.getElementById(`upload-modal-${reqId}`);
             const modalBox = document.getElementById(`modal-box-${reqId}`);
+            const { targetFiles, targetLinks } = parseValidationNotes(validationNotes || '');
 
             // Pre-fill existing Google Drive links (Perbarui Berkas mode)
             const container = document.getElementById(`drive-links-container-${reqId}`);
@@ -255,7 +295,10 @@
                 container.innerHTML = '';
                 if (existingLinks && existingLinks.length > 0) {
                     existingLinks.forEach((link, idx) => {
-                        const row = buildDriveLinkRow(reqId, idx, link.name || '', link.url || '', idx > 0);
+                        const linkNameStr = String(link.name || '').trim().toLowerCase();
+                        const linkUrlStr = String(link.url || '').trim().toLowerCase();
+                        const isTargeted = targetLinks.some(tl => tl === linkNameStr || tl === linkUrlStr);
+                        const row = buildDriveLinkRow(reqId, idx, link.name || '', link.url || '', isTargeted);
                         container.appendChild(row);
                     });
                     linkIndices[reqId] = existingLinks.length + 10;
@@ -279,7 +322,11 @@
 
                     existingFiles.forEach((file, idx) => {
                         const fileRow = document.createElement('div');
-                        fileRow.className = 'flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5';
+                        const fileNameStr = String(file.original_filename || '').trim().toLowerCase();
+                        const isTargeted = targetFiles.some(tf => tf === fileNameStr);
+                        const borderClass = isTargeted ? 'border-2 border-rose-500 bg-rose-50/60 shadow-sm' : 'border border-slate-200 bg-slate-50';
+
+                        fileRow.className = `flex items-center gap-3 rounded-xl px-3 py-2.5 ${borderClass}`;
                         fileRow.id = `existing-file-row-${reqId}-${idx}`;
                         
                         const sizeKb = (file.file_size / 1024).toFixed(1);
@@ -291,7 +338,7 @@
                             <input type="hidden" name="keep_files[]" value='${JSON.stringify(file).replace(/'/g, "&#39;")}' id="keep-file-input-${reqId}-${idx}">
                             <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold" style="background:${bg};color:${fg}">${ext.toUpperCase()}</span>
                             <div class="min-w-0 flex-1">
-                                <p class="truncate text-xs font-semibold text-slate-700">${file.original_filename}</p>
+                                <p class="truncate text-xs font-semibold text-slate-700 font-medium">${escapeHtml(file.original_filename)}</p>
                                 <p class="text-[10px] text-slate-400 mt-0.5">${sizeKb} KB</p>
                             </div>
                             <button type="button" onclick="removeExistingFileRow('${reqId}', ${idx})"
@@ -536,5 +583,122 @@
             setTimeout(() => openUploadModal(failedReqId), 300);
         @endif
     })();
+</script>
+
+<!-- Detail Catatan Validasi Modal (Diskusi style) -->
+<div id="detailValidationModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm transition-opacity">
+    <div class="flex min-h-full items-center justify-center p-4">
+        <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+            <!-- Header with gradient -->
+            <div class="bg-gradient-to-r from-violet-600 to-indigo-600 p-6 text-white relative">
+                <button type="button" onclick="closeDetailValidationModal()" class="absolute top-4 right-4 text-white/80 hover:text-white rounded-full p-1 transition">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+                </button>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-violet-200">Catatan Validasi Perti</p>
+                <h3 class="mt-1 text-lg font-extrabold text-white leading-snug" id="detailValTitle">Persyaratan</h3>
+                <p class="mt-1 text-xs text-violet-100" id="detailValDate"></p>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6 space-y-5">
+                <!-- Target Items Section -->
+                <div id="detailValTargetSection" class="hidden">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Dokumen / Link yang Perlu Direvisi:</p>
+                    <div id="detailValTargetList" class="space-y-2"></div>
+                </div>
+
+                <!-- Custom Note Section -->
+                <div>
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Instruksi / Catatan Perti:</p>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap" id="detailValNotes"></div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="border-t border-slate-100 bg-slate-50 px-6 py-4 flex justify-end">
+                <button type="button" onclick="closeDetailValidationModal()" class="ui-btn-secondary py-2 px-5 text-xs font-bold">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.openDetailValidationModal = (title, notesStr, dateStr) => {
+        document.getElementById('detailValTitle').textContent = title || 'Persyaratan';
+        document.getElementById('detailValDate').textContent = dateStr ? ('Divalidasi pada ' + dateStr) : '';
+
+        const targetSection = document.getElementById('detailValTargetSection');
+        const targetList = document.getElementById('detailValTargetList');
+        const notesEl = document.getElementById('detailValNotes');
+
+        targetList.innerHTML = '';
+
+        const parseNotes = (str) => {
+            if (!str) return { targetFiles: [], targetLinks: [], customNote: '' };
+            let targetFiles = [];
+            let targetLinks = [];
+            let customNote = str;
+
+            if (str.includes('📌 Target Revisi:')) {
+                const parts = str.split('💬 Catatan Perti:');
+                const headerPart = parts[0];
+                customNote = parts[1] ? parts[1].trim() : '';
+
+                const fileMatch = headerPart.match(/• Berkas Dokumen:\s*(.+)/);
+                if (fileMatch && fileMatch[1]) {
+                    targetFiles = fileMatch[1].split(',').map(s => s.trim());
+                }
+
+                const linkMatch = headerPart.match(/• Link Google Drive:\s*(.+)/);
+                if (linkMatch && linkMatch[1]) {
+                    targetLinks = linkMatch[1].split(',').map(s => s.trim());
+                }
+            }
+
+            return { targetFiles, targetLinks, customNote };
+        };
+
+        const escapeHtml = (str) => {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        };
+        
+        const { targetFiles, targetLinks, customNote } = parseNotes(notesStr || '');
+        notesEl.textContent = customNote || 'Tidak ada catatan tertulis khusus.';
+
+        let hasTargets = false;
+
+        if (targetFiles && targetFiles.length > 0) {
+            hasTargets = true;
+            targetFiles.forEach(f => {
+                const card = document.createElement('div');
+                card.className = 'flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50/70 p-3 text-xs text-rose-900 font-semibold';
+                card.innerHTML = `<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-rose-100 text-rose-700">📄</span> <span class="truncate">${escapeHtml(f)}</span> <span class="ml-auto shrink-0 rounded-full bg-rose-200/80 px-2 py-0.5 text-[10px] font-bold text-rose-800">Berkas</span>`;
+                targetList.appendChild(card);
+            });
+        }
+
+        if (targetLinks && targetLinks.length > 0) {
+            hasTargets = true;
+            targetLinks.forEach(l => {
+                const card = document.createElement('div');
+                card.className = 'flex items-center gap-2.5 rounded-xl border border-violet-200 bg-violet-50/70 p-3 text-xs text-violet-900 font-semibold';
+                card.innerHTML = `<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-700">🔗</span> <span class="truncate">${escapeHtml(l)}</span> <span class="ml-auto shrink-0 rounded-full bg-violet-200/80 px-2 py-0.5 text-[10px] font-bold text-violet-800">Link Drive</span>`;
+                targetList.appendChild(card);
+            });
+        }
+
+        if (hasTargets) {
+            targetSection.classList.remove('hidden');
+        } else {
+            targetSection.classList.add('hidden');
+        }
+
+        document.getElementById('detailValidationModal').classList.remove('hidden');
+    };
+
+    window.closeDetailValidationModal = () => {
+        document.getElementById('detailValidationModal').classList.add('hidden');
+    };
 </script>
 

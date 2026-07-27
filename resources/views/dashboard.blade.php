@@ -273,7 +273,7 @@
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             @foreach ($stats['modules'] as $module)
                 @php
-                    $uploaded = $module->requirements->filter(fn ($req) => $req->submissions->first()?->status === SubmissionStatus::Uploaded)->count();
+                    $uploaded = $module->requirements->filter(fn ($req) => $req->submissions->first() && $req->submissions->first()->status !== SubmissionStatus::Pending)->count();
                     $total = $module->requirements->count();
                     $moduleProgress = $total > 0 ? round(($uploaded / $total) * 100) : 0;
                 @endphp

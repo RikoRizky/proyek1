@@ -1,6 +1,6 @@
 <x-app-layout>
     @php
-        $uploadedCount = $module->requirements->filter(fn ($req) => $req->submissions->first()?->status === \App\Enums\SubmissionStatus::Uploaded)->count();
+        $uploadedCount = $module->requirements->filter(fn ($req) => $req->submissions->first() && $req->submissions->first()->status !== \App\Enums\SubmissionStatus::Pending)->count();
         $totalCount = $module->requirements->count();
         $progressPercent = $totalCount > 0 ? round(($uploadedCount / $totalCount) * 100) : 0;
     @endphp

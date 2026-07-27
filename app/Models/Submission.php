@@ -24,6 +24,9 @@ class Submission extends Model
         'is_latest',
         'google_drive_links',
         'files',
+        'validation_notes',
+        'validated_at',
+        'validated_by',
     ];
 
     protected function casts(): array
@@ -33,6 +36,7 @@ class Submission extends Model
             'is_latest' => 'boolean',
             'google_drive_links' => 'array',
             'files' => 'array',
+            'validated_at' => 'datetime',
         ];
     }
 
@@ -44,6 +48,11 @@ class Submission extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function validator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validated_by');
     }
 
     public function scopeLatestForUnit(Builder $query): Builder

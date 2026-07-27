@@ -33,37 +33,65 @@ class UploadProgress
         $totalReq = self::totalRequirements();
         $modules = self::modulesWithRequirements();
 
-        $uploadedByRequirement = Submission::query()
+        $latestSubmissions = Submission::query()
             ->where('user_id', $unit->id)
             ->latestForUnit()
-            ->where('status', SubmissionStatus::Uploaded)
-            ->pluck('requirement_id')
-            ->flip();
+            ->get()
+            ->keyBy('requirement_id');
 
-        $moduleRows = $modules->map(function (Module $module) use ($uploadedByRequirement) {
+        $moduleRows = $modules->map(function (Module $module) use ($latestSubmissions) {
             $total = $module->requirements->count();
-            $uploaded = $module->requirements
-                ->filter(fn ($requirement) => isset($uploadedByRequirement[$requirement->id]))
-                ->count();
+            
+            $uploaded = 0;
+            $approved = 0;
+            $revision = 0;
+            $pendingValidation = 0;
+
+            foreach ($module->requirements as $requirement) {
+                $sub = $latestSubmissions->get($requirement->id);
+                if ($sub && $sub->status !== SubmissionStatus::Pending) {
+                    $uploaded++;
+                    if ($sub->status === SubmissionStatus::Approved) {
+                        $approved++;
+                    } elseif ($sub->status === SubmissionStatus::Revision) {
+                        $revision++;
+                    } elseif ($sub->status === SubmissionStatus::Uploaded) {
+                        $pendingValidation++;
+                    }
+                }
+            }
+
             $percent = $total > 0 ? (int) round(($uploaded / $total) * 100) : 0;
+            $approvedPercent = $total > 0 ? (int) round(($approved / $total) * 100) : 0;
 
             return [
-                'module_id' => $module->id,
-                'name' => $module->name,
-                'short_label' => $module->shortLabel(),
-                'uploaded' => $uploaded,
-                'total' => $total,
-                'percent' => $percent,
+                'module_id'          => $module->id,
+                'name'               => $module->name,
+                'short_label'        => $module->shortLabel(),
+                'uploaded'           => $uploaded,
+                'approved'           => $approved,
+                'revision'           => $revision,
+                'pending_validation' => $pendingValidation,
+                'total'              => $total,
+                'percent'            => $percent,
+                'approved_percent'   => $approvedPercent,
             ];
         })->values()->all();
 
         $uploadedTotal = (int) collect($moduleRows)->sum('uploaded');
+        $approvedTotal = (int) collect($moduleRows)->sum('approved');
+        $revisionTotal = (int) collect($moduleRows)->sum('revision');
+        $pendingValidationTotal = (int) collect($moduleRows)->sum('pending_validation');
 
         return [
-            'uploaded' => $uploadedTotal,
-            'total' => $totalReq,
-            'percent' => $totalReq > 0 ? (int) round(($uploadedTotal / $totalReq) * 100) : 0,
-            'modules' => $moduleRows,
+            'uploaded'           => $uploadedTotal,
+            'approved'           => $approvedTotal,
+            'revision'           => $revisionTotal,
+            'pending_validation' => $pendingValidationTotal,
+            'total'              => $totalReq,
+            'percent'            => $totalReq > 0 ? (int) round(($uploadedTotal / $totalReq) * 100) : 0,
+            'approved_percent'   => $totalReq > 0 ? (int) round(($approvedTotal / $totalReq) * 100) : 0,
+            'modules'            => $moduleRows,
         ];
     }
 

@@ -70,4 +70,42 @@ class ProdiProgressController extends Controller
             'allModules'   => $allModules,
         ]);
     }
+
+    /**
+     * Memvalidasi semua dokumen terunggah pada sebuah modul kriteria menjadi 'Sesuai' sekaligus.
+     */
+    public function batchValidate(\Illuminate\Http\Request $request, string $prodi, Module $module): \Illuminate\Http\RedirectResponse
+    {
+        $pertiProfile = auth()->user()->pertiProfile;
+        abort_if(is_null($pertiProfile), 403);
+
+        $prodiRecord = Prodi::query()
+            ->where('id', $prodi)
+            ->where('perti_id', $pertiProfile->id)
+            ->with('user')
+            ->firstOrFail();
+
+        $prodiUser = $prodiRecord->user;
+
+        $requirementIds = $module->requirements()->pluck('id');
+
+        $submissions = \App\Models\Submission::query()
+            ->whereIn('requirement_id', $requirementIds)
+            ->where('user_id', $prodiUser->id)
+            ->where('is_latest', true)
+            ->where('status', \App\Enums\SubmissionStatus::Uploaded->value)
+            ->get();
+
+        $count = 0;
+        foreach ($submissions as $sub) {
+            $sub->update([
+                'status'       => \App\Enums\SubmissionStatus::Approved,
+                'validated_at' => now(),
+                'validated_by' => auth()->id(),
+            ]);
+            $count++;
+        }
+
+        return redirect()->back()->with('status', "Berhasil menyetujui {$count} dokumen pada modul «{$module->name}».");
+    }
 }

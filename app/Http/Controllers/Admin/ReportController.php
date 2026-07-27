@@ -109,7 +109,7 @@ class ReportController extends Controller
                         ->latestForUnit()
                         ->first();
 
-                    if ($submission?->status === SubmissionStatus::Uploaded) {
+                    if ($submission && $submission->status !== SubmissionStatus::Pending) {
                         $uploaded++;
                     }
                 }

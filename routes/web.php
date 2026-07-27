@@ -68,8 +68,10 @@ Route::middleware(['auth', 'role:perti'])->prefix('perti')->name('perti.')->grou
     Route::resource('prodis', App\Http\Controllers\Perti\ProdiController::class)->except(['show']);
     Route::get('prodis/{prodi}/progress', [App\Http\Controllers\Perti\ProdiProgressController::class, 'index'])->name('prodis.progress');
     Route::get('prodis/{prodi}/modul/{module}', [App\Http\Controllers\Perti\ProdiProgressController::class, 'module'])->name('prodis.modul');
+    Route::post('prodis/{prodi}/modul/{module}/batch-validate', [App\Http\Controllers\Perti\ProdiProgressController::class, 'batchValidate'])->name('prodis.modul.batch-validate');
     Route::get('reports/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
 
+    Route::post('submissions/{submission}/validate', [App\Http\Controllers\Perti\SubmissionController::class, 'validateSubmission'])->name('submissions.validate');
     Route::get('submissions/{submission}/view', [App\Http\Controllers\Perti\SubmissionController::class, 'viewer'])->name('submissions.view');
     Route::get('submissions/{submission}/inline', [App\Http\Controllers\Perti\SubmissionController::class, 'inline'])->name('submissions.inline');
     Route::get('submissions/{submission}/download', [App\Http\Controllers\Perti\SubmissionController::class, 'download'])->name('submissions.download');
