@@ -92,12 +92,96 @@
             $unitUploaded = collect($units)->pluck('uploaded')->values()->all();
         @endphp
 
+        @if (($stats['pendingValidationCount'] ?? 0) > 0)
+            <div class="mb-6 flex flex-col gap-4 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-500 via-amber-600 to-indigo-600 p-5 text-white shadow-xl shadow-amber-500/10 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md">
+                        <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold sm:text-lg">Ada {{ $stats['pendingValidationCount'] }} Dokumen Baru Memerlukan Validasi Perti!</h2>
+                        <p class="mt-0.5 text-xs text-white/90 sm:text-sm">Program studi telah mengunggah dokumen baru. Periksa tabel di bawah untuk melakukan validasi.</p>
+                    </div>
+                </div>
+                <a href="#prodi-table" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-extrabold text-amber-900 shadow-md transition hover:bg-amber-50">
+                    Periksa Dokumen →
+                </a>
+            </div>
+        @endif
+
         <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <x-stat-card label="Program studi" :value="$stats['prodiCount']" accent="emerald" />
-            <x-stat-card label="Rata-rata progress" :value="$summary['average_percent'].'%'" accent="sky" />
-            <x-stat-card label="Prodi lengkap" :value="$summary['complete_count']" accent="amber" />
-            <x-stat-card label="Perlu divalidasi" :value="$stats['pendingValidationCount']" accent="rose" />
-            <x-stat-card label="Total terunggah" :value="$stats['uploadedLatest']" accent="violet" />
+            <!-- Program Studi -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Program Studi</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5" />
+                        </svg>
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['prodiCount'] }}</p>
+                <p class="mt-4 text-xs font-medium text-slate-500">Total prodi terdaftar</p>
+            </div>
+
+            <!-- Rata-rata Progress -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Rata-rata Progress</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-xs font-extrabold text-sky-600">
+                        %
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['average_percent'] }}%</p>
+                <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div class="h-full rounded-full bg-sky-500 transition-all duration-500" style="width: {{ $summary['average_percent'] }}%"></div>
+                </div>
+                <p class="mt-2 text-xs font-medium text-slate-500">Rata-rata kelengkapan</p>
+            </div>
+
+            <!-- Prodi Lengkap -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Prodi Lengkap</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 003-3V8.25a3 3 0 00-3-3H9.75a3 3 0 00-3 3v7.5a3 3 0 003 3m9 0v-1.5m-9 1.5v-1.5" />
+                        </svg>
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['complete_count'] }}</p>
+                <p class="mt-4 text-xs font-medium text-slate-500">Prodi progress 100%</p>
+            </div>
+
+            <!-- Perlu Divalidasi -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg {{ $stats['pendingValidationCount'] > 0 ? 'ring-2 ring-amber-500/40 bg-amber-50/40' : '' }}">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider {{ $stats['pendingValidationCount'] > 0 ? 'text-amber-800 font-extrabold' : 'text-slate-500' }}">Perlu Divalidasi</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl {{ $stats['pendingValidationCount'] > 0 ? 'bg-amber-100 text-amber-700 animate-pulse font-black' : 'bg-slate-100 text-slate-400' }}">
+                        {{ $stats['pendingValidationCount'] > 0 ? '!' : '✓' }}
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight {{ $stats['pendingValidationCount'] > 0 ? 'text-amber-900' : 'text-slate-900' }}">{{ $stats['pendingValidationCount'] }}</p>
+                <p class="mt-4 text-xs {{ $stats['pendingValidationCount'] > 0 ? 'font-bold text-amber-800' : 'font-medium text-slate-500' }}">
+                    {{ $stats['pendingValidationCount'] > 0 ? 'Menunggu pemeriksaan Perti' : 'Semua dokumen divalidasi' }}
+                </p>
+            </div>
+
+            <!-- Total Terunggah -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Terunggah</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['uploadedLatest'] }}</p>
+                <p class="mt-4 text-xs font-medium text-slate-500">Total seluruh prodi</p>
+            </div>
         </div>
 
         <div class="mb-8 grid gap-6 lg:grid-cols-2">
@@ -105,7 +189,7 @@
             <x-chart-card title="Status kelengkapan" subtitle="Distribusi prodi Anda berdasarkan progress" canvas-id="dashPertiStatusDoughnut" height="280px" />
         </div>
 
-        <div class="mb-8 grid gap-6 lg:grid-cols-3">
+        <div id="prodi-table" class="mb-8 grid gap-6 lg:grid-cols-3">
             <div class="lg:col-span-2 ui-card overflow-hidden">
                 <div class="ui-section-header flex items-center justify-between">
                     <h2 class="text-lg font-bold text-slate-900">Detail per program studi</h2>
@@ -118,15 +202,20 @@
                                 <th>Program studi</th>
                                 <th>Terunggah</th>
                                 <th>Progress</th>
-                                <th>Status</th>
+                                <th>Status Validasi</th>
+                                <th class="text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($units as $unit)
+                                @php
+                                    $pendingVal = $unit['pending_validation'] ?? 0;
+                                    $prodiTargetId = $unit['prodi_id'] ?? $unit['id'];
+                                @endphp
                                 <tr>
                                     <td class="font-semibold text-slate-900">{{ $unit['name'] }}</td>
                                     <td class="tabular-nums text-slate-600">{{ $unit['uploaded'] }}/{{ $unit['total'] }}</td>
-                                    <td class="min-w-[12rem]">
+                                    <td class="min-w-[10rem]">
                                         <div class="flex items-center gap-3">
                                             <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
                                                 <div class="h-full rounded-full bg-emerald-500" style="width: {{ $unit['percent'] }}%"></div>
@@ -135,18 +224,30 @@
                                         </div>
                                     </td>
                                     <td>
-                                        @if ($unit['percent'] >= 100)
-                                            <span class="ui-badge bg-emerald-50 text-emerald-900 ring-emerald-500/20">Lengkap</span>
-                                        @elseif ($unit['percent'] > 0)
-                                            <span class="ui-badge bg-amber-50 text-amber-900 ring-amber-500/25">Berjalan</span>
+                                        @if ($pendingVal > 0)
+                                            <span class="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-extrabold text-amber-800 animate-pulse">
+                                                <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                                                {{ $pendingVal }} pending
+                                            </span>
                                         @else
-                                            <span class="ui-badge bg-slate-100 text-slate-700 ring-slate-500/15">Belum mulai</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                                                ✓ Selesai divalidasi
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="text-right">
+                                        @if ($prodiTargetId)
+                                            <a href="{{ route('perti.prodis.progress', $prodiTargetId) }}" class="inline-flex items-center gap-1 text-xs font-extrabold {{ $pendingVal > 0 ? 'text-amber-700 hover:text-amber-800 underline' : 'text-violet-600 hover:text-violet-500' }}">
+                                                {{ $pendingVal > 0 ? 'Periksa Dokumen →' : 'Lihat Detail →' }}
+                                            </a>
+                                        @else
+                                            <span class="text-xs text-slate-400">-</span>
                                         @endif
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="ui-empty text-sm py-6">Belum ada program studi terdaftar.</td>
+                                    <td colspan="5" class="ui-empty text-sm py-6">Belum ada program studi terdaftar.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -232,18 +333,27 @@
 
         <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <!-- Progress Keseluruhan -->
-            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg {{ $stats['revisionCount'] > 0 ? 'ring-2 ring-amber-500/40 bg-amber-50/40' : '' }}">
                 <div class="flex items-center justify-between">
-                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Progress Keseluruhan</p>
-                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-xs font-extrabold text-emerald-600">
-                        %
+                    <p class="text-xs font-bold uppercase tracking-wider {{ $stats['revisionCount'] > 0 ? 'text-amber-800' : 'text-slate-500' }}">Progress Keseluruhan</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl {{ $stats['revisionCount'] > 0 ? 'bg-amber-100 text-amber-700 font-black' : 'bg-emerald-50 text-emerald-600 font-extrabold' }} text-xs">
+                        {{ $stats['revisionCount'] > 0 ? '!' : '%' }}
                     </span>
                 </div>
-                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['progressPercent'] }}%</p>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight {{ $stats['revisionCount'] > 0 ? 'text-amber-900' : 'text-slate-900' }}">{{ $stats['progressPercent'] }}%</p>
                 <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                    <div class="h-full rounded-full bg-emerald-500 transition-all duration-500" style="width: {{ $stats['progressPercent'] }}%"></div>
+                    <div class="h-full rounded-full transition-all duration-500 {{ $stats['revisionCount'] > 0 ? 'bg-amber-500' : 'bg-emerald-500' }}" style="width: {{ $stats['progressPercent'] }}%"></div>
                 </div>
-                <p class="mt-2 text-xs font-medium text-slate-500">{{ $uploadedTotal }} dari {{ $stats['totalRequirements'] }} persyaratan</p>
+                @if ($stats['revisionCount'] > 0)
+                    <p class="mt-2 text-xs font-bold text-amber-800 flex items-center gap-1">
+                        <svg class="h-3.5 w-3.5 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+                        </svg>
+                        <span>{{ $uploadedTotal }} dari {{ $stats['totalRequirements'] }} ({{ $stats['revisionCount'] }} perlu revisi)</span>
+                    </p>
+                @else
+                    <p class="mt-2 text-xs font-medium text-slate-500">{{ $uploadedTotal }} dari {{ $stats['totalRequirements'] }} persyaratan</p>
+                @endif
             </div>
 
             <!-- Sudah Terunggah -->

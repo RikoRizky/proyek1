@@ -179,14 +179,19 @@ class UploadProgress
 
         $rows = $units->map(function (User $unit) use ($totalReq) {
             $progress = self::forUnit($unit);
+            $prodiRecord = \App\Models\Prodi::where('user_id', $unit->id)->first();
 
             return [
-                'id' => $unit->id,
-                'name' => $unit->name,
-                'uploaded' => $progress['uploaded'],
-                'total' => $totalReq,
-                'percent' => $progress['percent'],
-                'modules' => $progress['modules'],
+                'id'                 => $unit->id,
+                'prodi_id'           => $prodiRecord?->id,
+                'name'               => $unit->name,
+                'uploaded'           => $progress['uploaded'],
+                'approved'           => $progress['approved'],
+                'revision'           => $progress['revision'],
+                'pending_validation' => $progress['pending_validation'],
+                'total'              => $totalReq,
+                'percent'            => $progress['percent'],
+                'modules'            => $progress['modules'],
             ];
         })->values()->all();
 

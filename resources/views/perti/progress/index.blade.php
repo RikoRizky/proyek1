@@ -39,14 +39,26 @@
                         <th>Kriteria</th>
                         <th>Terunggah</th>
                         <th>Progress</th>
+                        <th>Status Validasi</th>
                         <th class="text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($modules as $module)
-                        <tr>
+                        @php
+                            $pendingVal = $module['pending_validation'] ?? 0;
+                        @endphp
+                        <tr class="{{ $pendingVal > 0 ? 'bg-amber-50/30' : '' }}">
                             <td>
-                                <p class="font-semibold text-slate-900">{{ $module['short_label'] }}</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="font-semibold text-slate-900">{{ $module['short_label'] }}</p>
+                                    @if ($pendingVal > 0)
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-100/90 px-2 py-0.5 text-[11px] font-extrabold text-amber-800 animate-pulse">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                            {{ $pendingVal }} Perlu Validasi
+                                        </span>
+                                    @endif
+                                </div>
                                 <p class="text-xs text-slate-500">{{ $module['name'] }}</p>
                             </td>
                             <td class="tabular-nums">{{ $module['uploaded'] }}/{{ $module['total'] }}</td>
@@ -58,9 +70,23 @@
                                     <span class="text-sm font-bold tabular-nums">{{ $module['percent'] }}%</span>
                                 </div>
                             </td>
+                            <td>
+                                @if ($pendingVal > 0)
+                                    <span class="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-100 px-2.5 py-0.5 text-xs font-extrabold text-amber-800 animate-pulse">
+                                        <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                                        {{ $pendingVal }} pending
+                                    </span>
+                                @elseif ($module['uploaded'] > 0)
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                                        ✓ Valid
+                                    </span>
+                                @else
+                                    <span class="text-xs text-slate-400">-</span>
+                                @endif
+                            </td>
                             <td class="text-right">
-                                <a href="{{ route('perti.prodis.modul', [$prodi->id, $module['module_id']]) }}" class="text-sm font-semibold text-violet-600 hover:text-violet-500">
-                                    Lihat detail →
+                                <a href="{{ route('perti.prodis.modul', [$prodi->id, $module['module_id']]) }}" class="text-xs font-extrabold {{ $pendingVal > 0 ? 'text-amber-700 hover:text-amber-800 underline' : 'text-violet-600 hover:text-violet-500' }}">
+                                    {{ $pendingVal > 0 ? 'Validasi sekarang →' : 'Lihat detail →' }}
                                 </a>
                             </td>
                         </tr>

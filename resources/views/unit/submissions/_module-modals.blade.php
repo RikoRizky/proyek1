@@ -396,7 +396,7 @@
             const container = document.getElementById(`drive-links-container-${reqId}`);
             const rows = container.querySelectorAll('[id^="drive-row-"]');
             const idx = getLinkIndex(reqId, rows.length + 10);
-            const row = buildDriveLinkRow(reqId, idx, '', '', true);
+            const row = buildDriveLinkRow(reqId, idx, '', '', false);
             container.appendChild(row);
         };
 
