@@ -287,6 +287,11 @@
         window.openUploadModal = (reqId, existingLinks, existingFiles, validationNotes) => {
             const modal = document.getElementById(`upload-modal-${reqId}`);
             const modalBox = document.getElementById(`modal-box-${reqId}`);
+
+            if (modal) {
+                modal.querySelectorAll('.fixed.inset-0').forEach(el => el.classList.remove('hidden'));
+            }
+
             const { targetFiles, targetLinks } = parseValidationNotes(validationNotes || '');
 
             // Pre-fill existing Google Drive links (Perbarui Berkas mode)

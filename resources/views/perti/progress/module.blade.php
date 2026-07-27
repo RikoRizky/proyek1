@@ -324,9 +324,9 @@
             document.getElementById('revisionModal').classList.remove('hidden');
         }
 
-        function closeRevisionModal() {
+        window.closeRevisionModal = function() {
             document.getElementById('revisionModal').classList.add('hidden');
-        }
+        };
     </script>
 
     <!-- Detail Catatan Validasi Modal (Diskusi style) -->

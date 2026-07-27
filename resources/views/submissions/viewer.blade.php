@@ -366,12 +366,12 @@
                 }
             }
 
-            function closeViewerRevisionModal() {
+            window.closeViewerRevisionModal = function() {
                 const modal = document.getElementById('viewerRevisionModal');
                 if (modal) {
                     modal.classList.add('hidden');
                 }
-            }
+            };
 
             document.addEventListener('DOMContentLoaded', () => {
                 const btn = document.getElementById('btnViewerRevision');

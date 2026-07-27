@@ -86,7 +86,30 @@
 
                     {{ $slot }}
                 </main>
-            </div>
         </div>
+        <script>
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' || e.keyCode === 27) {
+                    document.querySelectorAll('[id^="upload-modal-"]').forEach(modal => {
+                        if (!modal.classList.contains('hidden')) {
+                            const reqId = modal.id.replace('upload-modal-', '');
+                            if (typeof window.closeUploadModal === 'function') {
+                                window.closeUploadModal(reqId);
+                            } else {
+                                modal.classList.add('hidden');
+                            }
+                        }
+                    });
+
+                    if (typeof window.closeViewerRevisionModal === 'function') window.closeViewerRevisionModal();
+                    if (typeof window.closeRevisionModal === 'function') window.closeRevisionModal();
+                    if (typeof window.closeDetailValidationModal === 'function') window.closeDetailValidationModal();
+
+                    document.querySelectorAll('[id$="Modal"]:not(.hidden)').forEach(modal => {
+                        modal.classList.add('hidden');
+                    });
+                }
+            });
+        </script>
     </body>
 </html>
