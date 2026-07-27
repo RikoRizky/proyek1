@@ -28,6 +28,7 @@
         .notes-box { font-size: 8.5px; color: #991b1b; background: #fff1f2; padding: 3px 6px; border-radius: 4px; margin-top: 3px; border: 1px dashed #fecdd3; }
         
         .total-row { background: #f8fafc; font-weight: bold; font-size: 10px; }
+        .page-break { page-break-before: always; }
     </style>
 </head>
 <body>
@@ -38,6 +39,10 @@
     <p class="muted">Dihasilkan pada: {{ $generatedAt->translatedFormat('d F Y, H:i') }} WIB</p>
 
     @foreach ($summaries as $block)
+        @if (!$loop->first)
+            <div class="page-break"></div>
+        @endif
+
         <div class="unit-header">
             <span class="unit-title">{{ $block['user']->name }}</span>
             <span class="muted">({{ $block['user']->email }})</span>
