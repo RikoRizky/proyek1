@@ -1,4 +1,7 @@
-<x-public-layout title="Jadwalkan Diskusi">
+<x-public-layout 
+    title="Jadwalkan Konsultasi & Diskusi Akreditasi" 
+    description="Jadwalkan konsultasi gratis mengenai penerapan Sistem Layanan Dokumen Akreditasi (SILADATA) berdasarkan LAM Infokom untuk perguruan tinggi Anda."
+>
     <div x-data="{
         step: 1,
         nama: '',

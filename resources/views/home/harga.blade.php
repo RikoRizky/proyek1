@@ -1,4 +1,7 @@
-<x-public-layout title="Harga Layanan">
+<x-public-layout 
+    title="Harga Paket SILADATA" 
+    description="Daftar harga paket Sistem Layanan Dokumen Akreditasi (SILADATA) untuk perguruan tinggi dan program studi berdasarkan LAM Infokom. Pilih paket sesuai kebutuhan kampus Anda."
+>
     {{-- Header Section --}}
     <div class="relative bg-white/70 border-b border-slate-200/60 py-16 backdrop-blur-sm">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">

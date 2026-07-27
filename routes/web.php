@@ -26,7 +26,18 @@ Route::get('/harga', function () {
 Route::get('/diskusi', [DiscussionController::class, 'show'])->name('discussion');
 Route::post('/diskusi', [DiscussionController::class, 'store'])->name('discussion.store');
 
+Route::get('/sitemap.xml', function () {
+    $baseUrl = config('app.url', url('/'));
+    $today = date('Y-m-d');
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    $xml .= '<url><loc>' . htmlspecialchars($baseUrl) . '/</loc><lastmod>' . $today . '</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>';
+    $xml .= '<url><loc>' . htmlspecialchars($baseUrl) . '/harga</loc><lastmod>' . $today . '</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>';
+    $xml .= '<url><loc>' . htmlspecialchars($baseUrl) . '/diskusi</loc><lastmod>' . $today . '</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>';
+    $xml .= '</urlset>';
 
+    return response($xml, 200)->header('Content-Type', 'text/xml');
+})->name('sitemap');
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');

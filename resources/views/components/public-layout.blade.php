@@ -3,7 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ isset($title) ? $title . ' - SILADATA (Sistem Layanan Dokumen Akreditasi)' : 'SILADATA (Sistem Layanan Dokumen Akreditasi)' }}</title>
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    @php
+        $pageTitle = isset($title) ? $title . ' - SILADATA | Sistem Layanan Dokumen Akreditasi LAM Infokom' : 'SILADATA - Sistem Layanan Dokumen Akreditasi Perguruan Tinggi & LAM Infokom';
+        $pageDesc = $description ?? 'SILADATA (Sistem Layanan Dokumen Akreditasi) adalah platform sistem layanan dokumen akreditasi perguruan tinggi sesuai standar Lembaga Akreditasi Mandiri (LAM Infokom, LAMEMBA, LAM-PTKes, LAMDIK). Memudahkan pengunggahan data, manajemen berkas prodi, dan pemantauan mutu akreditasi.';
+        $pageKeywords = $keywords ?? 'SILADATA, Sistem Layanan Dokumen Akreditasi, Sistem Layanan Dokumen Akreditasi berdasarkan LAM Infokom, LAM Infokom, akreditasi perguruan tinggi, akreditasi LAM, dokumen akreditasi prodi, upload data akreditasi, monitoring akreditasi, siladata.my.id, mutu pendidikan tinggi Indonesia';
+        $pageUrl = $canonical ?? url()->current();
+        $pageImage = $metaImage ?? asset('images/logoname.png');
+    @endphp
+
+    <title>{{ $pageTitle }}</title>
+    <link rel="canonical" href="{{ $pageUrl }}">
 
     <!-- Favicons & Apple Touch Icons -->
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=2">
@@ -12,16 +23,72 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/logoname.png') }}?v=2">
 
     <!-- Meta SEO & Keywords -->
-    <meta name="description" content="SILADATA (Sistem Layanan Dokumen Akreditasi) adalah sistem layanan dokumen akreditasi perguruan tinggi untuk Lembaga Akreditasi Mandiri (LAM) yang menilai mutu pendidikan tinggi di Indonesia. Memudahkan pengunggahan data, manajemen, dan monitoring kelengkapan dokumen akreditasi secara terstruktur.">
-    <meta name="keywords" content="SILADATA, Sistem Layanan Dokumen Akreditasi, akreditasi perguruan tinggi, upload data akreditasi, LAM, Lembaga Akreditasi Mandiri, mutu pendidikan tinggi Indonesia, akreditasi LAM, dokumen akreditasi prodi, monitoring akreditasi, unggah data, perguruan tinggi">
+    <meta name="description" content="{{ $pageDesc }}">
+    <meta name="keywords" content="{{ $pageKeywords }}">
     <meta name="author" content="SILADATA">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="SILADATA (Sistem Layanan Dokumen Akreditasi)">
-    <meta property="og:description" content="SILADATA membantu perguruan tinggi mengelola dan mempersiapkan dokumen akreditasi sesuai kebutuhan Lembaga Akreditasi Mandiri (LAM).">
-    <meta property="og:image" content="{{ asset('images/logoname.png') }}?v=2">
+    <meta property="og:site_name" content="SILADATA">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:url" content="{{ $pageUrl }}">
+    <meta property="og:title" content="{{ $pageTitle }}">
+    <meta property="og:description" content="{{ $pageDesc }}">
+    <meta property="og:image" content="{{ $pageImage }}">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $pageDesc }}">
+    <meta name="twitter:image" content="{{ $pageImage }}">
+
+    <!-- Structured Data / Schema.org (JSON-LD) for Search Engines -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "{{ url('/') }}/#website",
+          "url": "{{ url('/') }}",
+          "name": "SILADATA",
+          "alternateName": [
+            "Sistem Layanan Dokumen Akreditasi",
+            "Sistem Layanan Dokumen Akreditasi berdasarkan LAM Infokom",
+            "SILADATA LAM Infokom"
+          ],
+          "description": "SILADATA adalah Sistem Layanan Dokumen Akreditasi Perguruan Tinggi yang dirancang untuk mengelola dan memantau dokumen akreditasi sesuai standar LAM Infokom dan Lembaga Akreditasi Mandiri lainnya.",
+          "inLanguage": "id-ID"
+        },
+        {
+          "@type": "Organization",
+          "@id": "{{ url('/') }}/#organization",
+          "name": "SILADATA - Sistem Layanan Dokumen Akreditasi",
+          "url": "{{ url('/') }}",
+          "logo": "{{ asset('images/logoname.png') }}",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+62881023300457",
+            "contactType": "customer service",
+            "areaServed": "ID",
+            "availableLanguage": "Indonesian"
+          }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "SILADATA (Sistem Layanan Dokumen Akreditasi)",
+          "operatingSystem": "Web Browser",
+          "applicationCategory": "EducationalApplication",
+          "offers": {
+            "@type": "Offer",
+            "price": "499000",
+            "priceCurrency": "IDR"
+          },
+          "description": "Sistem Layanan Dokumen Akreditasi Perguruan Tinggi terintegrasi untuk pengunggahan, validasi, dan monitoring kelengkapan dokumen akreditasi prodi sesuai LAM Infokom."
+        }
+      ]
+    }
+    </script>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap" rel="stylesheet" />

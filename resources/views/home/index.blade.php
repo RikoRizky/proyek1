@@ -31,40 +31,35 @@
                     </span>
 
                     <h2 class="mt-4 text-3xl font-bold text-slate-900 leading-tight">
-                        Sistem Layanan Dokumen Akreditasi Perguruan Tinggi
+                        Sistem Layanan Dokumen Akreditasi Perguruan Tinggi Berdasarkan LAM Infokom
                     </h2>
 
                     <p class="mt-4 text-slate-600 leading-relaxed">
-                        SILADATA (Sistem Layanan Dokumen Akreditasi) merupakan platform
-                        terintegrasi yang membantu perguruan tinggi dalam mengelola dan
-                        mempersiapkan dokumen akreditasi sesuai kebutuhan
-                        <strong>Lembaga Akreditasi Mandiri (LAM)</strong>.
-                        Dengan sistem penyimpanan dan pengunggahan dokumen yang
-                        terstruktur, SILADATA mempermudah proses pengumpulan,
-                        pengelolaan, serta pemantauan kelengkapan dokumen sehingga
-                        institusi dapat lebih siap menghadapi proses akreditasi secara
-                        efektif, efisien, dan terdokumentasi dengan baik.
+                        <strong>SILADATA (Sistem Layanan Dokumen Akreditasi)</strong> merupakan platform digital terintegrasi yang dirancang khusus untuk membantu perguruan tinggi dan program studi dalam mengelola, mengunggah, dan memantau berkas akreditasi sesuai kriteria <strong>LAM Infokom (Lembaga Akreditasi Mandiri Informatika dan Komputer)</strong> serta Lembaga Akreditasi Mandiri Indonesia lainnya (LAMEMBA, LAM-PTKes, LAMDIK, dll).
+                    </p>
+                    <p class="mt-3 text-slate-600 leading-relaxed">
+                        Dengan sistem pengunggahan dokumen yang terstruktur, validasi bertingkat, dan pemantauan real-time, SILADATA mempermudah persiapan evaluasi diri (LED) dan Laporan Kinerja Program Studi (LKPS) sehingga institusi siap menghadapi asesmen akreditasi secara efektif, efisien, dan transparan.
                     </p>
 
                     <div class="mt-6 grid gap-3 sm:grid-cols-2">
                         <div class="flex items-center gap-2">
                             <span class="text-emerald-500">✓</span>
-                            <span class="text-slate-600">Terintegrasi dengan kebutuhan LAM</span>
+                            <span class="text-slate-600">Sesuai Kriteria LAM Infokom</span>
                         </div>
 
                         <div class="flex items-center gap-2">
                             <span class="text-emerald-500">✓</span>
-                            <span class="text-slate-600">Penyimpanan dokumen terpusat</span>
+                            <span class="text-slate-600">Manajemen Dokumen Akreditasi Terpusat</span>
                         </div>
 
                         <div class="flex items-center gap-2">
                             <span class="text-emerald-500">✓</span>
-                            <span class="text-slate-600">Monitoring progres akreditasi</span>
+                            <span class="text-slate-600">Monitoring Progress Unggahan Per Prodi</span>
                         </div>
 
                         <div class="flex items-center gap-2">
                             <span class="text-emerald-500">✓</span>
-                            <span class="text-slate-600">Keamanan dokumen terjamin</span>
+                            <span class="text-slate-600">Penyimpanan Cloud Aman &amp; Terstruktur</span>
                         </div>
                     </div>
                 </div>
