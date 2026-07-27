@@ -1,28 +1,81 @@
 @php
     $units = $progress['units'];
     $summary = $progress['summary'];
-    $unitLabels = collect($units)->pluck('name')->values()->all();
-    $unitPercents = collect($units)->pluck('percent')->values()->all();
+    $pertiGrouped = collect($units)->groupBy('university_name');
+    $pertiLabels = $pertiGrouped->keys()->all();
+    $pertiPercents = $pertiGrouped->map(fn ($group) => round($group->avg('percent'), 1))->values()->all();
 @endphp
 
 <x-app-layout>
     <x-slot name="header">
         <div>
             <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Admin</p>
-            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Analitik progress prodi</h1>
-            <p class="mt-1 text-sm text-slate-600">Perbandingan kelengkapan unggahan dokumen antar program studi.</p>
+            <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Analitik progress perguruan tinggi</h1>
+            <p class="mt-1 text-sm text-slate-600">Perbandingan kelengkapan unggahan dokumen antar perguruan tinggi.</p>
         </div>
     </x-slot>
 
     <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <x-stat-card label="Program studi" :value="$summary['unit_count']" accent="violet" />
-        <x-stat-card label="Rata-rata progress" :value="$summary['average_percent'].'%'" accent="indigo" />
-        <x-stat-card label="Lengkap (100%)" :value="$summary['complete_count']" accent="emerald" />
-        <x-stat-card label="Belum mulai" :value="$summary['empty_count']" accent="sky" />
+        <!-- Program Studi -->
+        <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Program Studi</p>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342" />
+                    </svg>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['unit_count'] }}</p>
+            <p class="mt-4 text-xs font-medium text-slate-500">Total prodi terdaftar</p>
+        </div>
+
+        <!-- Rata-rata Progress -->
+        <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Rata-rata Progress</p>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-xs font-extrabold text-sky-600">
+                    %
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['average_percent'] }}%</p>
+            <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                <div class="h-full rounded-full bg-sky-500 transition-all duration-500" style="width: {{ $summary['average_percent'] }}%"></div>
+            </div>
+            <p class="mt-2 text-xs font-medium text-slate-500">Rata-rata kelengkapan nasional</p>
+        </div>
+
+        <!-- Lengkap (100%) -->
+        <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Lengkap (100%)</p>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['complete_count'] }}</p>
+            <p class="mt-4 text-xs font-medium text-slate-500">Prodi progress 100%</p>
+        </div>
+
+        <!-- Belum Mulai -->
+        <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Belum Mulai</p>
+                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </span>
+            </div>
+            <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['empty_count'] }}</p>
+            <p class="mt-4 text-xs font-medium text-slate-500">Prodi dengan progress 0%</p>
+        </div>
     </div>
 
     <div class="mb-8 grid gap-6 lg:grid-cols-2">
-        <x-chart-card title="Perbandingan progress prodi" subtitle="Diurutkan berdasarkan persentase kelengkapan" canvas-id="adminUnitsBar" />
+        <x-chart-card title="Perbandingan progress perguruan tinggi" subtitle="Diurutkan berdasarkan rata-rata kelengkapan perguruan tinggi" canvas-id="adminUnitsBar" />
         <x-chart-card title="Status kelengkapan" subtitle="Lengkap vs berjalan vs belum mulai" canvas-id="adminStatusPie" height="280px" />
     </div>
 
@@ -86,8 +139,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const labels = @json($unitLabels);
-            const percents = @json($unitPercents);
+            const labels = @json($pertiLabels);
+            const percents = @json($pertiPercents);
             const summary = @json($summary);
 
             new Chart(document.getElementById('adminUnitsBar'), {

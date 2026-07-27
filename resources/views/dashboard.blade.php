@@ -15,19 +15,72 @@
     @if ($stats['role'] === UserRole::Admin)
         @php
             $summary = $progress['summary'];
-            $unitLabels = collect($progress['units'])->pluck('name')->values()->all();
-            $unitPercents = collect($progress['units'])->pluck('percent')->values()->all();
+            $pertiGrouped = collect($progress['units'])->groupBy('university_name');
+            $pertiLabels = $pertiGrouped->keys()->all();
+            $pertiPercents = $pertiGrouped->map(fn ($group) => round($group->avg('percent'), 1))->values()->all();
         @endphp
 
         <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <x-stat-card label="Total Universitas" :value="$stats['pertiCount']" accent="violet" />
-            <x-stat-card label="Program studi" :value="$stats['unitCount']" accent="emerald" />
-            <x-stat-card label="Rata-rata progress" :value="$summary['average_percent'].'%'" accent="sky" />
-            <x-stat-card label="Prodi lengkap" :value="$summary['complete_count']" accent="amber" />
+            <!-- Total Perguruan Tinggi -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Perguruan Tinggi</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5" />
+                        </svg>
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['pertiCount'] }}</p>
+                <p class="mt-4 text-xs font-medium text-slate-500">Perguruan Tinggi terdaftar</p>
+            </div>
+
+            <!-- Program Studi -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Program Studi</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342" />
+                        </svg>
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['unitCount'] }}</p>
+                <p class="mt-4 text-xs font-medium text-slate-500">Total prodi di seluruh perti</p>
+            </div>
+
+            <!-- Rata-rata Progress -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Rata-rata Progress</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-xs font-extrabold text-sky-600">
+                        %
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['average_percent'] }}%</p>
+                <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div class="h-full rounded-full bg-sky-500 transition-all duration-500" style="width: {{ $summary['average_percent'] }}%"></div>
+                </div>
+                <p class="mt-2 text-xs font-medium text-slate-500">Rata-rata kelengkapan nasional</p>
+            </div>
+
+            <!-- Prodi Lengkap -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Prodi Lengkap</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 003-3V8.25a3 3 0 00-3-3H9.75a3 3 0 00-3 3v7.5a3 3 0 003 3m9 0v-1.5m-9 1.5v-1.5" />
+                        </svg>
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['complete_count'] }}</p>
+                <p class="mt-4 text-xs font-medium text-slate-500">Prodi progress 100%</p>
+            </div>
         </div>
 
         <div class="mb-8 grid gap-6 lg:grid-cols-2">
-            <x-chart-card title="Progress per program studi" subtitle="Snapshot kelengkapan unggahan" canvas-id="dashAdminBar" height="280px" />
+            <x-chart-card title="Progress per Perguruan Tinggi" subtitle="Rata-rata kelengkapan unggahan per perguruan tinggi" canvas-id="dashAdminBar" height="280px" />
             <div class="ui-card flex flex-col justify-center p-6 sm:p-8">
                 <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Analitik</p>
                 <h2 class="mt-2 text-xl font-bold text-slate-900">Perbandingan antar prodi</h2>
@@ -64,10 +117,10 @@
                 new Chart(document.getElementById('dashAdminBar'), {
                     type: 'bar',
                     data: {
-                        labels: @json($unitLabels),
+                        labels: @json($pertiLabels),
                         datasets: [{
                             label: 'Progress (%)',
-                            data: @json($unitPercents),
+                            data: @json($pertiPercents),
                             backgroundColor: 'rgba(139,92,246,0.85)',
                             borderRadius: 8,
                         }],
