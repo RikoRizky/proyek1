@@ -15,7 +15,6 @@ use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\HomeController;
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UnitKerja\ProgressController as UnitProgressController;
 use App\Http\Controllers\UnitKerja\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
@@ -79,7 +78,6 @@ Route::middleware(['auth', 'role:perti'])->prefix('perti')->name('perti.')->grou
 });
 
 Route::middleware(['auth', 'role:prodi'])->prefix('unit')->name('unit.')->group(function () {
-    Route::get('progress', UnitProgressController::class)->name('progress');
     Route::get('submissions', [SubmissionController::class, 'index'])->name('submissions.index');
     Route::get('submissions/modul/{module}', [SubmissionController::class, 'module'])->name('submissions.module');
     Route::post('modules/{module}/submissions/batch', [SubmissionController::class, 'batchStore'])->name('modules.submissions.batch');

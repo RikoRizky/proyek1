@@ -116,14 +116,19 @@ class DashboardController extends Controller
             fn (Submission $s) => $s->status !== SubmissionStatus::Pending
         )->count();
 
+        $revisionCount = $latestSubmissions->filter(
+            fn (Submission $s) => $s->status === SubmissionStatus::Revision
+        )->count();
+
         $notUploadedCount = max(0, $totalReq - $latestSubmissions->count());
 
         return [
-            'role' => UserRole::Prodi,
-            'modules' => $modules,
+            'role'              => UserRole::Prodi,
+            'modules'           => $modules,
             'totalRequirements' => $totalReq,
-            'notUploadedCount' => $notUploadedCount,
-            'progressPercent' => $totalReq > 0 ? round(($uploadedCount / $totalReq) * 100) : 0,
+            'notUploadedCount'  => $notUploadedCount,
+            'revisionCount'     => $revisionCount,
+            'progressPercent'   => $totalReq > 0 ? round(($uploadedCount / $totalReq) * 100) : 0,
         ];
     }
 }

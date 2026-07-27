@@ -230,32 +230,64 @@
             $modulePercents = collect($progress['modules'])->pluck('percent')->values()->all();
         @endphp
 
-        <div class="mb-8 grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-            <div class="ui-card overflow-hidden p-6 sm:p-8">
-                <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">Progress keseluruhan</p>
-                        <p class="mt-2 text-4xl font-bold tabular-nums text-slate-900">{{ $stats['progressPercent'] }}%</p>
-                        <p class="mt-1 text-sm text-slate-600">{{ $uploadedTotal }} dari {{ $stats['totalRequirements'] }} persyaratan sudah terunggah</p>
-                    </div>
-                    <div class="flex h-28 w-28 shrink-0 items-center justify-center bg-gradient-to-br from-violet-500 to-indigo-600 text-center text-white shadow-lg shadow-violet-500/25">
-                    <div>
-                        <p class="text-2xl font-bold">{{ $uploadedTotal }}</p>
-                        <p class="text-[11px] font-semibold uppercase tracking-wider opacity-90">Terunggah</p>
-                    </div>
+        <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Progress Keseluruhan -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Progress Keseluruhan</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-xs font-extrabold text-emerald-600">
+                        %
+                    </span>
                 </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['progressPercent'] }}%</p>
+                <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div class="h-full rounded-full bg-emerald-500 transition-all duration-500" style="width: {{ $stats['progressPercent'] }}%"></div>
                 </div>
-                <div class="mt-6 h-3 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/80">
-                    <div class="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all" style="width: {{ $stats['progressPercent'] }}%"></div>
-                </div>
-                <div class="mt-6">
-                    <a href="{{ route('unit.progress') }}" class="text-sm font-semibold text-violet-600 hover:text-violet-500">Lihat grafik lengkap →</a>
-                </div>
+                <p class="mt-2 text-xs font-medium text-slate-500">{{ $uploadedTotal }} dari {{ $stats['totalRequirements'] }} persyaratan</p>
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                <x-stat-card label="Belum diunggah" :value="$stats['notUploadedCount']" accent="sky" />
-                <x-stat-card label="Total persyaratan" :value="$stats['totalRequirements']" accent="violet" />
+            <!-- Sudah Terunggah -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Sudah Terunggah</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $uploadedTotal }}</p>
+                <p class="mt-4 text-xs font-medium text-slate-500">Dokumen telah diunggah ke sistem</p>
+            </div>
+
+            <!-- Perlu Revisi -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg {{ $stats['revisionCount'] > 0 ? 'ring-2 ring-rose-500/20 bg-rose-50/30' : '' }}">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider {{ $stats['revisionCount'] > 0 ? 'text-rose-600' : 'text-slate-500' }}">Perlu Revisi</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl {{ $stats['revisionCount'] > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400' }}">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                        </svg>
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight {{ $stats['revisionCount'] > 0 ? 'text-rose-600' : 'text-slate-900' }}">{{ $stats['revisionCount'] }}</p>
+                <p class="mt-4 text-xs {{ $stats['revisionCount'] > 0 ? 'font-semibold text-rose-600' : 'font-medium text-slate-500' }}">
+                    {{ $stats['revisionCount'] > 0 ? 'Dokumen memerlukan perbaikan' : 'Tidak ada catatan revisi' }}
+                </p>
+            </div>
+
+            <!-- Belum Diunggah -->
+            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Belum Diunggah</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </span>
+                </div>
+                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['notUploadedCount'] }}</p>
+                <p class="mt-4 text-xs font-medium text-slate-500">Dari {{ $stats['totalRequirements'] }} total persyaratan</p>
             </div>
         </div>
 
