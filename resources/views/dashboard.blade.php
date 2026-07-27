@@ -92,11 +92,12 @@
             $unitUploaded = collect($units)->pluck('uploaded')->values()->all();
         @endphp
 
-        <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <x-stat-card label="Program studi" :value="$stats['prodiCount']" accent="emerald" />
             <x-stat-card label="Rata-rata progress" :value="$summary['average_percent'].'%'" accent="sky" />
             <x-stat-card label="Prodi lengkap" :value="$summary['complete_count']" accent="amber" />
-            <x-stat-card label="Total dokumen terunggah" :value="$stats['uploadedLatest']" accent="violet" />
+            <x-stat-card label="Perlu divalidasi" :value="$stats['pendingValidationCount']" accent="rose" />
+            <x-stat-card label="Total terunggah" :value="$stats['uploadedLatest']" accent="violet" />
         </div>
 
         <div class="mb-8 grid gap-6 lg:grid-cols-2">

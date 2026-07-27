@@ -15,9 +15,10 @@
         </div>
     </x-slot>
 
-    <div class="mb-8 grid gap-4 sm:grid-cols-3">
+    <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <x-stat-card label="Progress keseluruhan" :value="$progress['percent'].'%'" accent="emerald" />
         <x-stat-card label="Sudah terunggah" :value="$progress['uploaded']" accent="violet" />
+        <x-stat-card label="Perlu divalidasi" :value="$progress['pending_validation']" accent="rose" />
         <x-stat-card label="Belum terunggah" :value="$progress['total'] - $progress['uploaded']" accent="sky" />
     </div>
 

@@ -52,13 +52,20 @@ class DashboardController extends Controller
             ->where('status', '!=', SubmissionStatus::Pending)
             ->count();
 
+        $pendingValidationCount = Submission::query()
+            ->latestForUnit()
+            ->whereIn('user_id', $prodiUserIds)
+            ->where('status', SubmissionStatus::Uploaded)
+            ->count();
+
         $totalReq = Requirement::query()->count();
 
         return [
-            'role'             => UserRole::Perti,
-            'prodiCount'       => $prodiUserIds->count(),
-            'totalRequirements' => $totalReq,
-            'uploadedLatest'   => $uploadedLatest,
+            'role'                   => UserRole::Perti,
+            'prodiCount'             => $prodiUserIds->count(),
+            'totalRequirements'      => $totalReq,
+            'uploadedLatest'         => $uploadedLatest,
+            'pendingValidationCount' => $pendingValidationCount,
         ];
     }
 
