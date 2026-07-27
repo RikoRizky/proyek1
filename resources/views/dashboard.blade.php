@@ -306,24 +306,51 @@
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             @foreach ($stats['modules'] as $module)
                 @php
-                    $uploaded = $module->requirements->filter(fn ($req) => $req->submissions->first() && $req->submissions->first()->status !== SubmissionStatus::Pending)->count();
+                    $latestSubs = $module->requirements->map(fn ($req) => $req->submissions->first());
+                    $uploaded = $latestSubs->filter(fn ($sub) => $sub && $sub->status !== SubmissionStatus::Pending)->count();
+                    $revisionCount = $latestSubs->filter(fn ($sub) => $sub && $sub->status === SubmissionStatus::Revision)->count();
+                    $approvedCount = $latestSubs->filter(fn ($sub) => $sub && $sub->status === SubmissionStatus::Approved)->count();
                     $total = $module->requirements->count();
                     $moduleProgress = $total > 0 ? round(($uploaded / $total) * 100) : 0;
+                    $hasRevision = $revisionCount > 0;
+                    $isAllApproved = $approvedCount === $total && $total > 0;
                 @endphp
-                <a href="{{ route('unit.submissions.module', $module) }}" class="ui-card group overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet-500/10">
-                    <div class="border-b border-slate-100 bg-gradient-to-r from-violet-50/80 to-white px-5 py-4">
-                        <p class="text-xs font-bold uppercase tracking-wider text-violet-700">{{ $module->shortLabel() }}</p>
-                        <h3 class="mt-1 line-clamp-2 text-base font-bold text-slate-900 group-hover:text-violet-700">{{ $module->name }}</h3>
+                <a href="{{ route('unit.submissions.module', $module) }}" class="ui-card group overflow-hidden transition duration-200 hover:-translate-y-0.5 hover:shadow-lg {{ $hasRevision ? 'ring-2 ring-rose-500/30 border-rose-200 bg-rose-50/20 hover:shadow-rose-500/10' : 'hover:shadow-violet-500/10' }}">
+                    <div class="border-b px-5 py-4 {{ $hasRevision ? 'border-rose-100 bg-gradient-to-r from-rose-50 via-rose-50/60 to-white' : 'border-slate-100 bg-gradient-to-r from-violet-50/80 to-white' }}">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-xs font-bold uppercase tracking-wider {{ $hasRevision ? 'text-rose-700' : 'text-violet-700' }}">{{ $module->shortLabel() }}</p>
+                            @if ($hasRevision)
+                                <span class="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-100/90 px-2 py-0.5 text-[11px] font-extrabold text-rose-700 shadow-sm animate-pulse">
+                                    <svg class="h-3 w-3 shrink-0 text-rose-600" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+                                    </svg>
+                                    {{ $revisionCount }} Perlu Revisi
+                                </span>
+                            @elseif ($isAllApproved)
+                                <span class="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-100/90 px-2 py-0.5 text-[11px] font-extrabold text-emerald-700">
+                                    ✓ Sesuai
+                                </span>
+                            @endif
+                        </div>
+                        <h3 class="mt-1.5 line-clamp-2 text-base font-bold text-slate-900 {{ $hasRevision ? 'group-hover:text-rose-700' : 'group-hover:text-violet-700' }}">{{ $module->name }}</h3>
                     </div>
                     <div class="px-5 py-4">
                         <div class="flex items-center justify-between gap-3 text-sm">
                             <span class="font-semibold text-slate-700">{{ $uploaded }}/{{ $total }} terunggah</span>
-                            <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700">{{ $moduleProgress }}%</span>
+                            <span class="rounded-full px-2.5 py-0.5 text-xs font-bold {{ $hasRevision ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700' }}">{{ $moduleProgress }}%</span>
                         </div>
                         <div class="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
-                            <div class="h-full rounded-full bg-violet-500 transition-all" style="width: {{ $moduleProgress }}%"></div>
+                            <div class="h-full rounded-full transition-all duration-500 {{ $hasRevision ? 'bg-rose-500' : 'bg-violet-500' }}" style="width: {{ $moduleProgress }}%"></div>
                         </div>
-                        <p class="mt-4 text-sm font-semibold text-violet-600 group-hover:text-violet-500">Lihat lebih detail →</p>
+                        
+                        @if ($hasRevision)
+                            <div class="mt-4 flex items-center justify-between text-xs font-bold text-rose-600 group-hover:text-rose-700">
+                                <span>Perbaiki dokumen revisi →</span>
+                                <span class="rounded-full bg-rose-100 px-2 py-0.5 font-extrabold text-rose-700">{{ $revisionCount }} revisi</span>
+                            </div>
+                        @else
+                            <p class="mt-4 text-sm font-semibold text-violet-600 group-hover:text-violet-500">Lihat lebih detail →</p>
+                        @endif
                     </div>
                 </a>
             @endforeach
