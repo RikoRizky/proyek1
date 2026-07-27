@@ -98,9 +98,18 @@ class ReportController extends Controller
         $totalRequirements = $modules->sum(fn (Module $m) => $m->requirements->count());
 
         return $units->map(function (User $unit) use ($modules, $totalRequirements) {
-            $moduleRows = $modules->map(function (Module $module) use ($unit) {
+            $approvedTotalCount = 0;
+            $revisionTotalCount = 0;
+            $pendingValidationTotalCount = 0;
+
+            $moduleRows = $modules->map(function (Module $module) use ($unit, &$approvedTotalCount, &$revisionTotalCount, &$pendingValidationTotalCount) {
                 $uploaded = 0;
+                $approved = 0;
+                $revision = 0;
+                $pendingValidation = 0;
                 $total = $module->requirements->count();
+
+                $requirementDetails = [];
 
                 foreach ($module->requirements as $requirement) {
                     $submission = Submission::query()
@@ -109,27 +118,61 @@ class ReportController extends Controller
                         ->latestForUnit()
                         ->first();
 
+                    $statusLabel = 'Belum Diunggah';
+                    $statusKey = 'pending';
+
                     if ($submission && $submission->status !== SubmissionStatus::Pending) {
                         $uploaded++;
+                        if ($submission->status === SubmissionStatus::Approved) {
+                            $approved++;
+                            $approvedTotalCount++;
+                            $statusLabel = 'Sesuai (Divalidasi)';
+                            $statusKey = 'approved';
+                        } elseif ($submission->status === SubmissionStatus::Revision) {
+                            $revision++;
+                            $revisionTotalCount++;
+                            $statusLabel = 'Perlu Revisi';
+                            $statusKey = 'revision';
+                        } else {
+                            $pendingValidation++;
+                            $pendingValidationTotalCount++;
+                            $statusLabel = 'Menunggu Validasi';
+                            $statusKey = 'uploaded';
+                        }
                     }
+
+                    $requirementDetails[] = [
+                        'title'            => $requirement->title,
+                        'status_key'       => $statusKey,
+                        'status_label'     => $statusLabel,
+                        'validation_notes' => $submission?->validation_notes,
+                        'validated_at'     => $submission?->validated_at,
+                    ];
                 }
 
                 return [
-                    'module' => $module,
-                    'uploaded' => $uploaded,
-                    'total' => $total,
-                    'progressPercent' => $total > 0 ? round(($uploaded / $total) * 100) : 0,
+                    'module'            => $module,
+                    'uploaded'          => $uploaded,
+                    'approved'          => $approved,
+                    'revision'          => $revision,
+                    'pendingValidation' => $pendingValidation,
+                    'total'             => $total,
+                    'progressPercent'   => $total > 0 ? round(($uploaded / $total) * 100) : 0,
+                    'requirements'      => $requirementDetails,
                 ];
             });
 
             $uploadedCount = (int) $moduleRows->sum('uploaded');
 
             return [
-                'user' => $unit,
-                'modules' => $moduleRows,
-                'uploadedCount' => $uploadedCount,
-                'totalRequirements' => $totalRequirements,
-                'progressPercent' => $totalRequirements > 0 ? round(($uploadedCount / $totalRequirements) * 100) : 0,
+                'user'                   => $unit,
+                'modules'                => $moduleRows,
+                'uploadedCount'          => $uploadedCount,
+                'approvedCount'          => $approvedTotalCount,
+                'revisionCount'          => $revisionTotalCount,
+                'pendingValidationCount' => $pendingValidationTotalCount,
+                'totalRequirements'      => $totalRequirements,
+                'progressPercent'        => $totalRequirements > 0 ? round(($uploadedCount / $totalRequirements) * 100) : 0,
             ];
         })->all();
     }
