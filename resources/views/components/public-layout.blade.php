@@ -17,10 +17,9 @@
     <link rel="canonical" href="{{ $pageUrl }}">
 
     <!-- Favicons & Apple Touch Icons -->
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=3">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon.ico') }}?v=3">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-192.png') }}?v=3">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/favicon-192.png') }}?v=3">
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=4" sizes="any">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/favicon-192.png') }}?v=4">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/favicon-192.png') }}?v=4">
 
     <!-- Meta SEO & Keywords -->
     <meta name="description" content="{{ $pageDesc }}">
