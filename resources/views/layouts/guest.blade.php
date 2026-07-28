@@ -8,10 +8,10 @@
         <title>SILADATA - Sistem Layanan Dokumen Akreditasi Perguruan Tinggi & LAM Infokom</title>
 
         <!-- Favicons & Apple Touch Icons -->
-        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=2">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/logoname.png') }}?v=2">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logoname.png') }}?v=2">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/logoname.png') }}?v=2">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=3">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon.ico') }}?v=3">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-192.png') }}?v=3">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/favicon-192.png') }}?v=3">
 
         <link rel="canonical" href="{{ url()->current() }}">
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
