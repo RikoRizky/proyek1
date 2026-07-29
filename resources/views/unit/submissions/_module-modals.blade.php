@@ -167,7 +167,7 @@
                                         <div class="min-w-0 flex-1">
                                             <p class="text-xs font-bold text-rose-700">Total berkas melebihi batas request:</p>
                                             <p class="mt-1 text-[11px] text-rose-600">
-                                                Total ukuran berkas terpilih adalah <span id="total-size-current-{{ $req->id }}" class="font-bold">0 MB</span>, melebihi batas total request server sebesar <span class="font-bold">{{ $postMaxSizeLabel }}</span>.
+                                                Total ukuran berkas terpilih adalah <span id="total-size-current-{{ $req->id }}" class="font-bold">0 MB</span>, melebihi batas total maksimal sebesar <span class="font-bold">{{ $maxUploadMb }} MB</span>.
                                             </p>
                                             <p class="mt-1.5 text-[11px] text-rose-600">Silakan hapus beberapa berkas atau kurangi dokumen agar dapat diunggah bersamaan.</p>
                                         </div>
@@ -459,7 +459,8 @@
             const oversizedInList = files.filter(f => f.size > MAX_UPLOAD_BYTES);
             const validFiles = files.filter(f => f.size <= MAX_UPLOAD_BYTES);
             const totalBytes = validFiles.reduce((sum, f) => sum + f.size, 0);
-            const isTotalOver = totalBytes > POST_MAX_SIZE_BYTES;
+            const TOTAL_MAX_BYTES = Math.min(POST_MAX_SIZE_BYTES, MAX_UPLOAD_BYTES);
+            const isTotalOver = totalBytes > TOTAL_MAX_BYTES;
 
             files.forEach((file, idx) => {
                 const sizeKb = (file.size / 1024).toFixed(1);
