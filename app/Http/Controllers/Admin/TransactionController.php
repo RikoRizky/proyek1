@@ -10,6 +10,11 @@ class TransactionController extends Controller
 {
     public function index(Request $request)
     {
+        // Auto-cleanup: Tandai transaksi pending yang umurnya lebih dari 2 jam sebagai failed
+        Transaction::where('status', 'pending')
+            ->where('created_at', '<', now()->subHours(2))
+            ->update(['status' => 'failed']);
+
         $query = Transaction::latest();
         
         if ($request->has('status') && in_array($request->status, ['pending', 'success', 'failed'])) {
