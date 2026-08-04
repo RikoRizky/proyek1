@@ -41,7 +41,11 @@ class PasswordResetLinkController extends Controller
             return back()->with('status', 'Silakan cek email Anda untuk ubah sandi');
         }
 
+        $errorMessage = $status == Password::INVALID_USER 
+            ? 'Alamat email tidak Terdaftar.' 
+            : __($status);
+
         return back()->withInput($request->only('email'))
-                     ->withErrors(['email' => __($status)]);
+                     ->withErrors(['email' => $errorMessage]);
     }
 }
