@@ -22,55 +22,41 @@
     $packages = [
         [
             'name' => 'Starter',
-            'price' => 'Rp 499.000',
-            'description' => '1 Perguruan Tinggi & 1 Program Studi',
+            'price' => 'Rp 1.500.000',
+            'description' => 'Institusi kecil yang baru mencoba',
             'features' => [
-                'Upload hingga 100 dokumen',
-                'Penyimpanan 5 GB',
-                'Dashboard Monitoring',
-                'Kategori Dokumen LAM'
+                'Maksimal 3 Akun Prodi',
+                'Upload Dokumen via Link (Google Drive)',
+                'Dashboard Monitoring Progress'
             ]
         ],
         [
-            'name' => 'Basic',
-            'price' => 'Rp 1.499.000',
-            'description' => 'Hingga 5 Program Studi',
-            'features' => [
-                'Upload hingga 1.000 dokumen',
-                'Penyimpanan 25 GB',
-                'Multi User',
-                'Export Laporan'
-            ]
-        ],
-        [
-            'name' => 'Professional',
-            'price' => 'Rp 3.999.000',
+            'name' => 'Pro',
+            'price' => 'Rp 3.500.000',
             'featured' => true,
-            'description' => 'Pilihan Terbaik',
+            'description' => 'Terbaik untuk institusi menengah',
             'features' => [
-                'Hingga 20 Program Studi',
-                'Upload 10.000 dokumen',
-                'Penyimpanan 100 GB',
-                'Approval Dokumen',
-                'Backup Otomatis'
+                'Semua Fitur Paket Starter',
+                'Maksimal 10 Akun Prodi',
+                'Bisa Upload File (Storage 10GB)',
+                'Cetak Laporan PDF'
             ]
         ],
         [
             'name' => 'Enterprise',
-            'price' => 'Hubungi Kami',
-            'description' => 'Universitas Besar',
+            'price' => 'Rp 7.500.000',
+            'description' => 'Universitas besar dengan banyak prodi',
             'features' => [
-                'Program Studi Tak Terbatas',
-                'Dokumen Tak Terbatas',
-                'SSO',
-                'Dedicated Support'
+                'Semua Fitur Paket Pro',
+                'Akun Program Studi Tidak Terbatas',
+                'Bisa Upload File (Storage 50GB)'
             ]
         ]
     ];
     @endphp
 
     <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div class="grid gap-8 md:grid-cols-2 xl:grid-cols-4 items-stretch">
+        <div class="grid gap-8 md:grid-cols-3 items-stretch">
             @foreach($packages as $package)
                 <div class="
                     flex flex-col justify-between rounded-3xl p-8 transition-all duration-300
@@ -115,23 +101,18 @@
                     </div>
 
                     <div class="mt-8">
-                        @if($package['price'] === 'Hubungi Kami')
-                            <a href="https://wa.me/62881023300457?text=Halo%20SILADATA,%20saya%20tertarik%20dengan%20Paket%20Enterprise" 
-                               target="_blank"
-                               class="block w-full text-center rounded-xl py-3 font-semibold transition-colors duration-200 bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-900/10">
-                                Hubungi Sales
-                            </a>
-                        @else
-                            <a href="https://wa.me/62881023300457?text=Halo%20SILADATA,%20saya%20tertarik%20untuk%20berlangganan%20Paket%20{{ $package['name'] }}"
-                               target="_blank"
-                               class="block w-full text-center rounded-xl py-3 font-semibold transition-colors duration-200
-                                {{ isset($package['featured'])
-                                    ? 'bg-white text-violet-700 hover:bg-slate-50 shadow-lg shadow-black/10'
-                                    : 'bg-violet-600 text-white hover:bg-violet-700 shadow-lg shadow-violet-600/15'
-                                }}">
-                                Mulai Sekarang
-                            </a>
-                        @endif
+                        <a href="{{ route('checkout.form', ['package' => $package['name']]) }}"
+                           class="block w-full text-center rounded-xl py-3 font-semibold transition-colors duration-200
+                            @if(isset($package['featured']))
+                                bg-white text-violet-700 hover:bg-slate-50 shadow-lg shadow-black/10
+                            @elseif($package['name'] === 'Enterprise')
+                                bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-900/10
+                            @else
+                                bg-violet-600 text-white hover:bg-violet-700 shadow-lg shadow-violet-600/15
+                            @endif
+                            ">
+                            Mulai Sekarang
+                        </a>
                     </div>
                 </div>
             @endforeach

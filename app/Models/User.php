@@ -20,6 +20,8 @@ class User extends Authenticatable
         'role',
         'password',
         'profile_photo_path',
+        'active_package',
+        'package_valid_until',
     ];
 
     protected $hidden = [
@@ -31,8 +33,9 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
-            'role'              => UserRole::class,
+            'password'            => 'hashed',
+            'role'                => UserRole::class,
+            'package_valid_until' => 'datetime',
         ];
     }
 

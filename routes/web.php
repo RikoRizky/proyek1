@@ -25,6 +25,20 @@ Route::get('/harga', function () {
 Route::get('/diskusi', [DiscussionController::class, 'show'])->name('discussion');
 Route::post('/diskusi', [DiscussionController::class, 'store'])->name('discussion.store');
 
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\MidtransWebhookController;
+use App\Http\Controllers\PertiRegistrationController;
+
+Route::get('/checkout/{package}', [CheckoutController::class, 'showForm'])->name('checkout.form');
+Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/checkout/payment/{order_id}', [CheckoutController::class, 'payment'])->name('checkout.payment');
+Route::get('/payment/finish', [CheckoutController::class, 'finish'])->name('checkout.finish');
+
+Route::post('/midtrans/webhook', [MidtransWebhookController::class, 'handle']);
+
+Route::get('/register-perti/{token}', [PertiRegistrationController::class, 'showForm'])->name('register-perti.form');
+Route::post('/register-perti/{token}', [PertiRegistrationController::class, 'process'])->name('register-perti.process');
+
 Route::get('/sitemap.xml', function () {
     $baseUrl = config('app.url', url('/'));
     $today = date('Y-m-d');
@@ -93,6 +107,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Upgrade/Extend flow for logged in users
+    Route::get('/upgrade', [CheckoutController::class, 'upgradePackages'])->name('upgrade.packages');
+    Route::post('/upgrade/process', [CheckoutController::class, 'processUpgrade'])->name('upgrade.process');
 });
 
 require __DIR__.'/auth.php';
