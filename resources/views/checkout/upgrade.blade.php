@@ -68,11 +68,18 @@
                             <input type="hidden" name="package" value="{{ $package['name'] }}">
                             
                             @php
-                                $isCurrent = auth()->user()->active_package === $package['name'];
+                                $hierarchy = ['Starter' => 1, 'Pro' => 2, 'Enterprise' => 3];
+                                $userPackage = auth()->user()->active_package;
+                                $userLevel = $userPackage && isset($hierarchy[$userPackage]) ? $hierarchy[$userPackage] : 0;
+                                $currentLevel = isset($hierarchy[$package['name']]) ? $hierarchy[$package['name']] : 0;
+                                $isDowngrade = $currentLevel < $userLevel;
+                                $isCurrent = $userPackage === $package['name'];
                             @endphp
 
-                            <button type="submit" class="block w-full text-center rounded-xl py-3 font-semibold transition-colors duration-200
-                                @if($isCurrent && isset($package['featured']))
+                            <button type="{{ $isDowngrade ? 'button' : 'submit' }}" class="block w-full text-center rounded-xl py-3 font-semibold transition-colors duration-200
+                                @if($isDowngrade)
+                                    bg-slate-200 text-slate-400 cursor-not-allowed shadow-none
+                                @elseif($isCurrent && isset($package['featured']))
                                     bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-black/10
                                 @elseif($isCurrent)
                                     bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-900/10
@@ -83,8 +90,9 @@
                                 @else
                                     bg-violet-600 text-white hover:bg-violet-700 shadow-lg shadow-violet-600/15
                                 @endif
-                                ">
-                                {{ $isCurrent ? 'Perpanjang Paket Ini' : 'Pilih Paket' }}
+                                "
+                                {{ $isDowngrade ? 'disabled' : '' }}>
+                                {{ $isDowngrade ? 'Tidak Tersedia' : ($isCurrent ? 'Perpanjang Paket Ini' : 'Pilih Paket') }}
                             </button>
                         </form>
                     </div>

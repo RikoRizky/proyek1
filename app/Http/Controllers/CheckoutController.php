@@ -198,6 +198,18 @@ class CheckoutController extends Controller
         $packageName = $request->package;
         $amount = 0;
 
+        $user = auth()->user();
+
+        // Prevent downgrade logic
+        $hierarchy = ['Starter' => 1, 'Pro' => 2, 'Enterprise' => 3];
+        $userPackage = $user->active_package;
+
+        if ($userPackage && isset($hierarchy[$userPackage]) && isset($hierarchy[$packageName])) {
+            if ($hierarchy[$packageName] < $hierarchy[$userPackage]) {
+                return back()->with('error', 'Anda tidak dapat melakukan downgrade ke paket yang lebih rendah.');
+            }
+        }
+
         // Pricing logic
         if ($packageName === 'Starter') {
             $amount = 1500000;
@@ -208,8 +220,6 @@ class CheckoutController extends Controller
         } else {
             return back()->with('error', 'Paket tidak valid.');
         }
-
-        $user = auth()->user();
 
         // Create transaction in database explicitly linked to logged in user
         $transaction = \App\Models\Transaction::create([
