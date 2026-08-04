@@ -164,7 +164,7 @@
             </div>
         @endif
 
-        <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <!-- Program Studi -->
             <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
                 <div class="flex items-center justify-between">
@@ -220,20 +220,6 @@
                 <p class="mt-4 text-xs {{ $stats['pendingValidationCount'] > 0 ? 'font-bold text-amber-800' : 'font-medium text-slate-500' }}">
                     {{ $stats['pendingValidationCount'] > 0 ? 'Menunggu pemeriksaan Perti' : 'Semua dokumen divalidasi' }}
                 </p>
-            </div>
-
-            <!-- Total Terunggah -->
-            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Terunggah</p>
-                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                        </svg>
-                    </span>
-                </div>
-                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['uploadedLatest'] }}</p>
-                <p class="mt-4 text-xs font-medium text-slate-500">Total seluruh prodi</p>
             </div>
         </div>
 

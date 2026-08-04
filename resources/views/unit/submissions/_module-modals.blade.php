@@ -600,7 +600,7 @@
                 <button type="button" onclick="closeDetailValidationModal()" class="absolute top-4 right-4 text-white/80 hover:text-white rounded-full p-1 transition">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
                 </button>
-                <p class="text-[11px] font-bold uppercase tracking-wider text-violet-200">Catatan Validasi Perti</p>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-violet-200">Catatan Revisi Perti</p>
                 <h3 class="mt-1 text-lg font-extrabold text-white leading-snug" id="detailValTitle">Persyaratan</h3>
                 <p class="mt-1 text-xs text-violet-100" id="detailValDate"></p>
             </div>
