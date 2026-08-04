@@ -69,8 +69,14 @@
 
         <!-- Transactions Table -->
         <div class="ui-card overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
+            <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
                 <h2 class="text-lg font-bold text-slate-800">Daftar Transaksi Masuk</h2>
+                <div class="flex flex-wrap gap-2">
+                    <a href="{{ route('admin.transactions.index') }}" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all {{ !request('status') ? 'bg-slate-900 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Semua</a>
+                    <a href="{{ route('admin.transactions.index', ['status' => 'pending']) }}" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all {{ request('status') === 'pending' ? 'bg-amber-500 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Pending</a>
+                    <a href="{{ route('admin.transactions.index', ['status' => 'success']) }}" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all {{ request('status') === 'success' ? 'bg-emerald-500 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Sukses</a>
+                    <a href="{{ route('admin.transactions.index', ['status' => 'failed']) }}" class="px-4 py-2 rounded-lg text-sm font-semibold transition-all {{ request('status') === 'failed' ? 'bg-rose-500 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Gagal</a>
+                </div>
             </div>
             
             <div class="overflow-x-auto">

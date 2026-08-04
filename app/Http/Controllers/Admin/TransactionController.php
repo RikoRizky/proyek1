@@ -8,9 +8,16 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $transactions = Transaction::latest()->paginate(15);
+        $query = Transaction::latest();
+        
+        if ($request->has('status') && in_array($request->status, ['pending', 'success', 'failed'])) {
+            $query->where('status', $request->status);
+        }
+        
+        $transactions = $query->paginate(15)->withQueryString();
+        
         $totalRevenue = Transaction::where('status', 'success')->sum('amount');
         
         $starterCount = \App\Models\User::where('active_package', 'Starter')->count();
