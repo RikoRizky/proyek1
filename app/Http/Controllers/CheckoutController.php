@@ -83,6 +83,10 @@ class CheckoutController extends Controller
                     'quantity' => $transaction->duration_years ?: 1,
                     'name' => 'Paket Langganan ' . $transaction->package_name,
                 ]
+            ],
+            'custom_expiry' => [
+                'expiry_duration' => 2,
+                'unit' => 'hour'
             ]
         ];
 
