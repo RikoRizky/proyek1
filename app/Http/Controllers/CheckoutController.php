@@ -87,7 +87,12 @@ class CheckoutController extends Controller
         ];
 
         try {
-            $snapToken = \Midtrans\Snap::getSnapToken($params);
+            if ($transaction->snap_token) {
+                $snapToken = $transaction->snap_token;
+            } else {
+                $snapToken = \Midtrans\Snap::getSnapToken($params);
+                $transaction->update(['snap_token' => $snapToken]);
+            }
             return view('checkout.payment', compact('transaction', 'snapToken'));
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal memproses pembayaran: ' . $e->getMessage());

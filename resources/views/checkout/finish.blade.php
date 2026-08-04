@@ -38,7 +38,7 @@
                 <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Menunggu Pembayaran</h1>
                 <p class="text-slate-600 mb-6">Silakan selesaikan pembayaran Anda menggunakan metode yang dipilih. Jika sudah membayar, harap tunggu beberapa saat hingga sistem memverifikasi.</p>
                 
-                <a href="{{ route('checkout.payment', $transaction->order_id) }}" class="inline-block rounded-xl bg-violet-600 px-6 py-3 font-semibold text-white hover:bg-violet-500">Lihat Cara Bayar</a>
+                <a href="{{ route('checkout.payment', $transaction->order_id) }}" class="inline-block rounded-xl bg-violet-600 px-6 py-3 font-semibold text-white hover:bg-violet-500">Lanjutkan Pembayaran</a>
             @else
                 <div class="text-red-500 mb-4 text-6xl">❌</div>
                 <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Pembayaran Gagal / Dibatalkan</h1>

@@ -16,6 +16,7 @@ class Transaction extends Model
         'customer_name',
         'customer_email',
         'status',
+        'snap_token',
         'registration_token',
         'is_registered',
         'user_id',

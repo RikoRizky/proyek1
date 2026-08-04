@@ -60,13 +60,18 @@
             @endif
         </div>
 
-        <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
-            @if (Route::has('register'))
-                <a href="{{ route('register') }}" class="ui-btn-secondary order-2 flex-1 justify-center sm:order-1 sm:flex-initial">Daftar</a>
-            @endif
-            <x-primary-button class="order-1 flex-1 justify-center sm:order-2 sm:flex-initial">
-                Masuk
-            </x-primary-button>
+        <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-between sm:items-center">
+            <a href="{{ route('home') }}" class="text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors order-2 sm:order-1 text-center sm:text-left">
+                &larr; Kembali ke Beranda
+            </a>
+            <div class="flex flex-col sm:flex-row gap-3 order-1 sm:order-2">
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="ui-btn-secondary flex-1 justify-center sm:flex-initial">Daftar</a>
+                @endif
+                <x-primary-button class="flex-1 justify-center sm:flex-initial">
+                    Masuk
+                </x-primary-button>
+            </div>
         </div>
         @unless (Route::has('register'))
             <p class="pt-4 text-center text-xs leading-relaxed text-slate-500">

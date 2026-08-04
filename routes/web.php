@@ -58,6 +58,7 @@ Route::get('/dashboard', DashboardController::class)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', AdminDashboardController::class)->name('home');
     Route::get('analytics', AnalyticsController::class)->name('analytics');
+    Route::get('transactions', [App\Http\Controllers\Admin\TransactionController::class, 'index'])->name('transactions.index');
     Route::get('discussions', [AdminDiscussionController::class, 'index'])->name('discussions.index');
 
     // Manajemen akun: Admin CRUD
