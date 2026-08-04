@@ -19,8 +19,12 @@ class NewPasswordController extends Controller
     /**
      * Display the password reset view.
      */
-    public function create(Request $request): View
+    public function create(Request $request)
     {
+        if (!$request->email || !\Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->exists()) {
+            return redirect()->route('login')->with('status', 'Tautan reset kata sandi tidak valid atau sudah digunakan.');
+        }
+
         return view('auth.reset-password', ['request' => $request]);
     }
 
@@ -56,7 +60,7 @@ class NewPasswordController extends Controller
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
         return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
+                    ? redirect()->route('login')->with('status', 'Kata sandi berhasil diperbarui! Silakan masuk kembali menggunakan kata sandi baru Anda.')
                     : back()->withInput($request->only('email'))
                         ->withErrors(['email' => __($status)]);
     }
