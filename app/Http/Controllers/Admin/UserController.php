@@ -45,14 +45,19 @@ class UserController extends Controller
             ->withQueryString();
 
         $prodis = User::query()
-            ->where('role', UserRole::Prodi)
+            ->select('users.*')
+            ->where('users.role', UserRole::Prodi)
             ->with(['prodiProfile.perti.user'])
+            ->leftJoin('prodis', 'users.id', '=', 'prodis.user_id')
+            ->leftJoin('pertis', 'prodis.perti_id', '=', 'pertis.id')
+            ->leftJoin('users as perti_users', 'pertis.user_id', '=', 'perti_users.id')
             ->when($search, fn ($q) => $q->where(fn ($q2) =>
-                $q2->where('name', 'like', "%{$search}%")
-                   ->orWhere('email', 'like', "%{$search}%")
+                $q2->where('users.name', 'like', "%{$search}%")
+                   ->orWhere('users.email', 'like', "%{$search}%")
             ))
-            ->orderBy('name')
-            ->paginate(10, ['*'], 'prodi_page')
+            ->orderBy('perti_users.name')
+            ->orderBy('users.name')
+            ->paginate(20, ['users.*'], 'prodi_page')
             ->withQueryString();
 
         return view('admin.users.index', compact('admins', 'pertis', 'prodis', 'search'));

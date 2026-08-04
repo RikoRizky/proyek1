@@ -4,8 +4,23 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class CheckoutController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class CheckoutController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware(function ($request, $next) {
+                if (auth()->check() && auth()->user()->role === \App\Enums\UserRole::Prodi) {
+                    return redirect()->route('dashboard')->with('error', 'Pembayaran dan perpanjangan langganan hanya dapat dilakukan oleh akun Universitas (Perti). Silakan hubungi Administrator institusi Anda.');
+                }
+                return $next($request);
+            }),
+        ];
+    }
+
     public function showForm($package)
     {
         $validPackages = ['Starter', 'Pro', 'Enterprise'];

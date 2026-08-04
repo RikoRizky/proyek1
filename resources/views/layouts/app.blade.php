@@ -40,7 +40,17 @@
             {{-- In-flow gutter: fixed sidebar does not reserve width in flex layout; this matches lg:w-64 aside --}}
             <div class="hidden shrink-0 select-none lg:block lg:w-64" aria-hidden="true"></div>
 
-            <div class="flex min-h-0 min-w-0 flex-1 flex-col">
+            <div class="flex min-h-0 min-w-0 flex-1 flex-col relative">
+                @if(auth()->check() && auth()->user()->role !== \App\Enums\UserRole::Admin && auth()->user()->effective_package_valid_until && auth()->user()->effective_package_valid_until < now())
+                    <div class="bg-rose-600 px-4 py-2.5 text-white sm:px-6 lg:px-8 text-center flex flex-col sm:flex-row items-center justify-center gap-3 shadow-md z-[100] sticky top-0 relative">
+                        <div class="font-bold flex items-center gap-1.5 text-sm">
+                            <svg class="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            Masa Berlaku Paket Anda Telah Habis!
+                        </div>
+                        <span class="text-xs sm:text-sm opacity-90 hidden md:inline">Akun ini beralih ke Mode Read-Only (Hanya Baca).</span>
+                        <a href="{{ route('upgrade.packages') }}" class="bg-white text-rose-600 px-4 py-1.5 rounded-full text-xs font-black hover:bg-rose-50 transition-colors shadow-sm ml-auto sm:ml-0 mt-2 sm:mt-0 uppercase tracking-wide">Perpanjang Sekarang</a>
+                    </div>
+                @endif
                 @isset($header)
                     <header class="sticky top-0 z-20 shrink-0 border-b border-slate-200/60 bg-white/85 shadow-sm backdrop-blur-lg">
                         <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">

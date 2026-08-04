@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureUserRole::class,
         ]);
+        $middleware->web(append: [
+            \App\Http\Middleware\CheckSubscriptionStatus::class,
+        ]);
         $middleware->validateCsrfTokens(except: [
             'midtrans/webhook',
         ]);

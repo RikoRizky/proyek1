@@ -104,6 +104,7 @@
                     <tr>
                         <th>Nama Institusi</th>
                         <th>Email</th>
+                        <th>Paket</th>
                         <th>Kode PT</th>
                         <th>Jml. Prodi</th>
                         <th class="text-right">Aksi</th>
@@ -114,6 +115,17 @@
                         <tr>
                             <td class="font-semibold text-slate-900">{{ $u->name }}</td>
                             <td class="text-slate-600">{{ $u->email }}</td>
+                            <td class="text-slate-500 text-sm">
+                                @if($u->active_package === 'Enterprise')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-violet-100 text-violet-700 border border-violet-200">Enterprise</span>
+                                @elseif($u->active_package === 'Pro')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">Pro</span>
+                                @elseif($u->active_package === 'Starter')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">Starter</span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-slate-50 text-slate-400 border border-slate-100">Free</span>
+                                @endif
+                            </td>
                             <td class="text-slate-500 text-sm">{{ $u->pertiProfile?->kode_pt ?? '-' }}</td>
                             <td class="text-slate-700 font-medium">{{ $u->pertiProfile?->prodis->count() ?? 0 }}</td>
                             <td class="text-right text-sm font-semibold">
@@ -163,19 +175,28 @@
                     <tr>
                         <th>Nama Program Studi</th>
                         <th>Email</th>
-                        <th>Perguruan Tinggi</th>
                         <th>Kode Prodi</th>
                         <th class="text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @php $currentPerti = null; @endphp
                     @forelse ($prodis as $u)
-                        <tr>
-                            <td class="font-semibold text-slate-900">{{ $u->name }}</td>
+                        @php $pertiName = $u->prodiProfile?->perti?->user?->name ?? 'Tanpa Institusi / Independen'; @endphp
+                        @if($currentPerti !== $pertiName)
+                            <tr class="bg-slate-50/80 border-y border-slate-100">
+                                <td colspan="4" class="px-4 py-2.5 text-xs font-black text-slate-600 uppercase tracking-wider">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        {{ $pertiName }}
+                                    </div>
+                                </td>
+                            </tr>
+                            @php $currentPerti = $pertiName; @endphp
+                        @endif
+                        <tr class="hover:bg-slate-50/50">
+                            <td class="font-semibold text-slate-900 pl-6">{{ $u->name }}</td>
                             <td class="text-slate-600">{{ $u->email }}</td>
-                            <td class="text-slate-700 text-sm">
-                                {{ $u->prodiProfile?->perti?->user?->name ?? '-' }}
-                            </td>
                             <td class="text-slate-500 text-sm">{{ $u->prodiProfile?->kode_prodi ?? '-' }}</td>
                             <td class="text-right text-sm font-semibold">
                                 <a href="{{ route('admin.prodis.edit', $u) }}" class="text-violet-600 hover:text-violet-500">Edit</a>
