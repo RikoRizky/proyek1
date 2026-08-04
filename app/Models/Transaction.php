@@ -19,6 +19,7 @@ class Transaction extends Model
         'registration_token',
         'is_registered',
         'user_id',
+        'duration_years',
     ];
 
     public function user()

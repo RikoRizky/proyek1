@@ -76,6 +76,19 @@
                                 $isCurrent = $userPackage === $package['name'];
                             @endphp
 
+                            @if(!$isDowngrade)
+                            <div class="mb-4">
+                                <label for="years_{{ $package['name'] }}" class="block text-sm font-medium {{ isset($package['featured']) ? 'text-violet-100' : 'text-slate-700' }} mb-1">Durasi Langganan</label>
+                                <select name="years" id="years_{{ $package['name'] }}" class="mt-1 block w-full rounded-lg border-slate-200 py-2.5 pl-3 pr-10 text-base text-slate-900 focus:border-violet-500 focus:outline-none focus:ring-violet-500 sm:text-sm shadow-sm bg-white">
+                                    <option value="1">1 Tahun</option>
+                                    <option value="2">2 Tahun</option>
+                                    <option value="3">3 Tahun</option>
+                                    <option value="4">4 Tahun</option>
+                                    <option value="5">5 Tahun</option>
+                                </select>
+                            </div>
+                            @endif
+
                             <button type="{{ $isDowngrade ? 'button' : 'submit' }}" class="block w-full text-center rounded-xl py-3 font-semibold transition-colors duration-200
                                 @if($isDowngrade)
                                     bg-slate-200 text-slate-400 cursor-not-allowed shadow-none

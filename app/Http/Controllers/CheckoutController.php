@@ -79,8 +79,8 @@ class CheckoutController extends Controller
             'item_details' => [
                 [
                     'id' => 'PKG-'.$transaction->package_name,
-                    'price' => $transaction->amount,
-                    'quantity' => 1,
+                    'price' => $transaction->duration_years ? ($transaction->amount / $transaction->duration_years) : $transaction->amount,
+                    'quantity' => $transaction->duration_years ?: 1,
                     'name' => 'Paket Langganan ' . $transaction->package_name,
                 ]
             ]
@@ -124,9 +124,9 @@ class CheckoutController extends Controller
                         $user = \App\Models\User::find($transaction->user_id);
                         if ($user) {
                             $currentValidUntil = $user->package_valid_until;
-                            $newValidUntil = now()->addYear();
+                            $newValidUntil = now()->addYears($transaction->duration_years ?? 1);
                             if ($currentValidUntil && $currentValidUntil->isFuture()) {
-                                $newValidUntil = $currentValidUntil->addYear();
+                                $newValidUntil = $currentValidUntil->addYears($transaction->duration_years ?? 1);
                             }
                             $user->update([
                                 'active_package' => $transaction->package_name,
@@ -193,9 +193,11 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'package' => 'required|string',
+            'years' => 'required|integer|min:1|max:5',
         ]);
 
         $packageName = $request->package;
+        $years = (int) $request->years;
         $amount = 0;
 
         $user = auth()->user();
@@ -211,29 +213,29 @@ class CheckoutController extends Controller
         }
 
         // Pricing logic
+        $baseAmount = 0;
         if ($packageName === 'Starter') {
-            $amount = 1500000;
+            $baseAmount = 1500000;
         } elseif ($packageName === 'Pro') {
-            $amount = 3500000;
+            $baseAmount = 3500000;
         } elseif ($packageName === 'Enterprise') {
-            $amount = 7500000;
+            $baseAmount = 7500000;
         } else {
             return back()->with('error', 'Paket tidak valid.');
         }
+
+        $amount = $baseAmount * $years;
 
         // Create transaction in database explicitly linked to logged in user
         $transaction = \App\Models\Transaction::create([
             'order_id' => 'TRX-' . time() . '-' . uniqid(),
             'package_name' => $packageName,
+            'amount' => $amount,
             'customer_name' => $user->name,
             'customer_email' => $user->email,
-            'amount' => $amount,
             'status' => 'pending',
             'user_id' => $user->id,
-            // is_registered should be false, or true since they are already registered? 
-            // Wait, is_registered means 'has completed perti registration after this payment'.
-            // For upgrades, they don't need to do perti registration. 
-            // So we can set it to true to avoid showing them the registration button.
+            'duration_years' => $years,
             'is_registered' => true, 
         ]);
 

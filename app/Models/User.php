@@ -84,6 +84,22 @@ class User extends Authenticatable
 
     // ─── Accessories ─────────────────────────────────────────────────
 
+    public function getEffectivePackageAttribute()
+    {
+        if ($this->isProdi() && $this->prodiProfile && $this->prodiProfile->perti && $this->prodiProfile->perti->user) {
+            return $this->prodiProfile->perti->user->active_package;
+        }
+        return $this->active_package;
+    }
+
+    public function getEffectivePackageValidUntilAttribute()
+    {
+        if ($this->isProdi() && $this->prodiProfile && $this->prodiProfile->perti && $this->prodiProfile->perti->user) {
+            return $this->prodiProfile->perti->user->package_valid_until;
+        }
+        return $this->package_valid_until;
+    }
+
     public function getProfilePhotoUrlAttribute(): string
     {
         return $this->profile_photo_path

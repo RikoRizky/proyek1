@@ -8,8 +8,9 @@
 
     <div class="mx-auto max-w-3xl space-y-6">
         
+        @if(!auth()->user()->isAdmin())
         {{-- Subscription Info Card --}}
-        <div class="ui-card p-6 sm:p-8 border-l-4 {{ (auth()->user()->package_valid_until && auth()->user()->package_valid_until->diffInDays(now()) <= 30) ? 'border-amber-500 bg-amber-50/30' : 'border-violet-600' }}">
+        <div class="ui-card p-6 sm:p-8 border-l-4 {{ (auth()->user()->effective_package_valid_until && auth()->user()->effective_package_valid_until->diffInDays(now()) <= 30) ? 'border-amber-500 bg-amber-50/30' : 'border-violet-600' }}">
             <div class="max-w-xl">
                 <header>
                     <h2 class="text-lg font-medium text-slate-900">
@@ -24,18 +25,18 @@
                     <div class="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
                         <div>
                             <p class="text-sm font-medium text-slate-500 mb-1">Paket Aktif</p>
-                            <p class="text-xl font-bold text-violet-700">{{ auth()->user()->active_package ?? 'Belum Ada Paket' }}</p>
+                            <p class="text-xl font-bold text-violet-700">{{ auth()->user()->effective_package ?? 'Belum Ada Paket' }}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-sm font-medium text-slate-500 mb-1">Berlaku Hingga</p>
                             <p class="text-lg font-semibold text-slate-800">
-                                {{ auth()->user()->package_valid_until ? auth()->user()->package_valid_until->translatedFormat('d F Y') : '-' }}
+                                {{ auth()->user()->effective_package_valid_until ? auth()->user()->effective_package_valid_until->translatedFormat('d F Y') : '-' }}
                             </p>
                         </div>
                     </div>
 
                     @php
-                        $validUntil = auth()->user()->package_valid_until;
+                        $validUntil = auth()->user()->effective_package_valid_until;
                         $isExpiringSoon = $validUntil && $validUntil->isFuture() && now()->addDays(30)->gte($validUntil);
                         $isExpired = $validUntil && $validUntil->isPast();
                     @endphp
@@ -58,14 +59,21 @@
                         </div>
                     @endif
 
+                    @if(!auth()->user()->isProdi())
                     <div class="pt-4 flex items-center gap-4">
                         <a href="{{ route('upgrade.packages') }}" class="inline-flex items-center px-4 py-2 bg-violet-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-500 focus:bg-violet-500 active:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            {{ auth()->user()->active_package ? 'Perpanjang / Upgrade Paket' : 'Pilih Paket' }}
+                            {{ auth()->user()->effective_package ? 'Perpanjang / Upgrade Paket' : 'Pilih Paket' }}
                         </a>
                     </div>
+                    @else
+                    <div class="pt-4">
+                        <p class="text-xs text-slate-500 text-center">Pengaturan dan perpanjangan paket dikelola oleh administrator Perguruan Tinggi Anda.</p>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
+        @endif
 
         <div class="ui-card p-6 sm:p-8">
             <div class="max-w-xl">

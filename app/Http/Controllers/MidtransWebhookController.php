@@ -72,11 +72,11 @@ class MidtransWebhookController extends Controller
             $user = \App\Models\User::find($trx->user_id);
             if ($user) {
                 $currentValidUntil = $user->package_valid_until;
-                $newValidUntil = now()->addYear();
+                $newValidUntil = now()->addYears($trx->duration_years ?? 1);
                 
                 // If they already have an active package that hasn't expired, extend it
                 if ($currentValidUntil && $currentValidUntil->isFuture()) {
-                    $newValidUntil = $currentValidUntil->addYear();
+                    $newValidUntil = $currentValidUntil->addYears($trx->duration_years ?? 1);
                 }
 
                 $user->update([
