@@ -119,9 +119,6 @@
                     <a href="{{ route('harga') }}" class="rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 {{ request()->routeIs('harga') ? 'bg-violet-50 text-violet-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
                         Harga
                     </a>
-                    <a href="{{ route('discussion') }}" class="rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 {{ request()->routeIs('discussion') ? 'bg-violet-50 text-violet-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
-                        Diskusi
-                    </a>
                 </nav>
                 <div class="h-5 w-px bg-slate-200 hidden sm:block"></div>
                 @auth
