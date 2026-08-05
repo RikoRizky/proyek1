@@ -57,7 +57,7 @@ class PertiController extends Controller
             'alamat'  => $validated['alamat'] ?? null,
         ]);
 
-        return redirect()->route('admin.pertis.index')->with('status', 'Akun Perguruan Tinggi berhasil dibuat.');
+        return redirect()->route('admin.users.index')->with('status', 'Akun Perguruan Tinggi berhasil dibuat.');
     }
 
     public function edit(User $perti): View
@@ -96,7 +96,7 @@ class PertiController extends Controller
             ]
         );
 
-        return redirect()->route('admin.pertis.index')->with('status', 'Data Perguruan Tinggi berhasil diperbarui.');
+        return redirect()->route('admin.users.index')->with('status', 'Data Perguruan Tinggi berhasil diperbarui.');
     }
 
     public function destroy(User $perti): RedirectResponse
@@ -106,6 +106,6 @@ class PertiController extends Controller
         // Hapus user → cascade ke pertis → cascade ke prodis
         $perti->delete();
 
-        return redirect()->route('admin.pertis.index')->with('status', 'Akun Perguruan Tinggi dihapus.');
+        return redirect()->route('admin.users.index')->with('status', 'Akun Perguruan Tinggi dihapus.');
     }
 }

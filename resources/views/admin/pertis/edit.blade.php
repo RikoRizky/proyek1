@@ -44,7 +44,7 @@
             </div>
             <div class="flex flex-wrap gap-3 pt-2">
                 <button type="submit" class="ui-btn-primary">Simpan perubahan</button>
-                <a href="{{ route('admin.pertis.index') }}" class="ui-btn-secondary">Batal</a>
+                <a href="{{ route('admin.users.index') }}" class="ui-btn-secondary">Batal</a>
             </div>
         </form>
     </div>
