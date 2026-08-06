@@ -10,12 +10,14 @@
          HERO SECTION
     ═══════════════════════════════════════════ --}}
     <section class="relative overflow-hidden py-20 sm:py-28 lg:py-36">
-        {{-- Animated background blobs --}}
-        <div class="pointer-events-none absolute -top-40 -right-40 h-96 w-96 rounded-full bg-violet-400/20 blur-3xl"></div>
-        <div class="pointer-events-none absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-indigo-400/15 blur-3xl"></div>
-        <div class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-violet-200/10 blur-[80px]"></div>
+        {{-- Background illustration --}}
+        <div class="pointer-events-none absolute inset-0 z-0"
+             style="background-image: url('{{ asset('images/bg-2.png') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
+        {{-- Gradient color overlay --}}
+        <div class="pointer-events-none absolute inset-0 z-[1]"
+             style="background: linear-gradient(135deg, rgba(237,233,254,0.55) 0%, rgba(238,242,255,0.35) 50%, rgba(224,231,255,0.45) 100%);"></div>
 
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mx-auto max-w-4xl text-center">
                 {{-- Badge --}}
                 <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-200/60 bg-white/60 px-4 py-1.5 text-sm font-semibold text-violet-700 shadow-sm backdrop-blur-sm">
