@@ -19,31 +19,102 @@
             </p>
 
             {{-- Cara Kerja Singkat --}}
-            <div class="mt-10 inline-flex flex-wrap justify-center gap-2 rounded-2xl bg-white/70 border border-slate-200/60 px-6 py-4 shadow-sm backdrop-blur-sm text-sm text-slate-600">
-                <span class="flex items-center gap-2 font-medium">
-                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700">1</span>
-                    Pilih Paket
-                </span>
-                <span class="text-slate-300">→</span>
-                <span class="flex items-center gap-2 font-medium">
-                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700">2</span>
-                    Isi Data
-                </span>
-                <span class="text-slate-300">→</span>
-                <span class="flex items-center gap-2 font-medium">
-                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700">3</span>
-                    Bayar via Midtrans
-                </span>
-                <span class="text-slate-300">→</span>
-                <span class="flex items-center gap-2 font-medium">
-                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">4</span>
-                    Link Akun via Email
-                </span>
-                <span class="text-slate-300">→</span>
-                <span class="flex items-center gap-2 font-medium">
-                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">5</span>
-                    Akun Aktif ✓
-                </span>
+            <div class="mt-10 w-full max-w-4xl mx-auto">
+                <p class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-6">Cara Kerja</p>
+
+                {{-- Desktop: horizontal stepper --}}
+                <div class="hidden sm:flex items-start justify-between relative">
+                    {{-- Connector line behind steps --}}
+                    <div class="absolute top-6 left-0 right-0 h-0.5 bg-gradient-to-r from-violet-200 via-blue-200 to-emerald-200 z-0 mx-[calc(10%)]"></div>
+
+                    @php
+                    $steps = [
+                        [
+                            'num'   => '1',
+                            'label' => 'Pilih Paket',
+                            'sub'   => 'Sesuai kebutuhan kampus',
+                            'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>',
+                            'ring'  => 'ring-violet-200',
+                            'bg'    => 'bg-violet-600',
+                            'text'  => 'text-violet-700',
+                            'soft'  => 'bg-violet-50',
+                        ],
+                        [
+                            'num'   => '2',
+                            'label' => 'Isi Data',
+                            'sub'   => 'Data institusi & email',
+                            'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
+                            'ring'  => 'ring-purple-200',
+                            'bg'    => 'bg-purple-600',
+                            'text'  => 'text-purple-700',
+                            'soft'  => 'bg-purple-50',
+                        ],
+                        [
+                            'num'   => '3',
+                            'label' => 'Bayar via Midtrans',
+                            'sub'   => 'Transfer, VA, kartu kredit',
+                            'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>',
+                            'ring'  => 'ring-blue-200',
+                            'bg'    => 'bg-blue-600',
+                            'text'  => 'text-blue-700',
+                            'soft'  => 'bg-blue-50',
+                        ],
+                        [
+                            'num'   => '4',
+                            'label' => 'Link via Email',
+                            'sub'   => 'Link aktivasi otomatis',
+                            'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
+                            'ring'  => 'ring-indigo-200',
+                            'bg'    => 'bg-indigo-600',
+                            'text'  => 'text-indigo-700',
+                            'soft'  => 'bg-indigo-50',
+                        ],
+                        [
+                            'num'   => '5',
+                            'label' => 'Akun Aktif',
+                            'sub'   => 'Siap pakai sekarang!',
+                            'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>',
+                            'ring'  => 'ring-emerald-200',
+                            'bg'    => 'bg-emerald-500',
+                            'text'  => 'text-emerald-700',
+                            'soft'  => 'bg-emerald-50',
+                        ],
+                    ];
+                    @endphp
+
+                    @foreach($steps as $step)
+                    <div class="relative z-10 flex flex-1 flex-col items-center gap-3 px-2">
+                        {{-- Circle badge --}}
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full {{ $step['bg'] }} ring-4 {{ $step['ring'] }} shadow-md">
+                            <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                {!! $step['icon'] !!}
+                            </svg>
+                        </div>
+                        {{-- Label --}}
+                        <div class="text-center">
+                            <p class="text-sm font-bold text-slate-800 leading-tight">{{ $step['label'] }}</p>
+                            <p class="mt-0.5 text-xs text-slate-400 leading-snug">{{ $step['sub'] }}</p>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                {{-- Mobile: vertical stepper --}}
+                <div class="sm:hidden flex flex-col gap-0 rounded-2xl bg-white/80 border border-slate-200/70 shadow-sm backdrop-blur-sm overflow-hidden divide-y divide-slate-100">
+                    @foreach($steps as $step)
+                    <div class="flex items-center gap-4 px-5 py-4">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full {{ $step['bg'] }} shadow">
+                            <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                {!! $step['icon'] !!}
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">{{ $step['label'] }}</p>
+                            <p class="text-xs text-slate-400">{{ $step['sub'] }}</p>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
             </div>
         </div>
     </section>
