@@ -2,6 +2,7 @@
     title="Harga Paket SILADATA" 
     description="Daftar harga paket Sistem Layanan Dokumen Akreditasi (SILADATA) untuk perguruan tinggi dan program studi berdasarkan LAM Infokom. Pilih paket sesuai kebutuhan kampus Anda."
 >
+
     {{-- ═══════════════════════════════════════════
          HERO SECTION
     ═══════════════════════════════════════════ --}}
