@@ -167,11 +167,21 @@
                                 </button>
                             </form>
 
-                            <a href="{{ route('perti.submissions.view', [$submission, 'action' => 'revision']) }}"
-                                class="inline-flex items-center gap-1.5 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition shadow-sm">
-                                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg>
-                                {{ $status === SubmissionStatus::Revision ? 'Edit Catatan Revisi' : 'Perlu Revisi' }}
-                            </a>
+                            @if (auth()->user()->isSubscriptionExpired())
+                                <form action="{{ route('perti.submissions.validate', $submission) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition shadow-sm">
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg>
+                                        {{ $status === SubmissionStatus::Revision ? 'Edit Catatan Revisi' : 'Perlu Revisi' }}
+                                    </button>
+                                </form>
+                            @else
+                                <a href="{{ route('perti.submissions.view', [$submission, 'action' => 'revision']) }}"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 transition shadow-sm">
+                                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg>
+                                    {{ $status === SubmissionStatus::Revision ? 'Edit Catatan Revisi' : 'Perlu Revisi' }}
+                                </a>
+                            @endif
                         </div>
                     @endif
                 </li>

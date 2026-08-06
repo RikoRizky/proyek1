@@ -100,6 +100,15 @@ class User extends Authenticatable
         return $this->package_valid_until;
     }
 
+    public function isSubscriptionExpired(): bool
+    {
+        if ($this->isAdmin()) {
+            return false;
+        }
+        $validUntil = $this->effective_package_valid_until;
+        return $validUntil && $validUntil < now();
+    }
+
     public function getProfilePhotoUrlAttribute(): string
     {
         return $this->profile_photo_path

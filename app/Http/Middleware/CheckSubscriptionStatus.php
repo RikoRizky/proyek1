@@ -26,10 +26,20 @@ class CheckSubscriptionStatus
             // Check if subscription has expired using effective expiry (handles Prodi inheriting Perti's expiry)
             if ($user->effective_package_valid_until && $user->effective_package_valid_until < now()) {
                 
-                // Block any modifying requests
-                if (in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+                $isModifyingRequest = in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE']);
+                
+                $blockedGetRoutes = [
+                    'perti.prodis.create',
+                    'perti.prodis.edit',
+                    'perti.reports.pdf',
+                    'unit.reports.pdf'
+                ];
+                $isBlockedGet = $request->method() === 'GET' && in_array($request->route()?->getName(), $blockedGetRoutes);
+
+                // Block any modifying requests or specific GET requests
+                if ($isModifyingRequest || $isBlockedGet) {
                     
-                    // Allow essential routes to pass through
+                    // Allow essential routes to pass through (only relevant for POST/PUT/DELETE)
                     $allowedRoutes = [
                         'logout',
                         'profile.update',
