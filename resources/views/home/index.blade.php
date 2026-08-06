@@ -87,6 +87,60 @@
             </div>
         </div>
     </section>
+{{-- ═══════════════════════════════════════════
+         TENTANG SILADATA
+    ═══════════════════════════════════════════ --}}
+    <section id="about" class="py-20 sm:py-28">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="grid gap-16 lg:grid-cols-2 items-center">
+                <div>
+                    <span class="inline-flex rounded-full bg-violet-100 px-4 py-1.5 text-sm font-semibold text-violet-700">
+                        Tentang SILADATA
+                    </span>
+                    <h2 class="mt-4 text-3xl font-bold text-slate-900 leading-tight sm:text-4xl">
+                        Platform Digital Akreditasi yang <span class="text-violet-600">Terintegrasi</span>
+                    </h2>
+                    <p class="mt-5 text-slate-600 leading-relaxed">
+                        <strong class="text-slate-800">SILADATA</strong> merupakan platform digital terintegrasi yang dirancang khusus untuk membantu perguruan tinggi dan program studi dalam mengelola, mengunggah, dan memantau berkas akreditasi sesuai kriteria <strong class="text-slate-800">LAM Infokom</strong> serta lembaga akreditasi mandiri lainnya (LAMEMBA, LAM-PTKes, LAMDIK, dll).
+                    </p>
+                    <p class="mt-4 text-slate-600 leading-relaxed">
+                        Dengan sistem pengunggahan yang terstruktur, validasi bertingkat, dan pemantauan real-time, SILADATA mempermudah persiapan LED dan LKPS sehingga institusi siap menghadapi asesmen akreditasi secara efektif, efisien, dan transparan.
+                    </p>
+
+                    <div class="mt-8 grid gap-4 sm:grid-cols-2">
+                        @foreach(['Sesuai Kriteria LAM Infokom', 'Manajemen Dokumen Terpusat', 'Monitoring Progress per Prodi', 'Penyimpanan Cloud Terstruktur'] as $item)
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                                    <svg class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                <span class="text-sm font-medium text-slate-700">{{ $item }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Stats Grid --}}
+                <div class="grid grid-cols-2 gap-5">
+                    <div class="rounded-3xl bg-gradient-to-br from-violet-600 to-indigo-600 p-7 text-white shadow-xl shadow-violet-500/20">
+                        <p class="text-4xl font-black">1.300+</p>
+                        <p class="mt-2 text-sm font-medium text-violet-200">Kampus bergabung di seluruh Indonesia</p>
+                    </div>
+                    <div class="rounded-3xl bg-white border border-slate-200 p-7 shadow-sm">
+                        <p class="text-4xl font-black text-slate-900">99.9%</p>
+                        <p class="mt-2 text-sm font-medium text-slate-500">Uptime layanan server yang terjamin</p>
+                    </div>
+                    <div class="rounded-3xl bg-white border border-slate-200 p-7 shadow-sm">
+                        <p class="text-4xl font-black text-slate-900">4</p>
+                        <p class="mt-2 text-sm font-medium text-slate-500">LAM didukung: Infokom, EMBA, PTKes, DIK</p>
+                    </div>
+                    <div class="rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-500 p-7 text-white shadow-xl shadow-emerald-500/20">
+                        <p class="text-4xl font-black">24/7</p>
+                        <p class="mt-2 text-sm font-medium text-emerald-100">Dukungan tim kami selalu siap membantu</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     {{-- ═══════════════════════════════════════════
          FITUR UTAMA
@@ -140,61 +194,6 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-900">Keamanan Data</h3>
                     <p class="mt-2 text-sm text-slate-600 leading-relaxed">Data dokumen dilindungi dengan enkripsi end-to-end dan akses berbasis peran yang ketat.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- ═══════════════════════════════════════════
-         TENTANG SILADATA
-    ═══════════════════════════════════════════ --}}
-    <section id="about" class="py-20 sm:py-28">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="grid gap-16 lg:grid-cols-2 items-center">
-                <div>
-                    <span class="inline-flex rounded-full bg-violet-100 px-4 py-1.5 text-sm font-semibold text-violet-700">
-                        Tentang SILADATA
-                    </span>
-                    <h2 class="mt-4 text-3xl font-bold text-slate-900 leading-tight sm:text-4xl">
-                        Platform Digital Akreditasi yang <span class="text-violet-600">Terintegrasi</span>
-                    </h2>
-                    <p class="mt-5 text-slate-600 leading-relaxed">
-                        <strong class="text-slate-800">SILADATA</strong> merupakan platform digital terintegrasi yang dirancang khusus untuk membantu perguruan tinggi dan program studi dalam mengelola, mengunggah, dan memantau berkas akreditasi sesuai kriteria <strong class="text-slate-800">LAM Infokom</strong> serta lembaga akreditasi mandiri lainnya (LAMEMBA, LAM-PTKes, LAMDIK, dll).
-                    </p>
-                    <p class="mt-4 text-slate-600 leading-relaxed">
-                        Dengan sistem pengunggahan yang terstruktur, validasi bertingkat, dan pemantauan real-time, SILADATA mempermudah persiapan LED dan LKPS sehingga institusi siap menghadapi asesmen akreditasi secara efektif, efisien, dan transparan.
-                    </p>
-
-                    <div class="mt-8 grid gap-4 sm:grid-cols-2">
-                        @foreach(['Sesuai Kriteria LAM Infokom', 'Manajemen Dokumen Terpusat', 'Monitoring Progress per Prodi', 'Penyimpanan Cloud Terstruktur'] as $item)
-                            <div class="flex items-center gap-3">
-                                <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100">
-                                    <svg class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                                </div>
-                                <span class="text-sm font-medium text-slate-700">{{ $item }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                {{-- Stats Grid --}}
-                <div class="grid grid-cols-2 gap-5">
-                    <div class="rounded-3xl bg-gradient-to-br from-violet-600 to-indigo-600 p-7 text-white shadow-xl shadow-violet-500/20">
-                        <p class="text-4xl font-black">1.300+</p>
-                        <p class="mt-2 text-sm font-medium text-violet-200">Kampus bergabung di seluruh Indonesia</p>
-                    </div>
-                    <div class="rounded-3xl bg-white border border-slate-200 p-7 shadow-sm">
-                        <p class="text-4xl font-black text-slate-900">99.9%</p>
-                        <p class="mt-2 text-sm font-medium text-slate-500">Uptime layanan server yang terjamin</p>
-                    </div>
-                    <div class="rounded-3xl bg-white border border-slate-200 p-7 shadow-sm">
-                        <p class="text-4xl font-black text-slate-900">4</p>
-                        <p class="mt-2 text-sm font-medium text-slate-500">LAM didukung: Infokom, EMBA, PTKes, DIK</p>
-                    </div>
-                    <div class="rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-500 p-7 text-white shadow-xl shadow-emerald-500/20">
-                        <p class="text-4xl font-black">24/7</p>
-                        <p class="mt-2 text-sm font-medium text-emerald-100">Dukungan tim kami selalu siap membantu</p>
-                    </div>
                 </div>
             </div>
         </div>
