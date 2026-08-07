@@ -6,9 +6,18 @@
     {{-- ═══════════════════════════════════════════
          HERO SECTION
     ═══════════════════════════════════════════ --}}
+
+    {{-- Wrapper dengan bg yang cover hero + cards --}}
+    <div class="relative">
+        {{-- Background illustration --}}
+        <div class="pointer-events-none absolute inset-0 z-0"
+             style="background-image: url('{{ asset('images/bg harga 1.png') }}'); background-size: cover; background-position: center top; background-repeat: no-repeat;"></div>
+        {{-- Bottom fade → blend ke FAQ section --}}
+        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-48 z-[1]"
+             style="background: linear-gradient(to bottom, transparent, #f5f3ff);"></div>
+
     <section class="relative overflow-hidden py-20 sm:py-24 text-center">
-        <div class="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-violet-200/20 blur-3xl"></div>
-        <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <div class="relative z-10 mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
             <span class="inline-flex rounded-full bg-violet-100 px-4 py-1.5 text-sm font-semibold text-violet-700">
                 Harga Layanan
             </span>
@@ -174,11 +183,11 @@
     ];
     @endphp
 
-    <div class="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+    <div class="relative z-10 mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <div class="grid gap-6 md:grid-cols-3 items-stretch">
             @foreach($packages as $package)
                 <div class="group relative flex flex-col justify-between rounded-3xl p-8 transition-all duration-300 hover:-translate-y-1
-                    {{ isset($package['featured']) ? 'bg-gradient-to-b from-violet-600 to-indigo-700 text-white shadow-2xl shadow-violet-500/25 scale-[1.03] z-10 ring-4 ring-violet-500/20' : 'bg-white border border-slate-200/80 shadow-sm hover:shadow-xl' }}">
+                    {{ isset($package['featured']) ? 'bg-gradient-to-b from-violet-600 to-indigo-700 text-white shadow-2xl shadow-violet-500/40 scale-[1.05] z-10 ring-4 ring-violet-400/30' : 'bg-white border border-slate-200 shadow-lg shadow-slate-200/60 hover:shadow-xl hover:shadow-slate-300/50' }}">
 
                     {{-- Badge Terbaik --}}
                     @if(isset($package['featured']))
@@ -248,14 +257,16 @@
                     {{-- CTA Tombol --}}
                     <div class="mt-8">
                         <a href="{{ route('checkout.form', ['package' => $package['name']]) }}"
-                           class="block w-full text-center rounded-2xl py-3.5 text-sm font-bold transition-all duration-200 hover:scale-[1.02]
+                           class="block w-full text-center rounded-2xl py-4 text-sm font-bold transition-all duration-200 hover:scale-[1.02] hover:opacity-90"
+                           style="
                             @if(isset($package['featured']))
-                                bg-white text-violet-700 hover:bg-slate-50 shadow-lg shadow-black/10
+                                background: #ffffff; color: #7c3aed; box-shadow: 0 4px 14px rgba(0,0,0,0.12);
                             @elseif($package['name'] === 'Enterprise')
-                                bg-slate-900 text-white hover:bg-slate-800 shadow-md
+                                background: #0f172a; color: #ffffff; box-shadow: 0 4px 12px rgba(15,23,42,0.3);
                             @else
-                                bg-violet-600 text-white hover:bg-violet-700 shadow-md shadow-violet-600/20
-                            @endif">
+                                background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #ffffff; box-shadow: 0 4px 14px rgba(124,58,237,0.4);
+                            @endif
+                           ">
                             Pesan Paket Ini →
                         </a>
                     </div>
@@ -263,6 +274,7 @@
             @endforeach
         </div>
     </div>
+    </div>{{-- end bg wrapper --}}
 
     {{-- ═══════════════════════════════════════════
          FAQ SECTION

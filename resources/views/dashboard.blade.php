@@ -20,62 +20,77 @@
             $pertiPercents = $pertiGrouped->map(fn ($group) => round($group->avg('percent'), 1))->values()->all();
         @endphp
 
+        {{-- Welcome Banner Admin --}}
+        <div class="mb-6 relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 sm:p-8 shadow-xl shadow-violet-500/20 text-white">
+            <div class="relative z-10">
+                <p class="text-violet-300 text-xs font-bold uppercase tracking-widest">Admin · SILADATA</p>
+                <h2 class="mt-1.5 text-xl font-black sm:text-2xl">Selamat datang, {{ auth()->user()->name }}! 👋</h2>
+                <p class="mt-1 text-sm text-violet-200">{{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
+            </div>
+            <div class="pointer-events-none absolute -right-8 -top-8 h-48 w-48 rounded-full bg-white/5"></div>
+            <div class="pointer-events-none absolute -bottom-6 right-24 h-32 w-32 rounded-full bg-white/5"></div>
+        </div>
+
         <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <!-- Total Perguruan Tinggi -->
-            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-5 shadow-lg shadow-slate-200/50 transition duration-200 hover:-translate-y-1 hover:shadow-xl">
+                <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-violet-500 to-indigo-500"></div>
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Perguruan Tinggi</p>
-                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-md shadow-violet-500/30">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5" />
                         </svg>
                     </span>
                 </div>
-                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['pertiCount'] }}</p>
-                <p class="mt-4 text-xs font-medium text-slate-500">Perguruan Tinggi terdaftar</p>
+                <p class="mt-4 text-3xl font-black tracking-tight text-slate-900">{{ $stats['pertiCount'] }}</p>
+                <p class="mt-2 text-xs font-medium text-slate-500">Perguruan Tinggi terdaftar</p>
             </div>
 
             <!-- Program Studi -->
-            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-5 shadow-lg shadow-slate-200/50 transition duration-200 hover:-translate-y-1 hover:shadow-xl">
+                <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-emerald-400 to-teal-500"></div>
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Program Studi</p>
-                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-md shadow-emerald-500/30">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342" />
                         </svg>
                     </span>
                 </div>
-                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['unitCount'] }}</p>
-                <p class="mt-4 text-xs font-medium text-slate-500">Total prodi di seluruh perti</p>
+                <p class="mt-4 text-3xl font-black tracking-tight text-slate-900">{{ $stats['unitCount'] }}</p>
+                <p class="mt-2 text-xs font-medium text-slate-500">Total prodi di seluruh perti</p>
             </div>
 
             <!-- Rata-rata Progress -->
-            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-5 shadow-lg shadow-slate-200/50 transition duration-200 hover:-translate-y-1 hover:shadow-xl">
+                <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-sky-400 to-blue-500"></div>
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Rata-rata Progress</p>
-                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-xs font-extrabold text-sky-600">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 text-white shadow-md shadow-sky-500/30 text-sm font-black">
                         %
                     </span>
                 </div>
-                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['average_percent'] }}%</p>
+                <p class="mt-4 text-3xl font-black tracking-tight text-slate-900">{{ $summary['average_percent'] }}%</p>
                 <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                    <div class="h-full rounded-full bg-sky-500 transition-all duration-500" style="width: {{ $summary['average_percent'] }}%"></div>
+                    <div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-500 transition-all duration-500" style="width: {{ $summary['average_percent'] }}%"></div>
                 </div>
                 <p class="mt-2 text-xs font-medium text-slate-500">Rata-rata kelengkapan nasional</p>
             </div>
 
             <!-- Prodi Lengkap -->
-            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-5 shadow-lg shadow-slate-200/50 transition duration-200 hover:-translate-y-1 hover:shadow-xl">
+                <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-amber-400 to-orange-500"></div>
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Prodi Lengkap</p>
-                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 003-3V8.25a3 3 0 00-3-3H9.75a3 3 0 00-3 3v7.5a3 3 0 003 3m9 0v-1.5m-9 1.5v-1.5" />
+                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-500/30">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </span>
                 </div>
-                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['complete_count'] }}</p>
-                <p class="mt-4 text-xs font-medium text-slate-500">Prodi progress 100%</p>
+                <p class="mt-4 text-3xl font-black tracking-tight text-slate-900">{{ $summary['complete_count'] }}</p>
+                <p class="mt-2 text-xs font-medium text-slate-500">Prodi progress 100%</p>
             </div>
         </div>
 
@@ -145,6 +160,17 @@
             $unitUploaded = collect($units)->pluck('uploaded')->values()->all();
         @endphp
 
+        {{-- Welcome Banner Perti --}}
+        <div class="mb-6 relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 sm:p-8 shadow-xl shadow-violet-500/20 text-white">
+            <div class="relative z-10">
+                <p class="text-violet-300 text-xs font-bold uppercase tracking-widest">Perguruan Tinggi · SILADATA</p>
+                <h2 class="mt-1.5 text-xl font-black sm:text-2xl">Selamat datang, {{ auth()->user()->name }}! 👋</h2>
+                <p class="mt-1 text-sm text-violet-200">{{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
+            </div>
+            <div class="pointer-events-none absolute -right-8 -top-8 h-48 w-48 rounded-full bg-white/5"></div>
+            <div class="pointer-events-none absolute -bottom-6 right-24 h-32 w-32 rounded-full bg-white/5"></div>
+        </div>
+
         @if (($stats['pendingValidationCount'] ?? 0) > 0)
             <div class="mb-6 flex flex-col gap-4 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-500 via-amber-600 to-indigo-600 p-5 text-white shadow-xl shadow-amber-500/10 sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex items-center gap-4">
@@ -166,58 +192,65 @@
 
         <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <!-- Program Studi -->
-            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-5 shadow-lg shadow-slate-200/50 transition duration-200 hover:-translate-y-1 hover:shadow-xl">
+                <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-emerald-400 to-teal-500"></div>
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Program Studi</p>
-                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-md shadow-emerald-500/30">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5" />
                         </svg>
                     </span>
                 </div>
-                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $stats['prodiCount'] }}</p>
-                <p class="mt-4 text-xs font-medium text-slate-500">Total prodi terdaftar</p>
+                <p class="mt-4 text-3xl font-black tracking-tight text-slate-900">{{ $stats['prodiCount'] }}</p>
+                <p class="mt-2 text-xs font-medium text-slate-500">Total prodi terdaftar</p>
             </div>
 
             <!-- Rata-rata Progress -->
-            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-5 shadow-lg shadow-slate-200/50 transition duration-200 hover:-translate-y-1 hover:shadow-xl">
+                <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-sky-400 to-blue-500"></div>
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Rata-rata Progress</p>
-                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-xs font-extrabold text-sky-600">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 text-white shadow-md shadow-sky-500/30 text-sm font-black">
                         %
                     </span>
                 </div>
-                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['average_percent'] }}%</p>
+                <p class="mt-4 text-3xl font-black tracking-tight text-slate-900">{{ $summary['average_percent'] }}%</p>
                 <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                    <div class="h-full rounded-full bg-sky-500 transition-all duration-500" style="width: {{ $summary['average_percent'] }}%"></div>
+                    <div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-500 transition-all duration-500" style="width: {{ $summary['average_percent'] }}%"></div>
                 </div>
                 <p class="mt-2 text-xs font-medium text-slate-500">Rata-rata kelengkapan</p>
             </div>
 
             <!-- Prodi Lengkap -->
-            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+            <div class="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-5 shadow-lg shadow-slate-200/50 transition duration-200 hover:-translate-y-1 hover:shadow-xl">
+                <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-amber-400 to-orange-500"></div>
                 <div class="flex items-center justify-between">
                     <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Prodi Lengkap</p>
-                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 003-3V8.25a3 3 0 00-3-3H9.75a3 3 0 00-3 3v7.5a3 3 0 003 3m9 0v-1.5m-9 1.5v-1.5" />
+                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-500/30">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </span>
                 </div>
-                <p class="mt-3 text-3xl font-extrabold tracking-tight text-slate-900">{{ $summary['complete_count'] }}</p>
-                <p class="mt-4 text-xs font-medium text-slate-500">Prodi progress 100%</p>
+                <p class="mt-4 text-3xl font-black tracking-tight text-slate-900">{{ $summary['complete_count'] }}</p>
+                <p class="mt-2 text-xs font-medium text-slate-500">Prodi progress 100%</p>
             </div>
 
             <!-- Perlu Divalidasi -->
-            <div class="ui-card relative overflow-hidden p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg {{ $stats['pendingValidationCount'] > 0 ? 'ring-2 ring-amber-500/40 bg-amber-50/40' : '' }}">
+            <div class="relative overflow-hidden rounded-2xl border p-5 shadow-lg transition duration-200 hover:-translate-y-1 hover:shadow-xl
+                {{ $stats['pendingValidationCount'] > 0 ? 'border-amber-300/60 bg-amber-50 shadow-amber-200/50' : 'border-slate-200/60 bg-white shadow-slate-200/50' }}">
+                <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl
+                    {{ $stats['pendingValidationCount'] > 0 ? 'bg-gradient-to-r from-amber-400 to-orange-400' : 'bg-gradient-to-r from-slate-300 to-slate-400' }}"></div>
                 <div class="flex items-center justify-between">
-                    <p class="text-xs font-bold uppercase tracking-wider {{ $stats['pendingValidationCount'] > 0 ? 'text-amber-800 font-extrabold' : 'text-slate-500' }}">Perlu Divalidasi</p>
-                    <span class="flex h-8 w-8 items-center justify-center rounded-xl {{ $stats['pendingValidationCount'] > 0 ? 'bg-amber-100 text-amber-700 animate-pulse font-black' : 'bg-slate-100 text-slate-400' }}">
+                    <p class="text-xs font-bold uppercase tracking-wider {{ $stats['pendingValidationCount'] > 0 ? 'text-amber-800' : 'text-slate-500' }}">Perlu Divalidasi</p>
+                    <span class="flex h-10 w-10 items-center justify-center rounded-2xl text-white shadow-md
+                        {{ $stats['pendingValidationCount'] > 0 ? 'bg-gradient-to-br from-amber-400 to-orange-500 shadow-amber-500/30 animate-pulse' : 'bg-gradient-to-br from-slate-300 to-slate-400 shadow-slate-300/30' }}">
                         {{ $stats['pendingValidationCount'] > 0 ? '!' : '✓' }}
                     </span>
                 </div>
-                <p class="mt-3 text-3xl font-extrabold tracking-tight {{ $stats['pendingValidationCount'] > 0 ? 'text-amber-900' : 'text-slate-900' }}">{{ $stats['pendingValidationCount'] }}</p>
-                <p class="mt-4 text-xs {{ $stats['pendingValidationCount'] > 0 ? 'font-bold text-amber-800' : 'font-medium text-slate-500' }}">
+                <p class="mt-4 text-3xl font-black tracking-tight {{ $stats['pendingValidationCount'] > 0 ? 'text-amber-900' : 'text-slate-900' }}">{{ $stats['pendingValidationCount'] }}</p>
+                <p class="mt-2 text-xs {{ $stats['pendingValidationCount'] > 0 ? 'font-bold text-amber-800' : 'font-medium text-slate-500' }}">
                     {{ $stats['pendingValidationCount'] > 0 ? 'Menunggu pemeriksaan Perti' : 'Semua dokumen divalidasi' }}
                 </p>
             </div>
@@ -393,6 +426,17 @@
             $moduleLabels = collect($progress['modules'])->pluck('short_label')->values()->all();
             $modulePercents = collect($progress['modules'])->pluck('percent')->values()->all();
         @endphp
+
+        {{-- Welcome Banner Prodi --}}
+        <div class="mb-6 relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 sm:p-8 shadow-xl shadow-violet-500/20 text-white">
+            <div class="relative z-10">
+                <p class="text-violet-300 text-xs font-bold uppercase tracking-widest">Program Studi · SILADATA</p>
+                <h2 class="mt-1.5 text-xl font-black sm:text-2xl">Selamat datang, {{ auth()->user()->name }}! 👋</h2>
+                <p class="mt-1 text-sm text-violet-200">{{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
+            </div>
+            <div class="pointer-events-none absolute -right-8 -top-8 h-48 w-48 rounded-full bg-white/5"></div>
+            <div class="pointer-events-none absolute -bottom-6 right-24 h-32 w-32 rounded-full bg-white/5"></div>
+        </div>
 
         <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <!-- Progress Keseluruhan -->
